@@ -103,44 +103,45 @@ export const TableSkeletonLoader: React.FC<TableSkeletonLoaderProps> = ({
   const tableData = useMemo(() => new Array(rowCount).fill(0), [rowCount]);
 
   return (
-    <StyledTableContainer
-      component={Paper}
-      hidecount={hideCount}
-      containerWidth={width}
-      containerHeight={height}
-    >
-      <Table sx={{ minWidth }} aria-label="skeleton loader table" stickyHeader>
-        <TableHead>
-          <TableRow>
-            {columns.map((column, index) => (
-              <StyledTableCell
-                key={column.title || column.value || index}
-                style={{
-                  ...column.style,
-                  backgroundColor: headerBgColor,
-                }}
-              >
-                {column.title || column.value}
-              </StyledTableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {tableData.map((_, rowIndex) => (
-            <TableRow key={rowIndex}>
-              {columns.map((column, colIndex) => (
+    <Paper sx={{ borderRadius: "0px 0px 10px 10px" }}>
+      <StyledTableContainer
+        hidecount={hideCount}
+        containerWidth={width}
+        containerHeight={height}
+      >
+        <Table sx={{ minWidth }} aria-label="skeleton loader table" stickyHeader>
+          <TableHead>
+            <TableRow>
+              {columns.map((column, index) => (
                 <StyledTableCell
-                  key={`${rowIndex}-${colIndex}`}
-                  style={column.style}
+                  key={column.title || column.value || index}
+                  style={{
+                    ...column.style,
+                    backgroundColor: headerBgColor,
+                  }}
                 >
-                  <Skeleton variant="rectangular" height={15} />
+                  {column.title || column.value}
                 </StyledTableCell>
               ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </StyledTableContainer>
+          </TableHead>
+          <TableBody>
+            {tableData.map((_, rowIndex) => (
+              <TableRow key={rowIndex}>
+                {columns.map((column, colIndex) => (
+                  <StyledTableCell
+                    key={`${rowIndex}-${colIndex}`}
+                    style={column.style}
+                  >
+                    <Skeleton variant="rectangular" height={15} />
+                  </StyledTableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </StyledTableContainer>
+    </Paper>
   );
 };
 

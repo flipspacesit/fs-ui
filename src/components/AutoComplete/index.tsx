@@ -114,7 +114,6 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
   const [inputWidth, setInputWidth] = useState<number | undefined>(undefined);
   const autoCompleteRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const popperRef = useRef<{ update: () => void } | null>(null);
 
   const openDropDown = () => {
     setIsDropdownOpen(true);
@@ -168,12 +167,6 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
     setFilteredOptions(options);
   }, [options]);
 
-  useEffect(() => {
-    if (popperRef.current) {
-      popperRef.current.update();
-    }
-  }, [isDropdownOpen, isFetchingOptions]);
-
   return (
     <AutoCompleteContainer ref={autoCompleteRef}>
       <Tooltip title={inputValue} placement="top">
@@ -221,7 +214,6 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
         open={isDropdownOpen && options.length > 0 && !isFetchingOptions}
         anchorEl={anchorEl}
         placement="bottom-start"
-        popperRef={popperRef}
         modifiers={[
           {
             name: "flip",
