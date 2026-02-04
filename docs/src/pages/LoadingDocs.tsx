@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import { Box, Typography, Button, Stack } from "@mui/material";
 import { DocSection, ExampleBox, PropsTable } from "../components/DocSection";
 import CodeBlock from "../components/CodeBlock";
-import {
-  LoadingSpinner,
-  OverlayLoading,
-  LoadingContainer,
-  InlineLoadingContainer,
-} from "../../../src";
+import { LoadingSpinner, OverlayLoading } from "../../../src";
 
 const LoadingDocs: React.FC = () => {
   const [loading, setLoading] = useState(false);

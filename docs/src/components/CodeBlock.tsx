@@ -7,7 +7,7 @@ interface CodeBlockProps {
   language?: string;
 }
 
-export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = "tsx" }) => {
+export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language: _language = "tsx" }) => {
   const [copied, setCopied] = React.useState(false);
 
   const handleCopy = () => {

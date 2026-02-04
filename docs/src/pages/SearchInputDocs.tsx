@@ -7,7 +7,7 @@ import { useSearchInput } from "../../../src/hooks/useSearchInput";
 
 const SearchInputDocs: React.FC = () => {
   const [controlled, setControlled] = useState("");
-  const { value, debouncedValue, setValue, clear } = useSearchInput("", 500);
+  const { value, debouncedValue, setValue } = useSearchInput("", 500);
 
   return (
     <Box>

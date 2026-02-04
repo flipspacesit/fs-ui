@@ -6,7 +6,7 @@ import CodeBlock from "../components/CodeBlock";
 const ColorSwatch: React.FC<{ name: string; color: string; textColor?: string }> = ({
   name,
   color,
-  textColor = "#1B1C1E",
+  textColor: _textColor = "#1B1C1E",
 }) => (
   <Paper
     variant="outlined"
