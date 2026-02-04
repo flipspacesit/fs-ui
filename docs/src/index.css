@@ -1,0 +1,51 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --scale: 1;
+  --sidebar-width: 260px;
+}
+
+body {
+  font-family: "Inter", "Roboto", "Helvetica", "Arial", sans-serif;
+  background-color: #f8fafc;
+}
+
+/* Syntax highlighting for code blocks */
+pre {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: "Fira Code", "Consolas", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+code {
+  font-family: "Fira Code", "Consolas", monospace;
+}
+
+.code-keyword {
+  color: #569cd6;
+}
+
+.code-string {
+  color: #ce9178;
+}
+
+.code-component {
+  color: #4ec9b0;
+}
+
+.code-prop {
+  color: #9cdcfe;
+}
+
+.code-comment {
+  color: #6a9955;
+}
