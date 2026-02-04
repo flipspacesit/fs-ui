@@ -22,7 +22,10 @@
     "build": "tsc && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "docs:dev": "cd docs && npm run dev",
+    "docs:build": "cd docs && npm run build",
+    "docs:install": "cd docs && npm install"
   },
   "peerDependencies": {
     "@emotion/react": "^11.0.0",

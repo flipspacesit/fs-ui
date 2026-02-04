@@ -8,50 +8,50 @@ import {
   SxProps,
   Theme,
 } from "@mui/material";
-import styled from "styled-components";
+import { styled } from "@mui/material/styles";
 import { ArrowDown } from "../../icons/ArrowDown";
 
-// Styled components for Accordion
-export const StyledAccordion = styled(MUIAccordion) <{ $borderColor?: string; $bgColor?: string }>`
-  border: 0.5px solid ${(props) => props.$borderColor || "#AEB6CE"};
-  border-radius: 4px !important;
-  margin: 6px 0 !important;
-  &:before {
-    display: none;
-  }
-  &.Mui-expanded {
-    margin: 6px 0 !important;
-  }
-  background-color: ${(props) => props.$bgColor || "#FFFFFF"};
-  box-shadow: none !important;
-`;
+// Styled components for Accordion using MUI styled
+export const StyledAccordion = styled(MUIAccordion)({
+  border: "0.5px solid #AEB6CE",
+  borderRadius: "4px !important",
+  margin: "6px 0 !important",
+  "&:before": {
+    display: "none",
+  },
+  "&.Mui-expanded": {
+    margin: "6px 0 !important",
+  },
+  backgroundColor: "#FFFFFF",
+  boxShadow: "none !important",
+});
 
-export const StyledAccordionSummary = styled(AccordionSummary) <{ $summaryBgColor?: string }>`
-  padding: 4px 12px;
-  min-height: auto !important;
-  border-radius: 4px;
-  background-color: ${(props) => props.$summaryBgColor || "#F0F4FF"};
-  & .MuiAccordionSummary-content {
-    margin: 0px !important;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border: none;
-  }
-  &.Mui-expanded {
-    background-color: transparent;
-    min-height: unset !important;
-  }
-  cursor: pointer;
-  transition: all 0.2s ease;
-`;
+export const StyledAccordionSummary = styled(AccordionSummary)({
+  padding: "4px 12px",
+  minHeight: "auto !important",
+  borderRadius: "4px",
+  backgroundColor: "#F0F4FF",
+  "& .MuiAccordionSummary-content": {
+    margin: "0px !important",
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    border: "none",
+  },
+  "&.Mui-expanded": {
+    backgroundColor: "transparent",
+    minHeight: "unset !important",
+  },
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+});
 
-export const StyledAccordionDetails = styled(AccordionDetails)`
-  background-color: #ffffff;
-  border-radius: 4px;
-  padding: 12px;
-  padding-top: 0px;
-`;
+export const StyledAccordionDetails = styled(AccordionDetails)({
+  backgroundColor: "#ffffff",
+  borderRadius: "4px",
+  padding: "12px",
+  paddingTop: "0px",
+});
 
 export interface AccordionProps {
   /** Title of the accordion - can be string or ReactNode */

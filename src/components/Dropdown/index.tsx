@@ -12,16 +12,16 @@ import {
   SxProps,
   Theme,
 } from "@mui/material";
-import styled from "styled-components";
+import { styled } from "@mui/material/styles";
 import { ArrowDown } from "../../icons/ArrowDown";
 import { CheckIcon } from "../../icons/Check";
 import { HEIGHTS, FontSizeMap, ComponentSize, ComponentVariant } from "../../constants";
 
-export const SortByContainer = styled.div`
-  display: flex;
-  align-items: center;
-  color: #1b1c1e;
-`;
+export const SortByContainer = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  color: "#1b1c1e",
+});
 
 export type DropdownSize = ComponentSize;
 export type DropdownVariant = ComponentVariant;

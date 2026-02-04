@@ -1,30 +1,30 @@
 import React from "react";
 import { Box, CircularProgress, Typography, SxProps, Theme } from "@mui/material";
-import styled from "styled-components";
+import { styled } from "@mui/material/styles";
 
 /**
  * Full-page loading container
  */
-export const LoadingContainer = styled(Box)`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  gap: 16px;
-`;
+export const LoadingContainer = styled(Box)({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  minHeight: "100vh",
+  gap: "16px",
+});
 
 /**
  * Inline loading container for sections
  */
-export const InlineLoadingContainer = styled(Box)`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 40px;
-  gap: 16px;
-`;
+export const InlineLoadingContainer = styled(Box)({
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: "40px",
+  gap: "16px",
+});
 
 export interface LoadingSpinnerProps {
   /** Loading message to display */

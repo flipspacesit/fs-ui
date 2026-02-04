@@ -36,10 +36,12 @@ jobs:
         run: npm run build
 
       - name: Install docs dependencies
-        run: npm run docs:install
+        working-directory: ./docs
+        run: npm install
 
       - name: Build docs
-        run: npm run docs:build
+        working-directory: ./docs
+        run: npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

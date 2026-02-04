@@ -2,6 +2,8 @@
 
 Flipspaces shared UI component library built with React, TypeScript, and Material-UI.
 
+**[View Documentation](https://flipspacesit.github.io/fs-ui/)** | [GitHub](https://github.com/flipspacesit/fs-ui)
+
 ## Installation
 
 ### Using npm
@@ -304,6 +306,23 @@ npm run build
 # Lint
 npm run lint
 ```
+
+## Documentation
+
+The documentation site includes live examples and API references for all components.
+
+```bash
+# Install docs dependencies
+npm run docs:install
+
+# Start docs dev server
+npm run docs:dev
+
+# Build docs for production
+npm run docs:build
+```
+
+The documentation is automatically deployed to GitHub Pages when changes are pushed to the main branch.
 
 ## Publishing to GitHub Packages
 
