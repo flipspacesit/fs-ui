@@ -54,9 +54,10 @@ export {
 
 export {
   SearchInput,
-  useSearchInput,
   type SearchInputProps,
 } from "./components/SearchInput";
+
+export { useSearchInput } from "./hooks/useSearchInput";
 
 export {
   StyledTableContainer,

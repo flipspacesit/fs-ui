@@ -12,7 +12,7 @@ import styled from "styled-components";
 import { ArrowDown } from "../../icons/ArrowDown";
 
 // Styled components for Accordion
-export const StyledAccordion = styled(MUIAccordion)<{ $borderColor?: string; $bgColor?: string }>`
+export const StyledAccordion = styled(MUIAccordion) <{ $borderColor?: string; $bgColor?: string }>`
   border: 0.5px solid ${(props) => props.$borderColor || "#AEB6CE"};
   border-radius: 4px !important;
   margin: 6px 0 !important;
@@ -26,7 +26,7 @@ export const StyledAccordion = styled(MUIAccordion)<{ $borderColor?: string; $bg
   box-shadow: none !important;
 `;
 
-export const StyledAccordionSummary = styled(AccordionSummary)<{ $summaryBgColor?: string }>`
+export const StyledAccordionSummary = styled(AccordionSummary) <{ $summaryBgColor?: string }>`
   padding: 4px 12px;
   min-height: auto !important;
   border-radius: 4px;
@@ -145,8 +145,8 @@ export const Accordion: React.FC<AccordionProps> = ({
               expandIcon && collapseIcon
                 ? "rotate(0deg)"
                 : isOpen
-                ? "rotate(180deg)"
-                : "rotate(0deg)",
+                  ? "rotate(180deg)"
+                  : "rotate(0deg)",
             transition: "transform 0.3s ease",
             marginLeft: expandIconPosition === "left" ? "0px" : "8px",
             marginRight: expandIconPosition === "left" ? "8px" : "0px",
@@ -220,22 +220,22 @@ export const AccordionGroup: React.FC<AccordionGroupProps> = ({
 
   const handleChange =
     (panelId: number) =>
-    (_event: React.SyntheticEvent, isExpanded: boolean) => {
-      if (disabled) return;
+      (_event: React.SyntheticEvent, isExpanded: boolean) => {
+        if (disabled) return;
 
-      if (allowMultiple) {
-        setExpanded((prevState) => {
-          const newState =
-            typeof prevState === "object" && prevState !== null
-              ? { ...prevState }
-              : {};
-          newState[panelId] = isExpanded;
-          return newState;
-        });
-      } else {
-        setExpanded(isExpanded ? panelId : false);
-      }
-    };
+        if (allowMultiple) {
+          setExpanded((prevState) => {
+            const newState =
+              typeof prevState === "object" && prevState !== null
+                ? { ...prevState }
+                : {};
+            newState[panelId] = isExpanded;
+            return newState;
+          });
+        } else {
+          setExpanded(isExpanded ? panelId : false);
+        }
+      };
 
   const isItemExpanded = (panelId: number): boolean => {
     if (allowMultiple && typeof expanded === "object" && expanded !== null) {
@@ -269,8 +269,8 @@ export const AccordionGroup: React.FC<AccordionGroupProps> = ({
                   : "rotate(0deg)",
                 transition: "transform 0.3s ease",
                 marginLeft: "8px",
-                ...accordionSummarySx,
               },
+              ...accordionSummarySx,
             }}
           >
             <Typography

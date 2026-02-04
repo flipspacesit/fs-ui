@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Stack,
   Typography,
@@ -94,7 +94,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   disabled = false,
   label = "",
   options = [],
-  onChange = () => {},
+  onChange = () => { },
   value = "",
   customPopperComponent = null,
   boxSx = {},
@@ -102,7 +102,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   paperSx = {},
   menuItemSx = {},
   menuListSx = {},
-  onClose = () => {},
+  onClose = () => { },
   arrowGap = "20px",
   showSelectedOptionIcon = false,
   selectedIconWrapperSx = {},
@@ -114,8 +114,18 @@ export const Dropdown: React.FC<DropdownProps> = ({
 }) => {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
+  const [anchorWidth, setAnchorWidth] = useState(200);
   const anchorRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
+
+  // Update anchor element and width when opening
+  useEffect(() => {
+    if (open && anchorRef.current) {
+      setAnchorEl(anchorRef.current);
+      setAnchorWidth(anchorRef.current.getBoundingClientRect().width);
+    }
+  }, [open]);
 
   const handleClick = (event: React.MouseEvent) => {
     event.preventDefault();
@@ -154,9 +164,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
     return option.value === value;
   };
 
-  const bgColorPalette = color
-    ? (theme?.palette as Record<string, { main?: string }>)?.[color]?.main
-    : undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const palette = theme?.palette as any;
+  const bgColorPalette = color ? palette?.[color]?.main : undefined;
 
   const filteredOptions = options?.filter(
     (option) =>
@@ -255,7 +265,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       </Stack>
       <Popper
         open={open && !disabled && options.length > 0}
-        anchorEl={anchorRef.current}
+        anchorEl={anchorEl}
         placement="bottom-start"
         modifiers={[
           {
@@ -274,9 +284,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
               border: "0.5px solid #C3D0F5",
               borderRadius: "8px",
               boxShadow: "0 4px 25px 0 rgba(209, 209, 230, 0.60)",
-              minWidth: anchorRef.current
-                ? anchorRef.current.getBoundingClientRect().width
-                : 200,
+              minWidth: anchorWidth,
               backgroundColor: "#FFFFFF",
               maxHeight: "300px",
               overflow: "auto",
@@ -286,8 +294,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
             {customPopperComponent ? (
               React.isValidElement(customPopperComponent) ? (
                 React.cloneElement(
-                  customPopperComponent as React.ReactElement<{ onClose?: typeof handleClose }>,
-                  { onClose: handleClose }
+                  customPopperComponent as React.ReactElement<{ onClose?: () => void }>,
+                  { onClose: () => { onClose(); setOpen(false); } }
                 )
               ) : (
                 customPopperComponent

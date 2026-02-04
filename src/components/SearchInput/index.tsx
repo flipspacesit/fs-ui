@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   TextField,
   InputAdornment,
@@ -83,19 +83,28 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   const [internalValue, setInternalValue] = useState("");
   const isControlled = controlledValue !== undefined;
   const value = isControlled ? controlledValue : internalValue;
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const debouncedOnChange = useCallback(
-    (() => {
-      let timeoutId: NodeJS.Timeout;
-      return (newValue: string) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          onChange?.(newValue);
-        }, debounceMs);
-      };
-    })(),
+    (newValue: string) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => {
+        onChange?.(newValue);
+      }, debounceMs);
+    },
     [onChange, debounceMs]
   );
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value;
@@ -165,36 +174,6 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       {...rest}
     />
   );
-};
-
-/**
- * Hook for managing search input state with debouncing
- */
-export const useSearchInput = (initialValue = "", debounceMs = 300) => {
-  const [value, setValue] = useState(initialValue);
-  const [debouncedValue, setDebouncedValue] = useState(initialValue);
-
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, debounceMs);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, debounceMs]);
-
-  const clear = useCallback(() => {
-    setValue("");
-    setDebouncedValue("");
-  }, []);
-
-  return {
-    value,
-    debouncedValue,
-    setValue,
-    clear,
-  };
 };
 
 export default SearchInput;

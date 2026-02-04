@@ -30,8 +30,10 @@ export const OpenDropDownButton: React.FC<OpenDropDownButtonProps> = ({
 }) => {
   const theme = useTheme();
 
-  const blueMain = (theme.palette as Record<string, { main?: string }>)?.blue?.main || "#3361FF";
-  const softSteelMain = (theme.palette as Record<string, { main?: string }>)?.softSteel?.main || "#AEB6CE";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const palette = theme.palette as any;
+  const blueMain = palette?.blue?.main || "#3361FF";
+  const softSteelMain = palette?.softSteel?.main || "#AEB6CE";
 
   return (
     <MUIButton
@@ -70,8 +72,10 @@ export const DropDownApplyButton: React.FC<DropDownApplyButtonProps> = ({
 }) => {
   const theme = useTheme();
 
-  const blue200 = (theme.palette as Record<string, Record<string, string>>)?.blue?.[200] || "#DEE7FF";
-  const blue300 = (theme.palette as Record<string, Record<string, string>>)?.blue?.[300] || "#C3D0F5";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const palette = theme.palette as any;
+  const blue200 = palette?.blue?.[200] || "#DEE7FF";
+  const blue300 = palette?.blue?.[300] || "#C3D0F5";
 
   return (
     <MUIButton

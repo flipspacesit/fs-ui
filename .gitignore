@@ -41,3 +41,7 @@ logs
 
 # TypeScript cache
 *.tsbuildinfo
+
+# Lock files
+package-lock.json
+yarn.lock
