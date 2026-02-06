@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import * as React from "react";
 import {
   Stack,
   Typography,
@@ -8,20 +8,22 @@ import {
   Paper,
   MenuList,
   MenuItem,
-  useTheme,
   SxProps,
   Theme,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import styled from "styled-components";
 import { ArrowDown } from "../../icons/ArrowDown";
+import { ArrowUp } from "../../icons/ArrowUp";
 import { CheckIcon } from "../../icons/Check";
 import { HEIGHTS, FontSizeMap, ComponentSize, ComponentVariant } from "../../constants";
+import { SearchInput } from "../SearchInput";
+import { theme } from "../../theme";
 
-export const SortByContainer = styled("div")({
-  display: "flex",
-  alignItems: "center",
-  color: "#1b1c1e",
-});
+export const SortByContainer = styled.div`
+  display: flex;
+  align-items: center;
+  color: #1b1c1e;
+`;
 
 export type DropdownSize = ComponentSize;
 export type DropdownVariant = ComponentVariant;
@@ -103,6 +105,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   menuItemSx = {},
   menuListSx = {},
   onClose = () => { },
+  isSearchRequired = false,
   arrowGap = "20px",
   showSelectedOptionIcon = false,
   selectedIconWrapperSx = {},
@@ -110,17 +113,20 @@ export const Dropdown: React.FC<DropdownProps> = ({
   endAdornmentIcon = null,
   endAdornmentIconGap = "10px",
   testid,
+  isAddEllipsis = false,
+  defaultValue = "",
   ...rest
 }) => {
-  const theme = useTheme();
-  const [open, setOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
-  const [anchorWidth, setAnchorWidth] = useState(200);
-  const anchorRef = useRef<HTMLDivElement>(null);
-  const [searchValue, setSearchValue] = useState("");
+  const [open, setOpen] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
+  const [anchorWidth, setAnchorWidth] = React.useState(200);
+  const anchorRef = React.useRef<HTMLDivElement>(null);
+  const [searchValue, setSearchValue] = React.useState("");
+  const fontWeightMedium = theme?.typography?.fontWeight?.medium ?? 500;
+  const fontWeightRegular = theme?.typography?.fontWeight?.regular ?? 400;
 
   // Update anchor element and width when opening
-  useEffect(() => {
+  React.useEffect(() => {
     if (open && anchorRef.current) {
       setAnchorEl(anchorRef.current);
       setAnchorWidth(anchorRef.current.getBoundingClientRect().width);
@@ -176,6 +182,21 @@ export const Dropdown: React.FC<DropdownProps> = ({
         option.label.toLowerCase().includes(searchValue.toLowerCase()))
   );
 
+  const parsePxValue = (valueToParse?: string) => {
+    if (!valueToParse) return 0;
+    const parsed = Number.parseFloat(valueToParse);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+
+  const maxSelectedTextWidth = () => {
+    if (!isAddEllipsis) return undefined;
+    const arrowGapValue = parsePxValue(arrowGap);
+    const endAdornmentGapValue = endAdornmentIcon
+      ? 40 + parsePxValue(endAdornmentIconGap)
+      : 0;
+    return `${anchorWidth - arrowGapValue - 24 - endAdornmentGapValue}px !important`;
+  };
+
   return (
     <>
       <Stack
@@ -196,6 +217,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
           backgroundColor: color ? bgColorPalette : "#ffffff",
           ...boxSx,
         }}
+        data-testid={testid ? `dropdown-${testid}` : undefined}
         {...rest}
       >
         <Stack
@@ -210,7 +232,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
               noWrap
               variant={FontSizeMap[size] as "h1" | "h2" | "h3" | "h4" | "body1" | "body2"}
               sx={{
-                fontWeight: 400,
+                fontWeight: fontWeightMedium,
                 lineHeight: "normal",
                 margin: 0,
               }}
@@ -219,9 +241,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
             </Typography>
           )}
 
-          {selectedOption && (
+          {(selectedOption || defaultValue) && (
             <Stack direction="row" alignItems="center" gap="6px">
-              {selectedOption.icon && showSelectedOptionIcon && (
+              {selectedOption?.icon && showSelectedOptionIcon && (
                 <Box
                   sx={{
                     display: "flex",
@@ -237,15 +259,18 @@ export const Dropdown: React.FC<DropdownProps> = ({
               )}
 
               <Typography
-                title={selectedOption.label || selectedOption.value}
+                title={selectedOption?.label || selectedOption?.value || defaultValue}
                 noWrap
                 variant={FontSizeMap[size] as "h1" | "h2" | "h3" | "h4" | "body1" | "body2"}
                 sx={{
-                  fontWeight: 500,
+                  fontWeight: fontWeightMedium,
+                  ...(isAddEllipsis && {
+                    maxWidth: maxSelectedTextWidth(),
+                  }),
                   ...selectedOptionTextSx,
                 }}
               >
-                {selectedOption.label || selectedOption.value}
+                {selectedOption?.label || selectedOption?.value || defaultValue}
               </Typography>
             </Stack>
           )}
@@ -254,13 +279,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
           <Stack ml={endAdornmentIconGap}>{endAdornmentIcon}</Stack>
         )}
         <Stack ml={arrowGap}>
-          {open ? (
-            <span style={{ rotate: "180deg", display: "flex" }}>
-              <ArrowDown />
-            </span>
-          ) : (
-            <ArrowDown />
-          )}
+          {open ? <ArrowUp size={20} /> : <ArrowDown size={20} />}
         </Stack>
       </Stack>
       <Popper
@@ -291,6 +310,17 @@ export const Dropdown: React.FC<DropdownProps> = ({
               ...paperSx,
             }}
           >
+            {isSearchRequired && (
+              <Stack m="4px 0px 10px 0px">
+                <SearchInput
+                  value={searchValue}
+                  onChange={(nextValue) => setSearchValue(nextValue)}
+                  containerSx={{
+                    height: "calc(24px * var(--scale, 1))",
+                  }}
+                />
+              </Stack>
+            )}
             {customPopperComponent ? (
               React.isValidElement(customPopperComponent) ? (
                 React.cloneElement(
@@ -355,10 +385,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
                             variant={FontSizeMap[size] as "h1" | "h2" | "h3" | "h4" | "body1" | "body2"}
                             sx={{
                               fontSize: "13px !important",
-                              fontWeight: selected ? 600 : 400,
+                              fontWeight: selected ? fontWeightMedium : fontWeightRegular,
                               color: "#1B1C1E",
                             }}
-                            data-testid={`option-${testid}-${option.value}`}
+                            data-testid={`option-${testid}-${option.label || option.value}`}
                           >
                             {option?.label || option?.value}
                           </Typography>
