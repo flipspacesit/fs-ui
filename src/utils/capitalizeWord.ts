@@ -1,4 +1,4 @@
-export default function capitalizeWord(sentence: String) {
+export default function capitalizeWord(sentence: string) {
     if (typeof sentence !== 'string' || sentence.length === 0) {
         return sentence
     }
