@@ -3,6 +3,8 @@ import { Typography, Box, Menu, MenuItem, Stack, SxProps, Theme } from "@mui/mat
 import { HEIGHTS, FontSizeMap, ButtonBorderRadiusMap, ComponentSize, ComponentVariant } from "../../constants";
 import { ArrowDown } from "../../icons/ArrowDown";
 import { ArrowUp } from "../../icons/ArrowUp";
+import { theme } from "../../theme";
+import toCamelCase from "../../utils/toCamelCase";
 
 export interface SplitMenuOption {
   label: string;
@@ -36,9 +38,9 @@ export interface SplitMenuProps {
 }
 
 const defaultBtnStyles: SxProps<Theme> = {
-  backgroundColor: "#AEB6CE",
-  color: "#1B1C1E",
-  border: "0.5px solid #AEB6CE",
+  backgroundColor: theme.palette.softSteel[400],
+  color: theme.palette.black.main,
+  border: `0.5px solid ${theme.palette.softSteel[400]}`,
   width: "100%",
 };
 
@@ -51,9 +53,9 @@ const defaultIconStyles: SxProps<Theme> = {
 };
 
 const defaultTxtStyles: SxProps<Theme> = {
-  fontWeight: 500,
+  fontWeight: theme.typography.fontWeight.medium,
   m: 0,
-  color: "#FFFFFF",
+  color: theme.palette.white.main,
 };
 
 /**
@@ -75,6 +77,16 @@ export const SplitMenu: React.FC<SplitMenuProps> = ({
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const anchorElRef = useRef<HTMLElement | null>(null);
   const open = Boolean(anchorEl);
+  const safeBtnStyles = btnStyles ?? {};
+  const resolvedBtnBorderColor = (() => {
+    if (typeof safeBtnStyles === "object" && !Array.isArray(safeBtnStyles)) {
+      const color = (safeBtnStyles as { color?: string }).color;
+      if (typeof color === "string") {
+        return color;
+      }
+    }
+    return theme.palette.softSteel[400];
+  })();
 
   const handleChange = (event: React.MouseEvent<HTMLElement>) => {
     if (disabled) return;
@@ -96,12 +108,13 @@ export const SplitMenu: React.FC<SplitMenuProps> = ({
         justifyContent={"space-between"}
         sx={{
           borderRadius: ButtonBorderRadiusMap[variant][size],
+          border: `0.5px solid ${resolvedBtnBorderColor}`,
           cursor: "pointer",
-          ...btnStyles,
+          ...safeBtnStyles,
           ...(disabled && {
             cursor: "not-allowed",
-            backgroundColor: "#F3F4F6",
-            border: "0.5px solid #F3F4F6",
+            backgroundColor: theme.palette.grey[50],
+            border: `0.5px solid ${theme.palette.grey[50]}`,
           }),
         }}
         onClick={handleChange}
@@ -111,7 +124,7 @@ export const SplitMenu: React.FC<SplitMenuProps> = ({
             variant={FontSizeMap[size] as "h1" | "h2" | "h3" | "h4" | "body1" | "body2"}
             sx={{
               ...txtStyles,
-              ...(disabled && { color: "#9CA3AF" }),
+              ...(disabled && { color: theme.palette.grey[300] }),
             }}
           >
             {btnText}
@@ -128,8 +141,8 @@ export const SplitMenu: React.FC<SplitMenuProps> = ({
             borderTopRightRadius: ButtonBorderRadiusMap[variant][size],
             borderBottomRightRadius: ButtonBorderRadiusMap[variant][size],
             ...(disabled && {
-              backgroundColor: "#F3F4F6",
-              border: "0.5px solid #F3F4F6",
+              backgroundColor: theme.palette.grey[50],
+              border: `0.5px solid ${theme.palette.grey[50]}`,
               cursor: "not-allowed",
             }),
           }}
@@ -138,9 +151,9 @@ export const SplitMenu: React.FC<SplitMenuProps> = ({
         </Stack>
       </Stack>
       <Menu
-        id="split-menu"
+        id="long-menu"
         MenuListProps={{
-          "aria-labelledby": "split-button",
+          "aria-labelledby": "long-button",
         }}
         anchorEl={anchorEl}
         open={open}
@@ -149,7 +162,7 @@ export const SplitMenu: React.FC<SplitMenuProps> = ({
           style: {
             minWidth: anchorEl ? anchorEl.offsetWidth : "auto",
             marginTop: "8px",
-            border: "0.5px solid #C3D0F5",
+            border: `0.5px solid ${theme.palette.blue[300]}`,
             borderRadius: "8px",
             boxShadow: "0px 4px 25px 0px rgba(209, 209, 230, 0.6)",
             padding: "0px 6px",
@@ -161,14 +174,20 @@ export const SplitMenu: React.FC<SplitMenuProps> = ({
             key={value}
             onClick={(e) => {
               handleClose();
-              handleClick(value, e);
+              const eventLike = {
+                currentTarget: anchorElRef.current,
+                target: e.target,
+                preventDefault: e.preventDefault.bind(e),
+                stopPropagation: e.stopPropagation.bind(e),
+              };
+              handleClick(value, eventLike as unknown as React.MouseEvent);
             }}
             disabled={disabled}
             sx={{
               padding: "6px",
               borderBottom:
                 index !== options.length - 1
-                  ? "0.5px solid #AEB6CE"
+                  ? `0.5px solid ${theme.palette.softSteel.main}`
                   : "none",
             }}
           >
@@ -185,7 +204,8 @@ export const SplitMenu: React.FC<SplitMenuProps> = ({
               )}
               <Typography
                 variant={FontSizeMap[size] as "h1" | "h2" | "h3" | "h4" | "body1" | "body2"}
-                sx={{ fontWeight: 300 }}
+                fontWeight={theme.typography.fontWeight.light}
+                data-testid={`button-${toCamelCase(label)}`}
               >
                 {label}
               </Typography>

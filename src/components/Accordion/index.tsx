@@ -8,12 +8,14 @@ import {
   SxProps,
   Theme,
 } from "@mui/material";
+import { SystemStyleObject } from "@mui/system";
 import { styled } from "@mui/material/styles";
 import { ArrowDown } from "../../icons/ArrowDown";
+import { theme } from "../../theme";
 
 // Styled components for Accordion using MUI styled
 export const StyledAccordion = styled(MUIAccordion)({
-  border: "0.5px solid #AEB6CE",
+  border: `0.5px solid ${theme.palette.softSteel[400]}`,
   borderRadius: "4px !important",
   margin: "6px 0 !important",
   "&:before": {
@@ -22,7 +24,7 @@ export const StyledAccordion = styled(MUIAccordion)({
   "&.Mui-expanded": {
     margin: "6px 0 !important",
   },
-  backgroundColor: "#FFFFFF",
+  backgroundColor: theme.palette.white.main,
   boxShadow: "none !important",
 });
 
@@ -30,7 +32,7 @@ export const StyledAccordionSummary = styled(AccordionSummary)({
   padding: "4px 12px",
   minHeight: "auto !important",
   borderRadius: "4px",
-  backgroundColor: "#F0F4FF",
+  backgroundColor: theme.palette.blue[50],
   "& .MuiAccordionSummary-content": {
     margin: "0px !important",
     display: "flex",
@@ -47,7 +49,7 @@ export const StyledAccordionSummary = styled(AccordionSummary)({
 });
 
 export const StyledAccordionDetails = styled(AccordionDetails)({
-  backgroundColor: "#ffffff",
+  backgroundColor: theme.palette.white.main,
   borderRadius: "4px",
   padding: "12px",
   paddingTop: "0px",
@@ -69,7 +71,7 @@ export interface AccordionProps {
   /** Styles for accordion container */
   accordionSx?: SxProps<Theme>;
   /** Styles for accordion summary */
-  accordionSummarySx?: SxProps<Theme>;
+  accordionSummarySx?: SystemStyleObject<Theme>;
   /** Styles for accordion details */
   accordionDetailsSx?: SxProps<Theme>;
   /** Default expanded state (uncontrolled) */
@@ -122,7 +124,7 @@ export const Accordion: React.FC<AccordionProps> = ({
   const renderedExpandIcon = hideExpandIcon ? null : expandIcon && collapseIcon ? (
     isOpen ? collapseIcon : expandIcon
   ) : (
-    <ArrowDown size={20} />
+    <ArrowDown size="20" />
   );
 
   return (
@@ -156,10 +158,10 @@ export const Accordion: React.FC<AccordionProps> = ({
       >
         {typeof title === "string" ? (
           <Typography
-            variant="body1"
+            variant="b1"
             sx={{
-              fontWeight: 600,
-              color: isOpen ? "#3361FF" : "#1B1C1E",
+              fontWeight: theme.typography.fontWeight.bold,
+              color: isOpen ? theme.palette.blue[700] : theme.palette.black.main,
               ...titleSx,
             }}
           >
@@ -195,7 +197,7 @@ export interface AccordionGroupProps {
   /** Styles for accordion container */
   accordionSx?: SxProps<Theme>;
   /** Styles for accordion summary */
-  accordionSummarySx?: SxProps<Theme>;
+  accordionSummarySx?: SystemStyleObject<Theme>;
   /** Styles for accordion details */
   accordionDetailsSx?: SxProps<Theme>;
 }
@@ -215,8 +217,8 @@ export const AccordionGroup: React.FC<AccordionGroupProps> = ({
   ...rest
 }) => {
   const [expanded, setExpanded] = useState<
-    number | Record<number, boolean> | false
-  >(defaultExpanded ?? false);
+    number | Record<number, boolean> | null | false
+  >(defaultExpanded);
 
   const handleChange =
     (panelId: number) =>
@@ -225,10 +227,7 @@ export const AccordionGroup: React.FC<AccordionGroupProps> = ({
 
         if (allowMultiple) {
           setExpanded((prevState) => {
-            const newState =
-              typeof prevState === "object" && prevState !== null
-                ? { ...prevState }
-                : {};
+            const newState = { ...(prevState as Record<number, boolean>) };
             newState[panelId] = isExpanded;
             return newState;
           });
@@ -238,8 +237,8 @@ export const AccordionGroup: React.FC<AccordionGroupProps> = ({
       };
 
   const isItemExpanded = (panelId: number): boolean => {
-    if (allowMultiple && typeof expanded === "object" && expanded !== null) {
-      return expanded[panelId] || false;
+    if (allowMultiple && typeof expanded === "object") {
+      return expanded?.[panelId] || false;
     }
     return expanded === panelId;
   };
@@ -259,7 +258,7 @@ export const AccordionGroup: React.FC<AccordionGroupProps> = ({
           }}
         >
           <StyledAccordionSummary
-            expandIcon={<ArrowDown size={20} />}
+            expandIcon={<ArrowDown size="20" />}
             aria-controls={`accordion-content-${index}`}
             id={`accordion-header-${index}`}
             sx={{
@@ -269,15 +268,17 @@ export const AccordionGroup: React.FC<AccordionGroupProps> = ({
                   : "rotate(0deg)",
                 transition: "transform 0.3s ease",
                 marginLeft: "8px",
+                ...accordionSummarySx,
               },
-              ...accordionSummarySx,
             }}
           >
             <Typography
-              variant="body1"
+              variant="b1"
               sx={{
-                fontWeight: 600,
-                color: isItemExpanded(index) ? "#3361FF" : "#1B1C1E",
+                fontWeight: theme.typography.fontWeight.bold,
+                color: isItemExpanded(index)
+                  ? theme.palette.blue[700]
+                  : theme.palette.black.main,
                 ...titleSx,
               }}
             >

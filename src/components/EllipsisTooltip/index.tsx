@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Tooltip, Typography, TooltipProps } from "@mui/material";
+import { theme } from "../../theme";
 
 export interface EllipsisTooltipProps {
   /** Content to display (will be truncated if overflows) */
@@ -8,8 +9,6 @@ export interface EllipsisTooltipProps {
   style?: React.CSSProperties;
   /** Tooltip placement */
   placement?: TooltipProps["placement"];
-  /** Typography variant for tooltip content */
-  tooltipVariant?: "h1" | "h2" | "h3" | "h4" | "body1" | "body2";
   /** Max width for the text container */
   maxWidth?: string | number;
 }
@@ -21,7 +20,6 @@ export const EllipsisTooltip: React.FC<EllipsisTooltipProps> = ({
   children,
   style,
   placement = "top-start",
-  tooltipVariant = "body2",
   maxWidth = "100%",
 }) => {
   const [isOverflowed, setIsOverflowed] = useState(false);
@@ -56,10 +54,10 @@ export const EllipsisTooltip: React.FC<EllipsisTooltipProps> = ({
     <Tooltip
       title={
         <Typography
-          variant={tooltipVariant}
+          variant="h4"
           sx={{
-            fontWeight: 400,
-            color: "#FFFFFF",
+            fontWeight: theme.typography.fontWeight.regular,
+            color: theme.palette.white.main,
           }}
         >
           {children}

@@ -7,6 +7,7 @@ import {
   ComponentSize,
   ComponentVariant,
 } from "../../constants";
+import { theme } from "../../theme";
 
 export interface TagProps {
   /** Text label for the tag */
@@ -65,7 +66,7 @@ export const Tag: React.FC<TagProps> = ({
       )}
       <Typography
         variant={FontSizeMap[size] as "h1" | "h2" | "h3" | "h4" | "body1" | "body2"}
-        sx={{ fontWeight: 500 }}
+        sx={{ fontWeight: theme.typography.fontWeight.medium }}
       >
         {label}
       </Typography>
@@ -128,7 +129,7 @@ export const StatusChip: React.FC<StatusChipProps> = ({
     >
       <Typography
         variant={FontSizeMap[size] as "h1" | "h2" | "h3" | "h4" | "body1" | "body2"}
-        sx={{ fontWeight: 500, whiteSpace: "nowrap" }}
+        sx={{ fontWeight: theme.typography.fontWeight.medium, whiteSpace: "nowrap" }}
       >
         {label}
       </Typography>
