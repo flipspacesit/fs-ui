@@ -185,3 +185,7 @@ export { Warning } from "./icons/Warning";
 
 // Theme
 export { theme } from "./theme";
+
+// Utils
+export { toCamelCase } from "./utils/toCamelCase.ts";
+export { capitalizeWord } from "./utils/capitalizeWord.ts";

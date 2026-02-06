@@ -1,4 +1,4 @@
-export default function capitalizeWord(sentence: string) {
+export const capitalizeWord = (sentence: string): string => {
     if (typeof sentence !== 'string' || sentence.length === 0) {
         return sentence
     }
@@ -12,4 +12,6 @@ export default function capitalizeWord(sentence: string) {
     })
 
     return capitalizedWords.join(' ')
-}
+};
+
+export default capitalizeWord;

@@ -1,4 +1,4 @@
-const toCamelCase = (value: string): string => {
+export const toCamelCase = (value: string): string => {
   if (!value) return "";
   return value
     .replace(/[^a-zA-Z0-9 ]/g, " ")
