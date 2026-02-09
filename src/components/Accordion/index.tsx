@@ -16,25 +16,25 @@ import { theme } from "../../theme";
 // Styled components for Accordion using MUI styled
 export const StyledAccordion = styled(MUIAccordion)({
   border: `0.5px solid ${theme.palette.softSteel[400]}`,
-  borderRadius: "4px !important",
-  margin: "6px 0 !important",
+  borderRadius: "4px",
+  margin: "6px 0",
   "&:before": {
     display: "none",
   },
   "&.Mui-expanded": {
-    margin: "6px 0 !important",
+    margin: "6px 0",
   },
   backgroundColor: theme.palette.white.main,
-  boxShadow: "none !important",
+  boxShadow: "none",
 });
 
 export const StyledAccordionSummary = styled(AccordionSummary)({
   padding: "4px 12px",
-  minHeight: "auto !important",
+  minHeight: "auto",
   borderRadius: "4px",
   backgroundColor: theme.palette.blue[50],
   "& .MuiAccordionSummary-content": {
-    margin: "0px !important",
+    margin: "0px",
     display: "flex",
     alignItems: "center",
     gap: "12px",
@@ -42,7 +42,7 @@ export const StyledAccordionSummary = styled(AccordionSummary)({
   },
   "&.Mui-expanded": {
     backgroundColor: "transparent",
-    minHeight: "unset !important",
+    minHeight: "unset",
   },
   cursor: "pointer",
   transition: "all 0.2s ease",
@@ -160,8 +160,8 @@ export const Accordion: React.FC<AccordionProps> = ({
           <Typography
             variant="b1"
             sx={{
-              fontWeight: theme.typography.fontWeight.bold,
-              color: isOpen ? theme.palette.blue[700] : theme.palette.black.main,
+              fontWeight: theme.typography.fontWeight.medium,
+              color: isOpen ? theme.palette.blue[600] : theme.palette.black.main,
               ...titleSx,
             }}
           >
@@ -275,7 +275,7 @@ export const AccordionGroup: React.FC<AccordionGroupProps> = ({
             <Typography
               variant="b1"
               sx={{
-                fontWeight: theme.typography.fontWeight.bold,
+                fontWeight: theme.typography.fontWeight.medium,
                 color: isItemExpanded(index)
                   ? theme.palette.blue[700]
                   : theme.palette.black.main,

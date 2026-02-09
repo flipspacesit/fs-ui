@@ -393,7 +393,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                             {option?.label || option?.value}
                           </Typography>
                         </Stack>
-                        {selected && <CheckIcon />}
+                        {selected && <CheckIcon color={"#1C1B1E"} />}
                       </Stack>
                     </MenuItem>
                   );
