@@ -1,6 +1,6 @@
 {
   "name": "@flipspacesit/fs-ui",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Flipspaces shared UI component library",
   "type": "module",
   "main": "./dist/fs-ui.cjs.js",
@@ -59,6 +59,8 @@
     "vite-plugin-dts": "^4.5.0"
   },
   "dependencies": {
+    "@mui/x-date-pickers": "^8.27.0",
+    "dayjs": "^1.11.19",
     "notistack": "^3.0.2"
   },
   "repository": {

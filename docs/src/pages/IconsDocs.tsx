@@ -3,10 +3,14 @@ import { Box, Typography, Stack, Paper, TextField, InputAdornment } from "@mui/m
 import { DocSection, ExampleBox, PropsTable } from "../components/DocSection";
 import CodeBlock from "../components/CodeBlock";
 import {
+  AirplaneTilt,
   ArrowDown,
+  ArrowDown2,
+  ArrowLeft,
   ArrowRight,
   ArrowUp,
   Bank,
+  Building,
   CalendarBlank,
   Cardholder,
   CheckIcon,
@@ -14,6 +18,7 @@ import {
   CloseIcon,
   CreditCard,
   CurrencyInr,
+  CurrencyInr2,
   Download,
   ErrorIcon,
   FileText,
@@ -22,19 +27,26 @@ import {
   Info,
   MagnifyingGlass,
   MapPin,
+  MinusCircle,
+  NoDataIcon,
   PaperPlaneTilt,
   PdfFile,
   PencilSimpleLine,
   Phone,
   Repeat,
   Scroll,
+  Scroll2,
+  ShoppingCart,
   Storefront,
   Subtitles,
   Success,
+  Trash,
+  Trash2,
   UploadSimple,
   UserCircle,
   VendorIcon,
   Warning,
+  Warning2,
 } from "../../../src";
 
 interface IconItem {
@@ -54,6 +66,8 @@ const IconsDocs: React.FC = () => {
   const icons: IconItem[] = [
     // Navigation
     { name: "ArrowDown", component: ArrowDown, description: "Downward arrow", category: "Navigation" },
+    { name: "ArrowDown2", component: ArrowDown2 as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "Downward chevron arrow", category: "Navigation" },
+    { name: "ArrowLeft", component: ArrowLeft, description: "Left arrow", category: "Navigation" },
     { name: "ArrowRight", component: ArrowRight, description: "Right arrow", category: "Navigation" },
     { name: "ArrowUp", component: ArrowUp, description: "Upward arrow", category: "Navigation" },
 
@@ -65,6 +79,8 @@ const IconsDocs: React.FC = () => {
     { name: "Info", component: Info, description: "Information icon", category: "Status" },
     { name: "Success", component: Success, description: "Double checkmark", category: "Status", displayFill: "#10B981", defaultNote: "Default: white (for dark backgrounds)" },
     { name: "Warning", component: Warning, description: "Warning badge", category: "Status", displayFill: "#F59E0B", defaultNote: "Default: white (for dark backgrounds)" },
+    { name: "Warning2", component: Warning2, description: "Warning triangle", category: "Status" },
+    { name: "MinusCircle", component: MinusCircle, description: "Minus in circle", category: "Status" },
 
     // Actions
     { name: "Download", component: Download, description: "Download arrow", category: "Actions" },
@@ -74,17 +90,23 @@ const IconsDocs: React.FC = () => {
     { name: "FloppyDisk", component: FloppyDisk, description: "Save icon", category: "Actions" },
     { name: "Repeat", component: Repeat, description: "Refresh/repeat", category: "Actions", displayFill: "#3361FF", defaultNote: "Default: white (for dark backgrounds)" },
     { name: "PaperPlaneTilt", component: PaperPlaneTilt, description: "Send message", category: "Actions", displayFill: "#3361FF", defaultNote: "Default: white (for dark backgrounds)" },
+    { name: "Trash", component: Trash, description: "Delete/trash bin", category: "Actions" },
+    { name: "ShoppingCart", component: ShoppingCart, description: "Shopping cart", category: "Actions" },
+    { name: "AirplaneTilt", component: AirplaneTilt, description: "Airplane tilted", category: "Actions" },
 
     // Finance
     { name: "Bank", component: Bank, description: "Bank building", category: "Finance" },
     { name: "CreditCard", component: CreditCard, description: "Credit card", category: "Finance" },
     { name: "Cardholder", component: Cardholder, description: "Card holder", category: "Finance" },
     { name: "CurrencyInr", component: CurrencyInr, description: "Indian Rupee", category: "Finance" },
+    { name: "CurrencyInr2", component: CurrencyInr2, description: "Indian Rupee (alt)", category: "Finance" },
+    { name: "Building", component: Building, description: "Office building", category: "Finance" },
 
     // Documents
     { name: "FileText", component: FileText, description: "File with text", category: "Documents" },
     { name: "PdfFile", component: PdfFile, description: "PDF document", category: "Documents" },
     { name: "Scroll", component: Scroll, description: "Scroll document", category: "Documents" },
+    { name: "Scroll2", component: Scroll2, description: "Scroll document (alt)", category: "Documents" },
     { name: "IdentificationCard", component: IdentificationCard, description: "ID card", category: "Documents" },
     { name: "Subtitles", component: Subtitles, description: "Subtitles/captions", category: "Documents" },
 
@@ -95,6 +117,8 @@ const IconsDocs: React.FC = () => {
     { name: "Storefront", component: Storefront, description: "Store icon", category: "Misc" },
     { name: "UserCircle", component: UserCircle, description: "User avatar", category: "Misc" },
     { name: "VendorIcon", component: VendorIcon as React.FC<{ size?: number | string }>, description: "Flipspaces vendor logo", category: "Misc" },
+    { name: "NoDataIcon", component: NoDataIcon as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "No data placeholder", category: "Misc" },
+    { name: "Trash2", component: Trash2 as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "Large trash bin", category: "Misc", displayFill: "#1B1C1E", defaultNote: "Default: white (for dark backgrounds)" },
   ];
 
   const filteredIcons = icons.filter(
@@ -127,10 +151,14 @@ const IconsDocs: React.FC = () => {
       <DocSection title="Import">
         <CodeBlock
           code={`import {
+  AirplaneTilt,
   ArrowDown,
+  ArrowDown2,
+  ArrowLeft,
   ArrowRight,
   ArrowUp,
   Bank,
+  Building,
   CalendarBlank,
   Cardholder,
   CheckIcon,
@@ -138,6 +166,7 @@ const IconsDocs: React.FC = () => {
   CloseIcon,
   CreditCard,
   CurrencyInr,
+  CurrencyInr2,
   Download,
   ErrorIcon,
   FileText,
@@ -146,19 +175,26 @@ const IconsDocs: React.FC = () => {
   Info,
   MagnifyingGlass,
   MapPin,
+  MinusCircle,
+  NoDataIcon,
   PaperPlaneTilt,
   PdfFile,
   PencilSimpleLine,
   Phone,
   Repeat,
   Scroll,
+  Scroll2,
+  ShoppingCart,
   Storefront,
   Subtitles,
   Success,
+  Trash,
+  Trash2,
   UploadSimple,
   UserCircle,
   VendorIcon,
   Warning,
+  Warning2,
 } from '@flipspacesit/fs-ui';`}
         />
       </DocSection>

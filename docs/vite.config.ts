@@ -8,7 +8,7 @@ export default defineConfig({
   base: "/fs-ui/",
   resolve: {
     alias: {
-      "@": resolve(__dirname, "src"),
+      "@": resolve(__dirname, "../src"),
     },
     dedupe: [
       "react",
@@ -16,6 +16,8 @@ export default defineConfig({
       "@mui/material",
       "@emotion/react",
       "@emotion/styled",
+      "@mui/x-date-pickers",
+      "dayjs",
     ],
   },
   optimizeDeps: {
@@ -33,6 +35,11 @@ export default defineConfig({
       "@mui/material/Skeleton",
       "@emotion/react",
       "@emotion/styled",
+      "@mui/x-date-pickers",
+      "@mui/x-date-pickers/DatePicker",
+      "@mui/x-date-pickers/AdapterDayjs",
+      "@mui/x-date-pickers/LocalizationProvider",
+      "dayjs",
     ],
   },
   build: {
