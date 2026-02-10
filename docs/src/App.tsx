@@ -36,6 +36,11 @@ import AutoCompleteDocs from "./pages/AutoCompleteDocs";
 import ChipCardDocs from "./pages/ChipCardDocs";
 import ImageWithFallbackDocs from "./pages/ImageWithFallbackDocs";
 import TableSkeletonDocs from "./pages/TableSkeletonDocs";
+import TextInputDocs from "./pages/TextInputDocs";
+import SelectInputDocs from "./pages/SelectInputDocs";
+import DateInputDocs from "./pages/DateInputDocs";
+import FileUploadDocs from "./pages/FileUploadDocs";
+import NoDataContentDocs from "./pages/NoDataContentDocs";
 
 const SIDEBAR_WIDTH = 260;
 
@@ -58,6 +63,11 @@ const menuItems = [
   { id: "loading", label: "LoadingSpinner", category: "Components" },
   { id: "loaders", label: "Loader & PageLoader", category: "Components" },
   { id: "image-fallback", label: "ImageWithFallback", category: "Components" },
+  { id: "text-input", label: "TextInput", category: "Components" },
+  { id: "select-input", label: "SelectInput", category: "Components" },
+  { id: "date-input", label: "DateInput", category: "Components" },
+  { id: "file-upload", label: "FileUpload", category: "Components" },
+  { id: "no-data-content", label: "NoDataContent", category: "Components" },
   { id: "notification", label: "useNotification", category: "Hooks" },
   { id: "icons", label: "Icons", category: "Utilities" },
   { id: "constants", label: "Constants", category: "Utilities" },
@@ -82,6 +92,11 @@ const pageComponents: Record<string, React.FC> = {
   loading: LoadingDocs,
   loaders: LoaderDocs,
   "image-fallback": ImageWithFallbackDocs,
+  "text-input": TextInputDocs,
+  "select-input": SelectInputDocs,
+  "date-input": DateInputDocs,
+  "file-upload": FileUploadDocs,
+  "no-data-content": NoDataContentDocs,
   notification: NotificationDocs,
   icons: IconsDocs,
   constants: ConstantsDocs,
