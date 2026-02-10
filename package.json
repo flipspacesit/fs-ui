@@ -59,6 +59,8 @@
     "vite-plugin-dts": "^4.5.0"
   },
   "dependencies": {
+    "@mui/x-date-pickers": "^8.27.0",
+    "dayjs": "^1.11.19",
     "notistack": "^3.0.2"
   },
   "repository": {
