@@ -9,7 +9,7 @@ import {
   SxProps,
   Theme,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import {
   Scroll2,
   UploadSimple,
@@ -50,6 +50,8 @@ export interface FileUploadBoxProps {
   containerSx?: SxProps<Theme>;
   uploadedContainerSx?: SxProps<Theme>;
   fileNameSx?: SxProps<Theme>;
+  uploadContentSx?: SxProps<Theme>;
+  uploadIconContainerSx?: SxProps<Theme>;
 }
 
 const UploadContainer = styled(Box, {
@@ -60,7 +62,7 @@ const UploadContainer = styled(Box, {
     : `0.5px solid ${theme.palette.border.main}`,
   borderRadius: "6px",
   overflow: "hidden",
-  height: "calc(48px * var(--scale))",
+  minHeight: "calc(48px * var(--scale))",
   background: theme.palette.surface[200],
   display: "flex",
   cursor: disabled ? "not-allowed" : "pointer",
@@ -160,7 +162,7 @@ const RemoveIconStack = styled(Stack)({
 export const FileUpload = ({
   error,
   helperText,
-  icon = <Scroll2 />,
+  icon = <Scroll2 size={18} />,
   uploadText = "Click to upload",
   uploadSubText,
   accept,
@@ -179,7 +181,10 @@ export const FileUpload = ({
   containerSx,
   uploadedContainerSx,
   fileNameSx,
+  uploadContentSx,
+  uploadIconContainerSx,
 }: FileUploadBoxProps) => {
+  const theme = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Convert value (File) to uploadedFile format if not explicitly provided
@@ -250,24 +255,25 @@ export const FileUpload = ({
               disabled={disabled || isLoading}
               sx={containerSx}
             >
-              <ContentStack gap='4px' direction='row' alignItems='center'>
+              <ContentStack
+                gap='4px'
+                direction='row'
+                alignItems='center'
+                sx={uploadContentSx}
+              >
                 {icon && icon}
-                <Stack gap='4px'>
+                <Stack gap='4px' flex={1}>
                   <StyledFormLabel required={required} sx={labelSx}>
                     {uploadText}
                   </StyledFormLabel>
                   {uploadSubText && (
                     <Typography
                       variant='c1'
-                      sx={[
-                        (theme) => ({
-                          color: theme.palette.text.secondary,
-                          fontWeight: theme.typography.fontWeight.light,
-                        }),
-                        ...(Array.isArray(uploadSubTextSx)
-                          ? uploadSubTextSx
-                          : [uploadSubTextSx]),
-                      ]}
+                      sx={{
+                        color: theme.palette.text.secondary,
+                        fontWeight: theme.typography.fontWeight.light,
+                        ...uploadSubTextSx,
+                      }}
                     >
                       {uploadSubText}
                     </Typography>
@@ -275,7 +281,7 @@ export const FileUpload = ({
                 </Stack>
               </ContentStack>
 
-              <UploadIconContainer>
+              <UploadIconContainer sx={uploadIconContainerSx}>
                 <UploadSimple />
               </UploadIconContainer>
 
