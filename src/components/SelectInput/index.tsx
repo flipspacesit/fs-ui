@@ -1,5 +1,4 @@
 import { ArrowDown2, CheckIcon } from "@/icons";
-import theme from "@/theme";
 import {
   FormControl,
   FormLabel,
@@ -14,7 +13,7 @@ import {
   SxProps,
   Theme,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 
 export type Option = {
   label: string;
@@ -72,6 +71,7 @@ export const SelectInput = <T = unknown,>({
   placeholderSx,
   ...props
 }: SelectInputProps<T>) => {
+  const theme = useTheme();
   return (
     <FormControl fullWidth={fullWidth} sx={sx} error={props.error}>
       {label && (
@@ -152,12 +152,10 @@ export const SelectInput = <T = unknown,>({
                     return (
                       <Typography
                         variant='b1'
-                        sx={[
-                          (theme) => ({ color: theme.palette.grey1.main }),
-                          ...(Array.isArray(placeholderSx)
-                            ? placeholderSx
-                            : [placeholderSx]),
-                        ]}
+                        sx={{
+                          color: theme.palette.grey1.main,
+                          ...placeholderSx,
+                        }}
                       >
                         {placeholder}
                       </Typography>
@@ -176,12 +174,10 @@ export const SelectInput = <T = unknown,>({
             <MenuItem value='' disabled sx={{ display: "none" }}>
               <Typography
                 variant='b1'
-                sx={[
-                  (theme) => ({ color: theme.palette.grey1.main }),
-                  ...(Array.isArray(placeholderSx)
-                    ? placeholderSx
-                    : [placeholderSx]),
-                ]}
+                sx={{
+                  color: theme.palette.grey1.main,
+                  ...placeholderSx,
+                }}
               >
                 {placeholder}
               </Typography>
