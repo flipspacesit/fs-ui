@@ -1,5 +1,4 @@
-// import { ArrowDown2, CheckIcon } from "@/icons";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   FormControl,
   FormLabel,
@@ -14,6 +13,7 @@ import {
   Autocomplete,
   TextField,
   Paper,
+  SelectChangeEvent,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import theme from "@/theme";
@@ -44,6 +44,7 @@ export type SelectInputProps<T = unknown> = Omit<
   menuItemStackSx?: SxProps<Theme>;
   menuItemTypographySx?: SxProps<Theme>;
   inputSx?: SxProps<Theme>;
+  menuItemSx?: SxProps<Theme>;
 };
 
 const StyledFormLabel = styled(FormLabel)(() => ({
@@ -86,6 +87,8 @@ export const SelectInput = <T = unknown,>({
   searchable,
   searchPlaceholder,
   inputSx,
+  menuItemSx,
+  readOnly = true,
   ...props
 }: SelectInputProps<T>) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -103,16 +106,6 @@ export const SelectInput = <T = unknown,>({
 
   const selectedOption =
     options.find((opt) => opt.value === props.value) || null;
-
-  useEffect(() => {
-    if (!open || !searchable) return;
-
-    const timer = window.setTimeout(() => {
-      searchInputRef.current?.focus();
-    }, 0);
-
-    return () => window.clearTimeout(timer);
-  }, [open, searchable]);
 
   return (
     <FormControl fullWidth={fullWidth} sx={sx} error={props.error}>
@@ -153,12 +146,10 @@ export const SelectInput = <T = unknown,>({
             props.onChange(
               {
                 target: { value: newValue?.value ?? "" },
-              } as any,
+              } as SelectChangeEvent<T>,
               null,
             );
           }
-          // Close dropdown on selection if needed, or let default behavior handle it (which triggers onClose)
-          // Default behavior of Autocomplete calls onClose with 'selectOption' which sets open to false above.
         }}
         popupIcon={
           <Box display='flex' alignItems='center'>
@@ -170,6 +161,7 @@ export const SelectInput = <T = unknown,>({
           <TextField
             {...params}
             size={size}
+            autoFocus={false}
             sx={inputSx}
             placeholder={!selectedOption ? placeholder : undefined}
             required={required}
@@ -187,12 +179,13 @@ export const SelectInput = <T = unknown,>({
                 "& .MuiInputBase-input": {
                   cursor: "pointer",
                   caretColor: "transparent",
+                  userSelect: "none",
                 },
                 "& .MuiAutocomplete-clearIndicator": {
                   display: "none",
                 },
               },
-              readOnly: true,
+              readOnly: readOnly,
             }}
           />
         )}
@@ -227,6 +220,7 @@ export const SelectInput = <T = unknown,>({
                 "&.Mui-focusVisible": {
                   backgroundColor: theme.palette.blue[200],
                 },
+                ...menuItemSx,
               }}
             >
               <MenuItemStack
@@ -272,16 +266,7 @@ export const SelectInput = <T = unknown,>({
             }}
           >
             {searchable && (
-              <Box
-                ref={searchRef}
-                sx={{ marginBottom: "4px" }}
-                onMouseDownCapture={() => {
-                  searchInteractingRef.current = true;
-                  window.setTimeout(() => {
-                    searchInteractingRef.current = false;
-                  }, 0);
-                }}
-              >
+              <Box ref={searchRef} sx={{ marginBottom: "4px" }}>
                 <SearchInput
                   autoFocus
                   inputRef={searchInputRef}
@@ -298,7 +283,7 @@ export const SelectInput = <T = unknown,>({
                 />
               </Box>
             )}
-            {filteredOptions.length === 0 && searchable ? (
+            {!filteredOptions?.length && searchable ? (
               <Stack
                 direction='row'
                 alignItems='center'
