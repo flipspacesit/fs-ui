@@ -31,7 +31,7 @@ export type DateInputProps = {
   datePickerSx?: SxProps<Theme>;
 };
 
-const StyledFormLabel = styled(FormLabel)(({ theme }) => ({
+const StyledFormLabel = styled(FormLabel)(() => ({
   fontSize: "12px",
   fontWeight: "500",
   color: theme.palette.text.secondary,

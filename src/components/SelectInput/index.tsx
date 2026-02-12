@@ -1,39 +1,52 @@
-import { ArrowDown2, CheckIcon } from "@/icons";
+// import { ArrowDown2, CheckIcon } from "@/icons";
+import React, { useEffect, useState, useRef } from "react";
 import {
   FormControl,
   FormLabel,
   Stack,
-  Select,
   SelectProps,
   FormHelperText,
   MenuItem,
   Typography,
-  InputAdornment,
   Box,
   SxProps,
   Theme,
+  Autocomplete,
+  TextField,
+  Paper,
 } from "@mui/material";
-import { styled, useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
+import theme from "@/theme";
+import { ArrowDown2, CheckIcon } from "@/icons";
+import SearchInput from "../SearchInput";
 
 export type Option = {
   label: string;
   value: string | number;
+  icon?: React.ReactNode;
 };
 
-export type SelectInputProps<T = unknown> = SelectProps<T> & {
+export type SelectInputProps<T = unknown> = Omit<
+  SelectProps<T>,
+  "renderValue"
+> & {
   label?: string;
   helperText?: React.ReactNode;
   options?: Option[];
   placeholder?: string;
   showSelectedIcon?: boolean;
+  searchable?: boolean;
+  searchPlaceholder?: string;
   // Style customization props
   labelSx?: SxProps<Theme>;
   helperTextSx?: SxProps<Theme>;
   menuPaperSx?: SxProps<Theme>;
-  placeholderSx?: SxProps<Theme>;
+  menuItemStackSx?: SxProps<Theme>;
+  menuItemTypographySx?: SxProps<Theme>;
+  inputSx?: SxProps<Theme>;
 };
 
-const StyledFormLabel = styled(FormLabel)(({ theme }) => ({
+const StyledFormLabel = styled(FormLabel)(() => ({
   fontSize: "12px",
   fontWeight: "500",
   color: theme.palette.text.secondary,
@@ -60,18 +73,47 @@ export const SelectInput = <T = unknown,>({
   required,
   fullWidth = true,
   sx,
-  children,
-  options,
+  options = [],
   placeholder,
   showSelectedIcon = true,
+  size = "medium",
   startAdornment,
   labelSx,
   helperTextSx,
   menuPaperSx,
-  placeholderSx,
+  menuItemStackSx,
+  menuItemTypographySx,
+  searchable,
+  searchPlaceholder,
+  inputSx,
   ...props
 }: SelectInputProps<T>) => {
-  const theme = useTheme();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [open, setOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchInteractingRef = useRef(false);
+
+  const filteredOptions = searchable
+    ? options.filter((option) =>
+        option?.label?.toLowerCase()?.includes(searchTerm.toLowerCase()),
+      )
+    : options;
+
+  const selectedOption =
+    options.find((opt) => opt.value === props.value) || null;
+
+  useEffect(() => {
+    if (!open || !searchable) return;
+
+    const timer = window.setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [open, searchable]);
+
   return (
     <FormControl fullWidth={fullWidth} sx={sx} error={props.error}>
       {label && (
@@ -79,132 +121,205 @@ export const SelectInput = <T = unknown,>({
           {label}
         </StyledFormLabel>
       )}
-      <Stack gap='4px'>
-        <Select
-          startAdornment={
-            startAdornment ? (
-              <InputAdornment position='start'>{startAdornment}</InputAdornment>
-            ) : undefined
+      <Autocomplete
+        open={open}
+        onOpen={() => setOpen(true)}
+        options={filteredOptions}
+        getOptionLabel={(option) => option.label}
+        value={selectedOption}
+        onClose={(event, reason) => {
+          const target = event?.target as Node | null;
+          const relatedTarget = (
+            event as unknown as { relatedTarget?: EventTarget | null }
+          )?.relatedTarget as Node | null;
+          const clickedInsideSearch =
+            !!target && !!searchRef.current?.contains(target);
+          const focusedInsideSearch =
+            !!relatedTarget && !!searchRef.current?.contains(relatedTarget);
+
+          if (
+            clickedInsideSearch ||
+            focusedInsideSearch ||
+            (reason === "blur" && searchInteractingRef.current)
+          ) {
+            searchInteractingRef.current = false;
+            return;
           }
-          IconComponent={(props) => (
-            <Box {...props}>
-              <ArrowDown2 />
-            </Box>
-          )}
-          required={required}
-          fullWidth
-          displayEmpty={!!placeholder}
-          sx={{
-            paddingLeft: startAdornment ? "10px" : undefined,
-            "& .MuiInputAdornment-root": {
-              marginRight: "0px",
-            },
-          }}
-          MenuProps={{
-            PaperProps: {
-              sx: [
-                () => ({
-                  padding: "4px",
-                  marginTop: "8px",
-                  border: `0.5px solid ${theme.palette.blue[300]}`,
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 25px 0 rgba(209, 209, 230, 0.60)",
-                  maxHeight: "350px",
-                  overflowY: "auto",
-                  "& .MuiMenuItem-root": {
-                    height: "calc(28px * var(--scale))",
-                    minHeight: "auto",
-                    fontSize: "13px",
-                    padding: "6px 8px",
-                    borderBottom: `0.5px solid ${theme.palette.border.main}`,
-                    color: theme.palette.text.primary,
-                    "&:last-child": {
-                      borderBottom: "none",
-                    },
-                    "&:hover": {
-                      backgroundColor: theme.palette.blue[200],
-                    },
-                    "&.Mui-selected": {
-                      backgroundColor: `${theme.palette.blue[200]} !important`,
-                      fontWeight: 600,
-                      "&:hover": {
-                        backgroundColor: theme.palette.blue[200],
-                      },
-                    },
-                    "&.Mui-focusVisible": {
-                      backgroundColor: theme.palette.blue[200],
-                    },
-                  },
-                }),
-                ...(Array.isArray(menuPaperSx) ? menuPaperSx : [menuPaperSx]),
-              ],
-            },
-            MenuListProps: {
+
+          setOpen(false);
+        }}
+        onChange={(_, newValue) => {
+          if (props.onChange) {
+            props.onChange(
+              {
+                target: { value: newValue?.value ?? "" },
+              } as any,
+              null,
+            );
+          }
+          // Close dropdown on selection if needed, or let default behavior handle it (which triggers onClose)
+          // Default behavior of Autocomplete calls onClose with 'selectOption' which sets open to false above.
+        }}
+        popupIcon={
+          <Box display='flex' alignItems='center'>
+            <ArrowDown2 />
+          </Box>
+        }
+        forcePopupIcon
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            size={size}
+            sx={inputSx}
+            placeholder={!selectedOption ? placeholder : undefined}
+            required={required}
+            error={props.error}
+            InputProps={{
+              ...params.InputProps,
+              startAdornment: startAdornment ? (
+                <Box display='flex' alignItems='center'>
+                  {startAdornment}
+                </Box>
+              ) : null,
               sx: {
-                padding: 0,
+                paddingLeft: startAdornment ? "10px" : undefined,
+                cursor: "pointer",
+                "& .MuiInputBase-input": {
+                  cursor: "pointer",
+                  caretColor: "transparent",
+                },
+                "& .MuiAutocomplete-clearIndicator": {
+                  display: "none",
+                },
               },
-            },
-          }}
-          renderValue={
-            options?.length
-              ? (selected: any) => {
-                  if ((!selected || selected === "") && placeholder) {
-                    return (
-                      <Typography
-                        variant='b1'
-                        sx={{
-                          color: theme.palette.grey1.main,
-                          ...placeholderSx,
-                        }}
-                      >
-                        {placeholder}
-                      </Typography>
-                    );
-                  }
-                  const selectedOption = options.find(
-                    (opt) => opt.value === selected,
-                  );
-                  return selectedOption ? selectedOption.label : selected;
-                }
-              : undefined
-          }
-          {...props}
-        >
-          {placeholder && !options?.length && (
-            <MenuItem value='' disabled sx={{ display: "none" }}>
-              <Typography
-                variant='b1'
-                sx={{
-                  color: theme.palette.grey1.main,
-                  ...placeholderSx,
-                }}
-              >
-                {placeholder}
-              </Typography>
-            </MenuItem>
-          )}
-          {options?.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
+              readOnly: true,
+            }}
+          />
+        )}
+        renderOption={(propsOption, option) => {
+          const { key, ...optionProps } = propsOption;
+          return (
+            <MenuItem
+              key={key}
+              {...optionProps}
+              sx={{
+                height: "calc(28px * var(--scale))",
+                minHeight: "auto",
+                fontSize: "12px",
+                fontWeight: 400,
+                padding: "6px",
+                borderBottom: `0.5px solid ${theme.palette.border.main}`,
+                color: theme.palette.text.primary,
+                backgroundColor: theme.palette.white.main,
+                "&:last-child": {
+                  borderBottom: "none",
+                },
+                "&:hover": {
+                  backgroundColor: theme.palette.white.main,
+                },
+                "&.Mui-selected": {
+                  backgroundColor: `${theme.palette.blue[200]} !important`,
+                  fontWeight: 600,
+                  "&:hover": {
+                    backgroundColor: theme.palette.blue[200],
+                  },
+                },
+                "&.Mui-focusVisible": {
+                  backgroundColor: theme.palette.blue[200],
+                },
+              }}
+            >
               <MenuItemStack
                 direction='row'
                 alignItems='center'
                 justifyContent='space-between'
+                sx={menuItemStackSx}
+                gap='8px'
               >
-                <Typography>{option.label}</Typography>
+                <Stack direction='row' alignItems='center' gap='8px'>
+                  {option.icon && (
+                    <Box component='span' display='flex' alignItems='center'>
+                      {option.icon}
+                    </Box>
+                  )}
+                  <Typography
+                    variant='b2'
+                    fontWeight={400}
+                    sx={menuItemTypographySx}
+                  >
+                    {option.label}
+                  </Typography>
+                </Stack>
                 {showSelectedIcon && props.value === option.value && (
                   <CheckIcon />
                 )}
               </MenuItemStack>
             </MenuItem>
-          ))}
-          {children}
-        </Select>
-        {helperText && (
-          <StyledFormHelperText sx={helperTextSx}>
-            {helperText}
-          </StyledFormHelperText>
+          );
+        }}
+        PaperComponent={({ children, ...paperProps }) => (
+          <Paper
+            {...paperProps}
+            sx={{
+              ...menuPaperSx,
+              padding: "4px",
+              marginTop: "8px",
+              border: `0.5px solid ${theme.palette.blue[300]}`,
+              borderRadius: "8px",
+              "& .MuiAutocomplete-listbox": {
+                padding: 0,
+              },
+            }}
+          >
+            {searchable && (
+              <Box
+                ref={searchRef}
+                sx={{ marginBottom: "4px" }}
+                onMouseDownCapture={() => {
+                  searchInteractingRef.current = true;
+                  window.setTimeout(() => {
+                    searchInteractingRef.current = false;
+                  }, 0);
+                }}
+              >
+                <SearchInput
+                  autoFocus
+                  inputRef={searchInputRef}
+                  size='small'
+                  value={searchTerm}
+                  placeholder={searchPlaceholder || "Search..."}
+                  fullWidth
+                  debounceMs={0}
+                  onChange={(val) => setSearchTerm(val)}
+                  onFocus={() => setOpen(true)}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                />
+              </Box>
+            )}
+            {filteredOptions.length === 0 && searchable ? (
+              <Stack
+                direction='row'
+                alignItems='center'
+                justifyContent='center'
+                p={2}
+              >
+                <Typography variant='b2' color='text.secondary'>
+                  No results found
+                </Typography>
+              </Stack>
+            ) : (
+              children
+            )}
+          </Paper>
         )}
-      </Stack>
+      />
+      {helperText && (
+        <StyledFormHelperText sx={helperTextSx}>
+          {helperText}
+        </StyledFormHelperText>
+      )}
     </FormControl>
   );
 };
