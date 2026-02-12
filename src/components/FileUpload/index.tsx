@@ -9,7 +9,7 @@ import {
   SxProps,
   Theme,
 } from "@mui/material";
-import { styled, useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import {
   Scroll2,
   UploadSimple,
@@ -17,6 +17,7 @@ import {
   PdfFile,
   CloseIcon,
 } from "@/icons";
+import theme from "@/theme";
 
 export interface FileUploadResponse {
   documentUrl: string;
@@ -56,7 +57,7 @@ export interface FileUploadBoxProps {
 
 const UploadContainer = styled(Box, {
   shouldForwardProp: (prop) => prop !== "error" && prop !== "disabled",
-})<{ error?: boolean; disabled?: boolean }>(({ theme, error, disabled }) => ({
+})<{ error?: boolean; disabled?: boolean }>(({ error, disabled }) => ({
   border: error
     ? `0.5px solid ${theme.palette.error.main}`
     : `0.5px solid ${theme.palette.border.main}`,
@@ -69,7 +70,7 @@ const UploadContainer = styled(Box, {
   opacity: disabled ? 0.6 : 1,
 }));
 
-const UploadIconContainer = styled(Stack)(({ theme }) => ({
+const UploadIconContainer = styled(Stack)(() => ({
   height: "100%",
   width: "calc(42px * var(--scale))",
   backgroundColor: theme.palette.purple[50],
@@ -81,7 +82,7 @@ const FileInputHidden = styled("input")({
   display: "none",
 });
 
-const UploadedDataContainer = styled(Stack)(({ theme }) => ({
+const UploadedDataContainer = styled(Stack)(() => ({
   height: "calc(48px * var(--scale))",
   padding: "0px 12px",
   borderRadius: "6px",
@@ -92,7 +93,7 @@ const UploadedDataContainer = styled(Stack)(({ theme }) => ({
   alignItems: "center",
 }));
 
-const FileContainer = styled(Stack)(({ theme }) => ({
+const FileContainer = styled(Stack)(() => ({
   height: "calc(28px * var(--scale))",
   width: "calc(153px * var(--scale))",
   gap: "4px",
@@ -110,7 +111,7 @@ const ContentStack = styled(Stack)({
   padding: "8px 12px",
 });
 
-const StyledFormLabel = styled(FormLabel)(({ theme }) => ({
+const StyledFormLabel = styled(FormLabel)(() => ({
   fontSize: "12px",
   fontWeight: "500",
   color: theme.palette.text.secondary,
@@ -122,7 +123,7 @@ const StyledFormLabel = styled(FormLabel)(({ theme }) => ({
   },
 }));
 
-const LoadingOverlay = styled(Stack)(({ theme }) => ({
+const LoadingOverlay = styled(Stack)(() => ({
   height: "100%",
   width: "100%",
   alignItems: "center",
@@ -136,13 +137,13 @@ const LoadingOverlay = styled(Stack)(({ theme }) => ({
 
 const StyledFormHelperText = styled(FormHelperText, {
   shouldForwardProp: (prop) => prop !== "error",
-})<{ error?: boolean }>(({ theme, error }) => ({
+})<{ error?: boolean }>(({ error }) => ({
   margin: 0,
   color: error ? theme.palette.error.main : theme.palette.text.secondary,
   marginTop: "4px",
 }));
 
-const FileNameTypography = styled(Typography)(({ theme }) => ({
+const FileNameTypography = styled(Typography)(() => ({
   flex: 1,
   color: theme.palette.text.secondary,
   textOverflow: "ellipsis",
@@ -184,7 +185,6 @@ export const FileUpload = ({
   uploadContentSx,
   uploadIconContainerSx,
 }: FileUploadBoxProps) => {
-  const theme = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Convert value (File) to uploadedFile format if not explicitly provided
