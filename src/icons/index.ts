@@ -43,3 +43,6 @@ export { UserCircle } from "./UserCircle";
 export { VendorIcon } from "./VendorIcon";
 export { Warning } from "./Warning";
 export { Warning2 } from "./Warning2";
+export { CheckCircle2 } from "./CheckCircle2";
+export { CheckSquareOffset } from "./CheckSquareOffset";
+export { TrayArrowUp } from "./TrayArrowUp";
