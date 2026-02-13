@@ -1,4 +1,4 @@
-export default function UserPlus({ fill = '#1B1C1E' }: { fill?: string }) {
+export function UserPlus({ fill = '#1B1C1E' }: { fill?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -14,3 +14,5 @@ export default function UserPlus({ fill = '#1B1C1E' }: { fill?: string }) {
     </svg>
   )
 }
+
+export default UserPlus

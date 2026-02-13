@@ -1,4 +1,4 @@
-export default function KeyboardArrowDown() {
+export function KeyboardArrowDown() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -14,3 +14,5 @@ export default function KeyboardArrowDown() {
     </svg>
   )
 }
+
+export default KeyboardArrowDown

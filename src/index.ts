@@ -159,6 +159,7 @@ export {
 export { ArrowDown } from "./icons/ArrowDown.tsx";
 export { ArrowRight } from "./icons/ArrowRight";
 export { ArrowUp } from "./icons/ArrowUp";
+export { ArrowLeft } from "./icons/ArrowLeft";
 export { Bank } from "./icons/Bank";
 export { CalendarBlank } from "./icons/CalendarBlank";
 export { Cardholder } from "./icons/Cardholder";
@@ -188,6 +189,9 @@ export { UploadSimple } from "./icons/UploadSimple";
 export { UserCircle } from "./icons/UserCircle";
 export { VendorIcon } from "./icons/VendorIcon";
 export { Warning } from "./icons/Warning";
+export { UserPlus } from "./icons/userPlus";
+export { Gear } from "./icons/Gear";
+export { KeyboardArrowDown } from "./icons/KeyboardArrowDown";
 export * from "./icons";
 
 // Theme

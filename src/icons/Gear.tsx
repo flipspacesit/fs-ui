@@ -1,4 +1,4 @@
-export default function Gear() {
+export function Gear() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -19,3 +19,5 @@ export default function Gear() {
     </svg>
   )
 }
+
+export default Gear
