@@ -18,6 +18,7 @@ export { Download } from "./Download";
 export { ErrorIcon } from "./Error";
 export { FileText } from "./FileText";
 export { FloppyDisk } from "./FloppyDisk";
+export { Funnel } from "./Funnel";
 export { IdentificationCard } from "./IdentificationCard";
 export { Info } from "./Info";
 export { MagnifyingGlass } from "./MagnifyingGlass";
