@@ -23,8 +23,11 @@ import {
   ErrorIcon,
   FileText,
   FloppyDisk,
+  Funnel,
+  Gear,
   IdentificationCard,
   Info,
+  KeyboardArrowDown,
   MagnifyingGlass,
   MapPin,
   MinusCircle,
@@ -44,6 +47,7 @@ import {
   Trash2,
   UploadSimple,
   UserCircle,
+  UserPlus,
   VendorIcon,
   Warning,
   Warning2,
@@ -70,6 +74,7 @@ const IconsDocs: React.FC = () => {
     { name: "ArrowLeft", component: ArrowLeft, description: "Left arrow", category: "Navigation" },
     { name: "ArrowRight", component: ArrowRight, description: "Right arrow", category: "Navigation" },
     { name: "ArrowUp", component: ArrowUp, description: "Upward arrow", category: "Navigation" },
+    { name: "KeyboardArrowDown", component: KeyboardArrowDown as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "Keyboard arrow down/right chevron", category: "Navigation" },
 
     // Status
     { name: "CheckIcon", component: CheckIcon, description: "Checkmark", category: "Status" },
@@ -93,6 +98,8 @@ const IconsDocs: React.FC = () => {
     { name: "Trash", component: Trash, description: "Delete/trash bin", category: "Actions" },
     { name: "ShoppingCart", component: ShoppingCart, description: "Shopping cart", category: "Actions" },
     { name: "AirplaneTilt", component: AirplaneTilt, description: "Airplane tilted", category: "Actions" },
+    { name: "Funnel", component: Funnel as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "Filter funnel", category: "Actions" },
+    { name: "UserPlus", component: UserPlus, description: "Add user", category: "Actions" },
 
     // Finance
     { name: "Bank", component: Bank, description: "Bank building", category: "Finance" },
@@ -111,6 +118,7 @@ const IconsDocs: React.FC = () => {
     { name: "Subtitles", component: Subtitles, description: "Subtitles/captions", category: "Documents" },
 
     // Misc
+    { name: "Gear", component: Gear as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "Settings/gear icon", category: "Misc" },
     { name: "CalendarBlank", component: CalendarBlank, description: "Calendar", category: "Misc" },
     { name: "MapPin", component: MapPin, description: "Location pin", category: "Misc" },
     { name: "Phone", component: Phone, description: "Phone icon", category: "Misc" },
@@ -171,8 +179,11 @@ const IconsDocs: React.FC = () => {
   ErrorIcon,
   FileText,
   FloppyDisk,
+  Funnel,
+  Gear,
   IdentificationCard,
   Info,
+  KeyboardArrowDown,
   MagnifyingGlass,
   MapPin,
   MinusCircle,
@@ -192,6 +203,7 @@ const IconsDocs: React.FC = () => {
   Trash2,
   UploadSimple,
   UserCircle,
+  UserPlus,
   VendorIcon,
   Warning,
   Warning2,
