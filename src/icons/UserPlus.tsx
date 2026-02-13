@@ -1,9 +1,19 @@
-export function UserPlus({ fill = '#1B1C1E' }: { fill?: string }) {
+import React from 'react'
+
+interface UserPlusProps {
+  size?: number | string
+  fill?: string
+}
+
+export const UserPlus: React.FC<UserPlusProps> = ({
+  size = 16,
+  fill = '#1B1C1E',
+}) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="none"
     >
