@@ -1,4 +1,4 @@
-import { useRef, ReactNode } from "react";
+import { useEffect, useMemo, useRef, ReactNode } from "react";
 import {
   Stack,
   Typography,
@@ -15,6 +15,7 @@ import {
   UploadSimple,
   CheckCircle,
   PdfFile,
+  FileText,
   CloseIcon,
 } from "@/icons";
 import theme from "@/theme";
@@ -41,7 +42,21 @@ export interface FileUploadBoxProps {
   value?: File | FileUploadResponse | null;
   fileName?: string;
   multiSelect?: boolean;
-  uploadedFile?: { file?: { name: string } } | null;
+  uploadedFile?: {
+    file?: {
+      name: string;
+      documentUrl?: string;
+      mimeType?: string;
+      mediaType?: string;
+      fileType?: string;
+      documentType?: string;
+    };
+    documentUrl?: string;
+    mimeType?: string;
+    mediaType?: string;
+    fileType?: string;
+    documentType?: string;
+  } | null;
   onRemove?: () => void;
   onFileSelect?: (file: File) => Promise<FileUploadResponse | null>;
   // Style customization props
@@ -160,6 +175,124 @@ const RemoveIconStack = styled(Stack)({
   cursor: "pointer",
 });
 
+const FilePreviewImage = styled("img")({
+  width: "21px",
+  height: "21px",
+  objectFit: "cover",
+  borderRadius: "2px",
+  flexShrink: 0,
+});
+
+type FileTypeMeta = {
+  mimeType?: string;
+  mediaType?: string;
+  fileType?: string;
+  documentType?: string;
+  documentName?: string;
+  name?: string;
+  documentUrl?: string;
+};
+
+const IMAGE_EXTENSIONS = new Set([
+  "png",
+  "jpg",
+  "jpeg",
+  "gif",
+  "svg",
+  "webp",
+  "bmp",
+  "tif",
+  "tiff",
+  "avif",
+]);
+
+const getFileExtension = (value?: string) => {
+  if (!value) {
+    return "";
+  }
+
+  const cleanedValue = value.split("?")[0].split("#")[0];
+  const extension = cleanedValue.split(".").pop()?.toLowerCase() || "";
+  return extension === cleanedValue.toLowerCase() ? "" : extension;
+};
+
+const getIsPdfFileType = (file?: FileTypeMeta | null) => {
+  const extensions = [
+    getFileExtension(file?.name),
+    getFileExtension(file?.documentName),
+    getFileExtension(file?.fileType),
+    getFileExtension(file?.documentType),
+    getFileExtension(file?.documentUrl),
+  ];
+
+  if (extensions.includes("pdf")) {
+    return true;
+  }
+
+  const values = [
+    file?.mimeType?.toLowerCase(),
+    file?.mediaType?.toLowerCase(),
+    file?.fileType?.toLowerCase(),
+    file?.documentType?.toLowerCase(),
+  ].filter(Boolean) as string[];
+
+  return (
+    values.includes("pdf") ||
+    values.includes("application/pdf") ||
+    values.some((value) => value.endsWith("/pdf"))
+  );
+};
+
+const getIsImageFileType = (file?: FileTypeMeta | null) => {
+  const allowedTypes = [
+    "gif",
+    "svg+xml",
+    "svg",
+    "jpeg",
+    "png",
+    "webp",
+    "jpg",
+    "bmp",
+    "tif",
+    "tiff",
+    "avif",
+  ];
+
+  const extensions = [
+    getFileExtension(file?.name),
+    getFileExtension(file?.documentName),
+    getFileExtension(file?.fileType),
+    getFileExtension(file?.documentType),
+    getFileExtension(file?.documentUrl),
+  ];
+
+  if (extensions.some((ext) => IMAGE_EXTENSIONS.has(ext))) {
+    return true;
+  }
+
+  const values = [
+    file?.mimeType?.toLowerCase(),
+    file?.mediaType?.toLowerCase(),
+    file?.fileType?.toLowerCase(),
+    file?.documentType?.toLowerCase(),
+  ].filter(Boolean) as string[];
+
+  const isHeic =
+    values.some((value) => value.includes("heic")) ||
+    values.some((value) => value.includes("heif"));
+
+  if (isHeic) {
+    return false;
+  }
+
+  return (
+    values.some((value) => value.startsWith("image/")) ||
+    allowedTypes.some((allowed) =>
+      values.some((value) => value.includes(allowed)),
+    )
+  );
+};
+
 export const FileUpload = ({
   error,
   helperText,
@@ -187,19 +320,71 @@ export const FileUpload = ({
 }: FileUploadBoxProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Convert value (File) to uploadedFile format if not explicitly provided
-  const displayFile =
-    uploadedFile ||
-    (value
-      ? {
-          file: {
-            name:
-              "documentName" in value
-                ? (value as FileUploadResponse).documentName
-                : (value as File).name,
-          },
-        }
-      : null);
+  const localFilePreviewUrl = useMemo(() => {
+    if (uploadedFile?.file || !(value instanceof File)) {
+      return undefined;
+    }
+
+    return URL.createObjectURL(value);
+  }, [uploadedFile?.file, value]);
+
+  useEffect(() => {
+    return () => {
+      if (localFilePreviewUrl) {
+        URL.revokeObjectURL(localFilePreviewUrl);
+      }
+    };
+  }, [localFilePreviewUrl]);
+
+  const displayFile = useMemo(() => {
+    if (uploadedFile?.file) {
+      return {
+        name: uploadedFile.file.name,
+        documentUrl: uploadedFile.file.documentUrl || uploadedFile.documentUrl,
+        mimeType: uploadedFile.file.mimeType || uploadedFile.mimeType,
+        mediaType: uploadedFile.file.mediaType || uploadedFile.mediaType,
+        fileType:
+          uploadedFile.file.fileType ||
+          uploadedFile.file.documentType ||
+          uploadedFile.file.name,
+        documentType:
+          uploadedFile.file.documentType || uploadedFile.documentType,
+      };
+    }
+
+    if (!value) {
+      return null;
+    }
+
+    if (value instanceof File) {
+      return {
+        name: value.name,
+        documentUrl: localFilePreviewUrl,
+        mimeType: value.type,
+        mediaType: value.type,
+        fileType: value.name,
+        documentType: value.type,
+      };
+    }
+
+    return {
+      name: value.documentName,
+      documentUrl: value.documentUrl,
+      fileType: value.documentType || value.documentName,
+      documentType: value.documentType,
+    };
+  }, [uploadedFile, value, localFilePreviewUrl]);
+
+  const filePreviewType = useMemo(() => {
+    switch (true) {
+      case getIsImageFileType(displayFile):
+        return "image";
+      case getIsPdfFileType(displayFile):
+        return "pdf";
+      default:
+        return "doc";
+    }
+  }, [displayFile]);
 
   const handleUploadClick = () => {
     if (!disabled && !isLoading) {
@@ -241,6 +426,24 @@ export const FileUpload = ({
     } else {
       // If no onRemove callback, call onChange with null to clear the value
       onChange(null as unknown as File);
+    }
+  };
+
+  const renderFilePreview = () => {
+    switch (filePreviewType) {
+      case "pdf":
+        return <PdfFile />;
+      case "image":
+        return displayFile?.documentUrl ? (
+          <FilePreviewImage
+            src={displayFile.documentUrl}
+            alt={displayFile.name}
+          />
+        ) : (
+          <FileText size={21} />
+        );
+      default:
+        return <FileText size={21} />;
     }
   };
 
@@ -316,9 +519,9 @@ export const FileUpload = ({
           </Stack>
           <FileContainer>
             <FileContentStack direction='row' gap='6px' alignItems='center'>
-              <PdfFile />
+              {renderFilePreview()}
               <FileNameTypography variant='b1' sx={fileNameSx}>
-                {displayFile?.file?.name}
+                {displayFile?.name}
               </FileNameTypography>
             </FileContentStack>
             <RemoveIconStack onClick={handleRemoveFile}>
