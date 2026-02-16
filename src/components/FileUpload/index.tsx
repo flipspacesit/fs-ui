@@ -47,15 +47,7 @@ export interface FileUploadBoxProps {
       name: string;
       documentUrl?: string;
       mimeType?: string;
-      mediaType?: string;
-      fileType?: string;
-      documentType?: string;
     };
-    documentUrl?: string;
-    mimeType?: string;
-    mediaType?: string;
-    fileType?: string;
-    documentType?: string;
   } | null;
   onRemove?: () => void;
   onFileSelect?: (file: File) => Promise<FileUploadResponse | null>;
@@ -337,42 +329,49 @@ export const FileUpload = ({
   }, [localFilePreviewUrl]);
 
   const displayFile = useMemo(() => {
+    const valueData = (() => {
+      if (!value) {
+        return null;
+      }
+
+      if (value instanceof File) {
+        return {
+          name: value.name,
+          documentUrl: localFilePreviewUrl,
+          mimeType: value.type,
+          mediaType: value.type,
+          fileType: value.name,
+          documentType: value.type,
+        };
+      }
+
+      return {
+        name: value.documentName,
+        documentUrl: value.documentUrl,
+        // Map documentType to multiple fields to ensure type detection works
+        // whether it's a mime type or extension
+        mimeType: value.documentType,
+        mediaType: value.documentType,
+        fileType: value.documentType || value.documentName,
+        documentType: value.documentType,
+      };
+    })();
+
     if (uploadedFile?.file) {
+      const { file } = uploadedFile;
+      const mimeType = file.mimeType || valueData?.mimeType;
+
       return {
-        name: uploadedFile.file.name,
-        documentUrl: uploadedFile.file.documentUrl || uploadedFile.documentUrl,
-        mimeType: uploadedFile.file.mimeType || uploadedFile.mimeType,
-        mediaType: uploadedFile.file.mediaType || uploadedFile.mediaType,
-        fileType:
-          uploadedFile.file.fileType ||
-          uploadedFile.file.documentType ||
-          uploadedFile.file.name,
-        documentType:
-          uploadedFile.file.documentType || uploadedFile.documentType,
+        name: file.name || valueData?.name || "",
+        documentUrl: file.documentUrl || valueData?.documentUrl,
+        mimeType,
+        mediaType: mimeType || valueData?.mediaType,
+        fileType: mimeType || file.name || valueData?.fileType,
+        documentType: mimeType || valueData?.documentType,
       };
     }
 
-    if (!value) {
-      return null;
-    }
-
-    if (value instanceof File) {
-      return {
-        name: value.name,
-        documentUrl: localFilePreviewUrl,
-        mimeType: value.type,
-        mediaType: value.type,
-        fileType: value.name,
-        documentType: value.type,
-      };
-    }
-
-    return {
-      name: value.documentName,
-      documentUrl: value.documentUrl,
-      fileType: value.documentType || value.documentName,
-      documentType: value.documentType,
-    };
+    return valueData;
   }, [uploadedFile, value, localFilePreviewUrl]);
 
   const filePreviewType = useMemo(() => {
