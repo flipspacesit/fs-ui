@@ -14,7 +14,8 @@ const FileUploadDocs: React.FC = () => {
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
         A file upload component that supports click-to-upload, loading state,
-        and displays uploaded file information with remove functionality.
+        file type detection with image/PDF previews, and displays uploaded file
+        information with remove functionality. Fully customizable via style props.
       </Typography>
 
       <DocSection title="Import">
@@ -241,10 +242,15 @@ function MyForm() {
               description: "Allow selecting multiple files",
             },
             {
+              name: "fileName",
+              type: "string",
+              description: "Override display name for the uploaded file",
+            },
+            {
               name: "uploadedFile",
-              type: '{ file?: { name: string } } | null',
+              type: '{ file?: { name: string; documentUrl?: string; mimeType?: string; mediaType?: string; fileType?: string; documentType?: string }; documentUrl?: string; mimeType?: string; mediaType?: string; fileType?: string; documentType?: string } | null',
               description:
-                "Pre-populated uploaded file info (overrides value display)",
+                "Pre-populated uploaded file info (overrides value display). Supports file type detection for PDF and image previews.",
             },
             {
               name: "onRemove",
@@ -257,6 +263,21 @@ function MyForm() {
               type: "(file: File) => Promise<FileUploadResponse | null>",
               description:
                 "Async callback for upload hook integration; resolves with upload response",
+            },
+            {
+              name: "labelSx",
+              type: "SxProps<Theme>",
+              description: "Custom styles for the upload label text",
+            },
+            {
+              name: "helperTextSx",
+              type: "SxProps<Theme>",
+              description: "Custom styles for the helper/error text",
+            },
+            {
+              name: "uploadSubTextSx",
+              type: "SxProps<Theme>",
+              description: "Custom styles for the upload sub text",
             },
             {
               name: "containerSx",
@@ -273,6 +294,16 @@ function MyForm() {
               name: "fileNameSx",
               type: "SxProps<Theme>",
               description: "Custom styles for the file name text",
+            },
+            {
+              name: "uploadContentSx",
+              type: "SxProps<Theme>",
+              description: "Custom styles for the upload content area (icon + text stack)",
+            },
+            {
+              name: "uploadIconContainerSx",
+              type: "SxProps<Theme>",
+              description: "Custom styles for the upload icon container on the right side",
             },
           ]}
         />
