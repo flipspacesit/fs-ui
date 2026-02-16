@@ -40,7 +40,6 @@ export interface FileUploadBoxProps {
   isLoading?: boolean;
   disabled?: boolean;
   value?: File | FileUploadResponse | null;
-  fileName?: string;
   multiSelect?: boolean;
   uploadedFile?: {
     file?: {

@@ -203,7 +203,7 @@ function MyForm() {
             {
               name: "icon",
               type: "React.ReactNode",
-              default: "<Scroll2 />",
+              default: "<Scroll2 size={18} />",
               description: "Custom icon for the upload area",
             },
             {
@@ -242,13 +242,8 @@ function MyForm() {
               description: "Allow selecting multiple files",
             },
             {
-              name: "fileName",
-              type: "string",
-              description: "Override display name for the uploaded file",
-            },
-            {
               name: "uploadedFile",
-              type: '{ file?: { name: string; documentUrl?: string; mimeType?: string; mediaType?: string; fileType?: string; documentType?: string }; documentUrl?: string; mimeType?: string; mediaType?: string; fileType?: string; documentType?: string } | null',
+              type: '{ file?: { name: string; documentUrl?: string; mimeType?: string } } | null',
               description:
                 "Pre-populated uploaded file info (overrides value display). Supports file type detection for PDF and image previews.",
             },
