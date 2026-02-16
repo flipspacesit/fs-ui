@@ -26,6 +26,7 @@ export { Gear } from "./Gear";
 export { IdentificationCard } from "./IdentificationCard";
 export { Info } from "./Info";
 export { KeyboardArrowDown } from "./KeyboardArrowDown";
+export { Logout } from "./Logout";
 export { MagnifyingGlass } from "./MagnifyingGlass";
 export { MapPin } from "./MapPin";
 export { MinusCircle } from "./MinusCircle";
