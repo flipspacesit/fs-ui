@@ -11,6 +11,7 @@ export { Cardholder } from "./Cardholder";
 export { CheckIcon } from "./Check";
 export { CheckCircle } from "./CheckCircle";
 export { CheckCircle2 } from "./CheckCircle2";
+export { CheckRectangle } from "./CheckRectangle";
 export { CheckSquareOffset } from "./CheckSquareOffset";
 export { CloseIcon } from "./Close";
 export { CreditCard } from "./CreditCard";
