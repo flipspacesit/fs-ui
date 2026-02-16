@@ -31,6 +31,7 @@ import {
   IdentificationCard,
   Info,
   KeyboardArrowDown,
+  Logout,
   MagnifyingGlass,
   MapPin,
   MinusCircle,
@@ -108,6 +109,7 @@ const IconsDocs: React.FC = () => {
     { name: "AirplaneTilt", component: AirplaneTilt, description: "Airplane tilted", category: "Actions" },
     { name: "Funnel", component: Funnel as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "Filter funnel", category: "Actions" },
     { name: "UserPlus", component: UserPlus, description: "Add user", category: "Actions" },
+    { name: "Logout", component: Logout as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "Sign out / logout", category: "Actions" },
 
     // Finance
     { name: "Bank", component: Bank, description: "Bank building", category: "Finance" },
@@ -195,6 +197,7 @@ const IconsDocs: React.FC = () => {
   IdentificationCard,
   Info,
   KeyboardArrowDown,
+  Logout,
   MagnifyingGlass,
   MapPin,
   MinusCircle,
