@@ -1,11 +1,11 @@
 import React from "react";
 
-interface CheckCircleProps {
+interface CheckRectangleProps {
   size?: number | string;
   fill?: string;
 }
 
-export const CheckRectangle: React.FC<CheckCircleProps> = ({
+export const CheckRectangle: React.FC<CheckRectangleProps> = ({
   size = 18,
   fill = "#FFFFFF",
 }) => {
