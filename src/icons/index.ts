@@ -42,6 +42,7 @@ export { Phone } from "./Phone";
 export { Repeat } from "./Repeat";
 export { Scroll } from "./Scroll";
 export { Scroll2 } from "./Scroll2";
+export { SealCheck } from "./SealCheck";
 export { ShoppingCart } from "./ShoppingCart";
 export { Storefront } from "./Storefront";
 export { Subtitles } from "./Subtitles";
