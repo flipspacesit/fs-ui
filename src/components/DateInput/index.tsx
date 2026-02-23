@@ -5,48 +5,48 @@ import {
   FormHelperText,
   SxProps,
   Theme,
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import type { Dayjs } from "dayjs";
-import theme from "@/theme";
-import { CalendarBlank } from "@/icons";
+} from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { DatePicker, DatePickerProps } from '@mui/x-date-pickers/DatePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import type { Dayjs } from 'dayjs'
+import theme from '@/theme'
+import { CalendarBlank } from '@/icons'
 
-export type DateInputProps = {
-  label?: string;
-  value: Dayjs | null;
-  onChange: (value: Dayjs | null) => void;
-  error?: boolean;
-  helperText?: string;
-  required?: boolean;
-  fullWidth?: boolean;
-  sx?: SxProps<Theme>;
-  format?: string;
-  placeholder?: string;
+export type DateInputProps = DatePickerProps & {
+  label?: string
+  value: Dayjs | null
+  onChange: (value: Dayjs | null) => void
+  error?: boolean
+  helperText?: string
+  required?: boolean
+  fullWidth?: boolean
+  sx?: SxProps<Theme>
+  format?: string
+  placeholder?: string
   // Style customization props
-  labelSx?: SxProps<Theme>;
-  helperTextSx?: SxProps<Theme>;
-  datePickerSx?: SxProps<Theme>;
-};
+  labelSx?: SxProps<Theme>
+  helperTextSx?: SxProps<Theme>
+  datePickerSx?: SxProps<Theme>
+}
 
 const StyledFormLabel = styled(FormLabel)(() => ({
-  fontSize: "12px",
-  fontWeight: "500",
+  fontSize: '12px',
+  fontWeight: '500',
   color: theme.palette.text.secondary,
-  marginBottom: "4px",
-  "& .MuiFormLabel-asterisk": {
+  marginBottom: '4px',
+  '& .MuiFormLabel-asterisk': {
     color: theme.palette.error.main,
   },
-  "&.Mui-focused": {
+  '&.Mui-focused': {
     color: theme.palette.text.secondary,
   },
-}));
+}))
 
 const StyledFormHelperText = styled(FormHelperText)({
   margin: 0,
-});
+})
 
 export const DateInput = ({
   label,
@@ -57,11 +57,12 @@ export const DateInput = ({
   required,
   fullWidth = true,
   sx,
-  format = "DD/MM/YYYY",
+  format = 'DD/MM/YYYY',
   placeholder,
   labelSx,
   helperTextSx,
   datePickerSx,
+  ...props
 }: DateInputProps) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -77,15 +78,16 @@ export const DateInput = ({
             onChange={onChange}
             format={format}
             enableAccessibleFieldDOMStructure={false}
+            {...props}
             slotProps={{
               textField: {
                 fullWidth: true,
                 error: error,
-                size: "medium",
+                size: 'medium',
                 sx: [
                   {
-                    "& .MuiOutlinedInput-root": {
-                      paddingRight: "14px",
+                    '& .MuiOutlinedInput-root': {
+                      paddingRight: '14px',
                     },
                   },
                   ...(Array.isArray(datePickerSx)
@@ -115,7 +117,7 @@ export const DateInput = ({
         </Stack>
       </FormControl>
     </LocalizationProvider>
-  );
-};
+  )
+}
 
-export default DateInput;
+export default DateInput
