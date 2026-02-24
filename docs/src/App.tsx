@@ -41,6 +41,8 @@ import SelectInputDocs from "./pages/SelectInputDocs";
 import DateInputDocs from "./pages/DateInputDocs";
 import FileUploadDocs from "./pages/FileUploadDocs";
 import NoDataContentDocs from "./pages/NoDataContentDocs";
+import UseSearchInputDocs from "./pages/UseSearchInputDocs";
+import UtilsDocs from "./pages/UtilsDocs";
 
 const SIDEBAR_WIDTH = 260;
 
@@ -69,8 +71,10 @@ const menuItems = [
   { id: "file-upload", label: "FileUpload", category: "Components" },
   { id: "no-data-content", label: "NoDataContent", category: "Components" },
   { id: "notification", label: "useNotification", category: "Hooks" },
+  { id: "use-search-input", label: "useSearchInput", category: "Hooks" },
   { id: "icons", label: "Icons", category: "Utilities" },
   { id: "constants", label: "Constants", category: "Utilities" },
+  { id: "utils", label: "Utility Functions", category: "Utilities" },
 ];
 
 const pageComponents: Record<string, React.FC> = {
@@ -98,8 +102,10 @@ const pageComponents: Record<string, React.FC> = {
   "file-upload": FileUploadDocs,
   "no-data-content": NoDataContentDocs,
   notification: NotificationDocs,
+  "use-search-input": UseSearchInputDocs,
   icons: IconsDocs,
   constants: ConstantsDocs,
+  utils: UtilsDocs,
 };
 
 function App() {

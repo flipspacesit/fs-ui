@@ -3,10 +3,12 @@ import { Box, Typography, Stack, Paper, TextField, InputAdornment } from "@mui/m
 import { DocSection, ExampleBox, PropsTable } from "../components/DocSection";
 import CodeBlock from "../components/CodeBlock";
 import {
+  Add,
   AirplaneTilt,
   ArrowDown,
   ArrowDown2,
   ArrowLeft,
+  ArrowLeft2,
   ArrowRight,
   ArrowUp,
   Bank,
@@ -26,6 +28,7 @@ import {
   ErrorIcon,
   FileText,
   FloppyDisk,
+  FullScreen,
   Funnel,
   Gear,
   IdentificationCard,
@@ -34,6 +37,8 @@ import {
   Logout,
   MagnifyingGlass,
   MapPin,
+  Minus,
+  MinimizeFullScreen,
   MinusCircle,
   NoDataIcon,
   PaperPlaneTilt,
@@ -43,6 +48,7 @@ import {
   Repeat,
   Scroll,
   Scroll2,
+  SealCheck,
   ShoppingCart,
   Storefront,
   Subtitles,
@@ -60,7 +66,7 @@ import {
 
 interface IconItem {
   name: string;
-  component: React.FC<{ size?: number | string; fill?: string; color?: string }>;
+  component: React.FC<Record<string, unknown>>;
   description: string;
   category: "Navigation" | "Status" | "Actions" | "Finance" | "Documents" | "Misc";
   /** Override fill color for display (for icons with white default) */
@@ -75,11 +81,14 @@ const IconsDocs: React.FC = () => {
   const icons: IconItem[] = [
     // Navigation
     { name: "ArrowDown", component: ArrowDown, description: "Downward arrow", category: "Navigation" },
-    { name: "ArrowDown2", component: ArrowDown2 as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "Downward chevron arrow", category: "Navigation" },
+    { name: "ArrowDown2", component: ArrowDown2, description: "Downward chevron arrow", category: "Navigation" },
     { name: "ArrowLeft", component: ArrowLeft, description: "Left arrow", category: "Navigation" },
+    { name: "ArrowLeft2", component: ArrowLeft2, description: "Left arrow with line", category: "Navigation" },
     { name: "ArrowRight", component: ArrowRight, description: "Right arrow", category: "Navigation" },
     { name: "ArrowUp", component: ArrowUp, description: "Upward arrow", category: "Navigation" },
-    { name: "KeyboardArrowDown", component: KeyboardArrowDown as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "Keyboard arrow down/right chevron", category: "Navigation" },
+    { name: "FullScreen", component: FullScreen, description: "Enter fullscreen", category: "Navigation" },
+    { name: "MinimizeFullScreen", component: MinimizeFullScreen, description: "Exit fullscreen", category: "Navigation" },
+    { name: "KeyboardArrowDown", component: KeyboardArrowDown, description: "Keyboard arrow down/right chevron", category: "Navigation" },
 
     // Status
     { name: "CheckIcon", component: CheckIcon, description: "Checkmark", category: "Status" },
@@ -94,8 +103,11 @@ const IconsDocs: React.FC = () => {
     { name: "Warning", component: Warning, description: "Warning badge", category: "Status", displayFill: "#F59E0B", defaultNote: "Default: white (for dark backgrounds)" },
     { name: "Warning2", component: Warning2, description: "Warning triangle", category: "Status" },
     { name: "MinusCircle", component: MinusCircle, description: "Minus in circle", category: "Status" },
+    { name: "SealCheck", component: SealCheck, description: "Verified seal with checkmark", category: "Status", displayFill: "#10B981", defaultNote: "Default: white (for dark backgrounds)" },
 
     // Actions
+    { name: "Add", component: Add, description: "Plus / add icon", category: "Actions" },
+    { name: "Minus", component: Minus, description: "Minus / subtract icon", category: "Actions" },
     { name: "Download", component: Download, description: "Download arrow", category: "Actions" },
     { name: "UploadSimple", component: UploadSimple, description: "Upload arrow", category: "Actions" },
     { name: "TrayArrowUp", component: TrayArrowUp, description: "Tray with upload arrow", category: "Actions" },
@@ -107,9 +119,9 @@ const IconsDocs: React.FC = () => {
     { name: "Trash", component: Trash, description: "Delete/trash bin", category: "Actions" },
     { name: "ShoppingCart", component: ShoppingCart, description: "Shopping cart", category: "Actions" },
     { name: "AirplaneTilt", component: AirplaneTilt, description: "Airplane tilted", category: "Actions" },
-    { name: "Funnel", component: Funnel as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "Filter funnel", category: "Actions" },
+    { name: "Funnel", component: Funnel, description: "Filter funnel", category: "Actions" },
     { name: "UserPlus", component: UserPlus, description: "Add user", category: "Actions" },
-    { name: "Logout", component: Logout as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "Sign out / logout", category: "Actions" },
+    { name: "Logout", component: Logout, description: "Sign out / logout", category: "Actions" },
 
     // Finance
     { name: "Bank", component: Bank, description: "Bank building", category: "Finance" },
@@ -128,15 +140,15 @@ const IconsDocs: React.FC = () => {
     { name: "Subtitles", component: Subtitles, description: "Subtitles/captions", category: "Documents" },
 
     // Misc
-    { name: "Gear", component: Gear as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "Settings/gear icon", category: "Misc" },
+    { name: "Gear", component: Gear, description: "Settings/gear icon", category: "Misc" },
     { name: "CalendarBlank", component: CalendarBlank, description: "Calendar", category: "Misc" },
     { name: "MapPin", component: MapPin, description: "Location pin", category: "Misc" },
     { name: "Phone", component: Phone, description: "Phone icon", category: "Misc" },
     { name: "Storefront", component: Storefront, description: "Store icon", category: "Misc" },
     { name: "UserCircle", component: UserCircle, description: "User avatar", category: "Misc" },
-    { name: "VendorIcon", component: VendorIcon as React.FC<{ size?: number | string }>, description: "Flipspaces vendor logo", category: "Misc" },
-    { name: "NoDataIcon", component: NoDataIcon as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "No data placeholder", category: "Misc" },
-    { name: "Trash2", component: Trash2 as React.FC<{ size?: number | string; fill?: string; color?: string }>, description: "Large trash bin", category: "Misc", displayFill: "#1B1C1E", defaultNote: "Default: white (for dark backgrounds)" },
+    { name: "VendorIcon", component: VendorIcon, description: "Flipspaces vendor logo", category: "Misc" },
+    { name: "NoDataIcon", component: NoDataIcon, description: "No data placeholder", category: "Misc" },
+    { name: "Trash2", component: Trash2, description: "Large trash bin", category: "Misc", displayFill: "#1B1C1E", defaultNote: "Default: white (for dark backgrounds)" },
   ];
 
   const filteredIcons = icons.filter(
@@ -169,10 +181,12 @@ const IconsDocs: React.FC = () => {
       <DocSection title="Import">
         <CodeBlock
           code={`import {
+  Add,
   AirplaneTilt,
   ArrowDown,
   ArrowDown2,
   ArrowLeft,
+  ArrowLeft2,
   ArrowRight,
   ArrowUp,
   Bank,
@@ -192,6 +206,7 @@ const IconsDocs: React.FC = () => {
   ErrorIcon,
   FileText,
   FloppyDisk,
+  FullScreen,
   Funnel,
   Gear,
   IdentificationCard,
@@ -200,6 +215,8 @@ const IconsDocs: React.FC = () => {
   Logout,
   MagnifyingGlass,
   MapPin,
+  Minus,
+  MinimizeFullScreen,
   MinusCircle,
   NoDataIcon,
   PaperPlaneTilt,
@@ -209,6 +226,7 @@ const IconsDocs: React.FC = () => {
   Repeat,
   Scroll,
   Scroll2,
+  SealCheck,
   ShoppingCart,
   Storefront,
   Subtitles,
