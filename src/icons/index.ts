@@ -3,6 +3,7 @@ export { AirplaneTilt } from "./AirplaneTilt";
 export { ArrowDown } from "./ArrowDown";
 export { ArrowDown2 } from "./ArrowDown2";
 export { ArrowLeft } from "./ArrowLeft";
+export { ArrowLeft2 } from "./ArrowLeft2";
 export { ArrowRight } from "./ArrowRight";
 export { ArrowUp } from "./ArrowUp";
 export { Bank } from "./Bank";
