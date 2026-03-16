@@ -58,6 +58,8 @@ export interface SearchInputProps
   value?: string;
   /** Callback when search value changes */
   onChange?: (value: string) => void;
+  /** Callback when clear button is clicked */
+  onClear?: () => void;
   /** Placeholder text */
   placeholder?: string;
   /** Debounce delay in ms */
@@ -78,6 +80,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   debounceMs = 300,
   showClear = true,
   containerSx = {},
+  onClear,
   ...rest
 }) => {
   const [internalValue, setInternalValue] = useState("");
@@ -123,6 +126,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       setInternalValue("");
     }
     onChange?.("");
+    onClear?.();
   };
 
   return (
