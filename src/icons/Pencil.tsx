@@ -1,10 +1,10 @@
-function Pencil({
+export const Pencil = ({
   size = 13,
   fill = '#3659DB',
 }: {
   size?: number
   fill?: string
-}) {
+}) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -20,5 +20,3 @@ function Pencil({
     </svg>
   )
 }
-
-export default Pencil

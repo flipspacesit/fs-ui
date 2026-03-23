@@ -1,4 +1,4 @@
-function RequestPayment() {
+export const RequestPayment = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -162,5 +162,3 @@ function RequestPayment() {
     </svg>
   )
 }
-
-export default RequestPayment
