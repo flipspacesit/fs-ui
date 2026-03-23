@@ -1,10 +1,10 @@
-function FillInfo({
+export const FillInfo = ({
   size = 12,
   fill = '#3659DB',
 }: {
   size?: number
   fill?: string
-}) {
+}) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -25,5 +25,3 @@ function FillInfo({
     </svg>
   )
 }
-
-export default FillInfo

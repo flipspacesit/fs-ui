@@ -1,10 +1,10 @@
-function EqualtoCircle({
+export const EqualtoCircle = ({
   size = 12,
   stroke = '#36763E',
 }: {
   size?: number
   stroke?: string
-}) {
+}) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -27,5 +27,3 @@ function EqualtoCircle({
     </svg>
   )
 }
-
-export default EqualtoCircle

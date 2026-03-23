@@ -1,4 +1,4 @@
-function IndianFlag({ size = 20 }: { size?: number }) {
+export const IndianFlag = ({ size = 20 }: { size?: number }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -225,5 +225,3 @@ function IndianFlag({ size = 20 }: { size?: number }) {
     </svg>
   )
 }
-
-export default IndianFlag
