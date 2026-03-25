@@ -1,14 +1,8 @@
-interface MinusCircleProps {
-  size?: number
+export const PlusCircle: React.FC<{
   fill?: string
   stroke?: string
-}
-
-export const MinusCircle: React.FC<MinusCircleProps> = ({
-  size = 12,
-  fill = '#BDBDA6',
-  stroke = '#FFFFFF',
-}) => {
+  size?: number
+}> = ({ fill = '#EDEFF5', stroke = '#616161', size = 12 }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -22,7 +16,12 @@ export const MinusCircle: React.FC<MinusCircleProps> = ({
         fill={fill}
       />
       <path
-        d="M3.35156 5.73047L7.79541 5.7306"
+        d="M3.35156 5.73242L7.79541 5.73255"
+        stroke={stroke}
+        strokeLinecap="round"
+      />
+      <path
+        d="M5.63281 3.51172L5.51297 7.95395"
         stroke={stroke}
         strokeLinecap="round"
       />
