@@ -1,9 +1,11 @@
 export const EqualtoCircle = ({
   size = 12,
-  stroke = '#36763E',
+  stroke = "#36763E",
+  fill = "#C3E8CA",
 }: {
-  size?: number
-  stroke?: string
+  size?: number;
+  stroke?: string;
+  fill?: string;
 }) => {
   return (
     <svg
@@ -13,7 +15,7 @@ export const EqualtoCircle = ({
       viewBox="0 0 12 12"
       fill="none"
     >
-      <circle cx="5.69" cy="5.69" r="5.69" fill="#C3E8CA" />
+      <circle cx="5.69" cy="5.69" r="5.69" fill={fill} />
       <path
         d="M3.46875 6.61719L7.9102 6.6112"
         stroke={stroke}
@@ -25,5 +27,5 @@ export const EqualtoCircle = ({
         stroke-linecap="round"
       />
     </svg>
-  )
-}
+  );
+};
