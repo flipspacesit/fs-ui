@@ -138,7 +138,6 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
   const handleClick = (event: React.MouseEvent) => {
     event.preventDefault()
-    event.stopPropagation()
     if (disabled) return
     setOpen((prevOpen) => !prevOpen)
   }

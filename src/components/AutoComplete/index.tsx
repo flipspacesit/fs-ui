@@ -108,12 +108,27 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
   placeholder = "Select",
 }) => {
   const [inputValue, setInputValue] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
+  const [isFilteringActive, setIsFilteringActive] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [filteredOptions, setFilteredOptions] = useState<string[]>(options);
   const [inputWidth, setInputWidth] = useState<number | undefined>(undefined);
   const autoCompleteRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Sync state during render to avoid cascading renders from useEffect
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setInputValue(value);
+  }
+
+  const displayedOptions = React.useMemo(() => {
+    if (!filterOptions || !isFilteringActive) return options;
+    const search = inputValue.toLowerCase();
+    return options.filter(
+      (option) => option.toLowerCase().includes(search) || search === ""
+    );
+  }, [options, inputValue, filterOptions, isFilteringActive]);
 
   const openDropDown = () => {
     setIsDropdownOpen(true);
@@ -122,7 +137,6 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
       setInputWidth(inputRef.current.clientWidth);
     }
   };
-
   const closeDropDown = () => {
     setIsDropdownOpen(false);
     setAnchorEl(null);
@@ -137,35 +151,12 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
     }
   }, []);
 
-  const changeFilteredOptions = (newValue: string) => {
-    if (filterOptions) {
-      const optionsArr: string[] = [];
-      options.forEach((option) => {
-        if (
-          option.toLowerCase().includes(newValue.toLowerCase()) ||
-          newValue === ""
-        ) {
-          optionsArr.push(option);
-        }
-      });
-      setFilteredOptions(optionsArr);
-    }
-  };
-
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [handleClickOutside]);
-
-  useEffect(() => {
-    setInputValue(value);
-  }, [value]);
-
-  useEffect(() => {
-    setFilteredOptions(options);
-  }, [options]);
 
   return (
     <AutoCompleteContainer ref={autoCompleteRef}>
@@ -177,7 +168,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
           onChange={(e) => {
             const newValue = e.target.value;
             setInputValue(newValue);
-            changeFilteredOptions(newValue);
+            setIsFilteringActive(true);
             if (newValue) {
               openDropDown();
             }
@@ -198,9 +189,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
               onInputChange?.(value);
               setInputValue(value);
             }
-            if (filterOptions) {
-              setFilteredOptions(options);
-            }
+            setIsFilteringActive(false);
           }}
           readOnly={disabled}
           disabled={disabled}
@@ -240,7 +229,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
             ...dropDownContainerStyles,
           }}
         >
-          {(filterOptions ? filteredOptions : options).map((option, index) => (
+          {displayedOptions.map((option, index) => (
             <DropdownItem
               key={`${option}-${index}`}
               selected={option === value}
