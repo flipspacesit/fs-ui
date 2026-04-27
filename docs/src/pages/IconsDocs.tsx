@@ -4,6 +4,7 @@ import { DocSection, ExampleBox, PropsTable } from "../components/DocSection";
 import CodeBlock from "../components/CodeBlock";
 import {
   Add,
+  AddFloor,
   AirplaneTilt,
   ArrowDown,
   ArrowDown2,
@@ -117,6 +118,7 @@ const IconsDocs: React.FC = () => {
 
     // Actions
     { name: "Add", component: Add, description: "Plus / add icon", category: "Actions" },
+    { name: "AddFloor", component: AddFloor, description: "Add floor icon", category: "Actions" },
     { name: "Minus", component: Minus, description: "Minus / subtract icon", category: "Actions" },
     { name: "Download", component: Download, description: "Download arrow", category: "Actions" },
     { name: "UploadSimple", component: UploadSimple, description: "Upload arrow", category: "Actions" },
@@ -198,6 +200,7 @@ const IconsDocs: React.FC = () => {
         <CodeBlock
           code={`import {
   Add,
+  AddFloor,
   AirplaneTilt,
   ArrowDown,
   ArrowDown2,

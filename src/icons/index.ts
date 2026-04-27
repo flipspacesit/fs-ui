@@ -1,4 +1,5 @@
 export { Add } from './Add'
+export { AddFloor } from './AddFloor'
 export { AirplaneTilt } from './AirplaneTilt'
 export { ArrowDown } from './ArrowDown'
 export { ArrowDown2 } from './ArrowDown2'
