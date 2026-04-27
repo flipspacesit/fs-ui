@@ -317,7 +317,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
             },
           },
         ]}
-        sx={{ zIndex: 1001, ...popperSx }}
+        sx={{ zIndex: 1300, ...popperSx }}
       >
         <ClickAwayListener onClickAway={handleClose}>
           <Paper
