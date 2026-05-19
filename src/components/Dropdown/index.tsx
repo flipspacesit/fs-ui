@@ -125,6 +125,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const [open, setOpen] = React.useState(false)
   const [anchorWidth, setAnchorWidth] = React.useState(200)
   const anchorRef = React.useRef<HTMLDivElement>(null)
+  const popperRef = React.useRef<any>(null)
   const [searchValue, setSearchValue] = React.useState('')
   const fontWeightMedium = theme?.typography?.fontWeight?.medium ?? 500
   const fontWeightRegular = theme?.typography?.fontWeight?.regular ?? 400
@@ -133,6 +134,30 @@ export const Dropdown: React.FC<DropdownProps> = ({
   React.useEffect(() => {
     if (open && anchorRef.current) {
       setAnchorWidth(anchorRef.current.getBoundingClientRect().width)
+    }
+  }, [open])
+
+  // Reposition popper when anchor layout or sibling container shifts
+  React.useEffect(() => {
+    if (!open || !anchorRef.current) return
+
+    const handleResize = () => {
+      if (popperRef.current && typeof popperRef.current.update === 'function') {
+        popperRef.current.update()
+      }
+    }
+
+    const observer = new ResizeObserver(() => {
+      handleResize()
+    })
+
+    observer.observe(anchorRef.current)
+    if (anchorRef.current.parentElement) {
+      observer.observe(anchorRef.current.parentElement)
+    }
+
+    return () => {
+      observer.disconnect()
     }
   }, [open])
 
@@ -308,6 +333,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       <Popper
         open={open && !disabled && options.length > 0}
         anchorEl={popperAnchorEl}
+        popperRef={popperRef}
         placement='bottom-start'
         modifiers={[
           {
