@@ -28,6 +28,7 @@ import {
   Download,
   ErrorIcon,
   FileText,
+  FillFileText,
   FillThumbsDown,
   FillThumbsUp,
   FloppyDisk,
@@ -37,6 +38,7 @@ import {
   Gear,
   IdentificationCard,
   Info,
+  InvoiceUS,
   KeyboardArrowDown,
   Logout,
   MagnifyingGlass,
@@ -58,6 +60,7 @@ import {
   Scroll2,
   SealCheck,
   ShoppingCart,
+  ShieldCheck,
   Storefront,
   Subtitles,
   Success,
@@ -147,6 +150,7 @@ const IconsDocs: React.FC = () => {
     { name: "CurrencyInr", component: CurrencyInr, description: "Indian Rupee", category: "Finance" },
     { name: "CurrencyInr2", component: CurrencyInr2, description: "Indian Rupee (alt)", category: "Finance" },
     { name: "Building", component: Building, description: "Office building", category: "Finance" },
+    { name: "InvoiceUS", component: InvoiceUS, description: "Invoice (US)", category: "Finance" },
 
     // Documents
     { name: "FileText", component: FileText, description: "File with text", category: "Documents" },
@@ -155,6 +159,8 @@ const IconsDocs: React.FC = () => {
     { name: "Scroll2", component: Scroll2, description: "Scroll document (alt)", category: "Documents" },
     { name: "IdentificationCard", component: IdentificationCard, description: "ID card", category: "Documents" },
     { name: "Subtitles", component: Subtitles, description: "Subtitles/captions", category: "Documents" },
+    { name: "FillFileText", component: FillFileText, description: "File with text (filled)", category: "Documents" },
+    { name: "ShieldCheck", component: ShieldCheck, description: "Shield with check (filled)", category: "Documents" },
 
     // Misc
     { name: "Gear", component: Gear, description: "Settings/gear icon", category: "Misc" },
@@ -166,7 +172,7 @@ const IconsDocs: React.FC = () => {
     { name: "VendorIcon", component: VendorIcon, description: "Flipspaces vendor logo", category: "Misc" },
     { name: "NoDataIcon", component: NoDataIcon, description: "No data placeholder", category: "Misc" },
     { name: "Trash2", component: Trash2, description: "Large trash bin", category: "Misc", displayFill: "#1B1C1E", defaultNote: "Default: white (for dark backgrounds)" },
-    { name: "Vizdom", component: Vizdom, description: "Vizdom logo", category: "Misc"}
+    { name: "Vizdom", component: Vizdom, description: "Vizdom logo", category: "Misc" }
   ];
 
   const filteredIcons = icons.filter(
@@ -224,6 +230,7 @@ const IconsDocs: React.FC = () => {
   Download,
   ErrorIcon,
   FileText,
+  FillFileText,
   FillThumbsDown,
   FillThumbsUp,
   FloppyDisk,
@@ -233,6 +240,7 @@ const IconsDocs: React.FC = () => {
   Gear,
   IdentificationCard,
   Info,
+  InvoiceUS,
   KeyboardArrowDown,
   Logout,
   MagnifyingGlass,
@@ -254,6 +262,7 @@ const IconsDocs: React.FC = () => {
   Scroll2,
   SealCheck,
   ShoppingCart,
+  ShieldCheck,
   Storefront,
   Subtitles,
   Success,
