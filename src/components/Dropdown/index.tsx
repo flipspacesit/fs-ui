@@ -23,23 +23,33 @@ import {
 } from '../../constants'
 import { SearchInput } from '../SearchInput'
 import { theme } from '../../theme'
+import { shadows } from '../../theme/tokens/shadows'
 
+/** Flex row wrapper used to lay out a "Sort by" label alongside a `Dropdown`. */
 export const SortByContainer = styled.div`
   display: flex;
   align-items: center;
   color: #1b1c1e;
 `
 
+/** Height preset for the dropdown trigger; mirrors the shared `ComponentSize` scale. */
 export type DropdownSize = ComponentSize
+/** Trigger shape: `round` (pill) or `rectangle` (rounded rect); mirrors `ComponentVariant`. */
 export type DropdownVariant = ComponentVariant
+/** Named palette key (`primary`/`secondary`/`tertiary`) or any raw CSS color string for the trigger background. */
 export type DropdownColor = 'primary' | 'secondary' | 'tertiary' | string
 
+/** A single selectable option rendered in the dropdown menu. */
 export interface DropdownOption {
+  /** Underlying value; matched against `DropdownProps.value` to mark selection and used as fallback display text. */
   value: string
+  /** Human-readable display text; falls back to `value` when omitted. */
   label?: string
+  /** Optional leading icon component rendered before the option text. */
   icon?: React.ComponentType
 }
 
+/** Props for {@link Dropdown}. */
 export interface DropdownProps {
   /** Size of the dropdown */
   size?: DropdownSize
@@ -91,9 +101,18 @@ export interface DropdownProps {
   defaultValue?: string
   /** Add ellipsis to long text */
   isAddEllipsis?: boolean
+  /** Index signature: any extra props are spread onto the trigger `Stack`. */
   [key: string]: unknown
 }
 
+/**
+ * Dropdown select built on MUI `Popper` + `MenuList`.
+ * Renders a pill/rectangle trigger showing an optional label and the selected
+ * option (icon + text), and opens a menu of `DropdownOption`s with a checkmark
+ * on the current selection. Supports optional in-menu search (`isSearchRequired`),
+ * fully custom popper content (`customPopperComponent`), sizes/variants/colors,
+ * text ellipsis, and an end-adornment icon. Every layer is `sx`-overridable.
+ */
 export const Dropdown: React.FC<DropdownProps> = ({
   size = 'small',
   variant = 'round',
@@ -184,6 +203,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
     setSearchValue('')
   }
 
+  // Resolve the option matching `value`, or null when nothing is selected
   const getSelectedOption = (): DropdownOption | null => {
     if (value) {
       return options.find((opt) => opt?.value === value) || null
@@ -199,8 +219,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const palette = theme?.palette as any
+  // Resolve the trigger background from the palette when `color` names a palette key
   const bgColorPalette = color ? palette?.[color]?.main : undefined
 
+  // Case-insensitive filter on value/label driven by the in-menu search box
   const filteredOptions = options?.filter(
     (option) =>
       searchValue === '' ||
@@ -209,12 +231,14 @@ export const Dropdown: React.FC<DropdownProps> = ({
         option.label.toLowerCase().includes(searchValue.toLowerCase()))
   )
 
+  // Parse a px string (e.g. "20px") to a number, defaulting to 0
   const parsePxValue = (valueToParse?: string) => {
     if (!valueToParse) return 0
     const parsed = Number.parseFloat(valueToParse)
     return Number.isNaN(parsed) ? 0 : parsed
   }
 
+  // Compute the ellipsis cap for selected text: anchor width minus arrow gap, padding, and end-adornment space
   const maxSelectedTextWidth = () => {
     if (!isAddEllipsis) return undefined
     const arrowGapValue = parsePxValue(arrowGap)
@@ -240,8 +264,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
         height={'32px'}
         sx={{
           height: `calc(${HEIGHTS[size]} * var(--scale, 1))`,
-          border: '0.5px solid #AEB6CE',
-          borderRadius: variant === 'round' ? '100px' : '4px',
+          border: `0.5px solid ${theme.palette.softSteel[400]}`,
+          borderRadius: variant === 'round' ? '100px' : '8px',
           cursor: disabled ? 'not-allowed' : 'pointer',
           opacity: disabled ? 0.6 : 1,
           backgroundColor: color ? bgColorPalette : '#ffffff',
@@ -331,7 +355,11 @@ export const Dropdown: React.FC<DropdownProps> = ({
         </Stack>
       </Stack>
       <Popper
-        open={open && !disabled && options.length > 0}
+        open={
+          open &&
+          !disabled &&
+          (options.length > 0 || !!customPopperComponent || isSearchRequired)
+        }
         anchorEl={popperAnchorEl}
         popperRef={popperRef}
         placement='bottom-start'
@@ -349,9 +377,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
           <Paper
             sx={{
               padding: '4px',
-              border: '0.5px solid #C3D0F5',
+              border: `0.5px solid ${theme.palette.primaryBlue[300]}`,
               borderRadius: '8px',
-              boxShadow: '0 4px 25px 0 rgba(209, 209, 230, 0.60)',
+              boxShadow: shadows.elevation03,
               minWidth: anchorWidth,
               backgroundColor: '#FFFFFF',
               maxHeight: '300px',
@@ -403,10 +431,12 @@ export const Dropdown: React.FC<DropdownProps> = ({
                         height: 'calc(28px * var(--scale, 1))',
                         borderBottom: isLastItem
                           ? 'none'
-                          : '0.5px solid #AEB6CE',
-                        backgroundColor: selected ? '#DEE7FF' : 'transparent',
+                          : `0.5px solid ${theme.palette.softSteel[400]}`,
+                        backgroundColor: selected
+                          ? theme.palette.tertiary.main
+                          : 'transparent',
                         '&:hover': {
-                          backgroundColor: '#DEE7FF',
+                          backgroundColor: theme.palette.tertiary.main,
                         },
                         ...menuItemSx,
                       }}
@@ -452,7 +482,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                               fontWeight: selected
                                 ? fontWeightMedium
                                 : fontWeightRegular,
-                              color: '#1B1C1E',
+                              color: theme.palette.black.main,
                             }}
                             data-testid={`option-${testid}-${option.label || option.value}`}
                           >
@@ -484,4 +514,5 @@ export const Dropdown: React.FC<DropdownProps> = ({
   )
 }
 
+/** Default export of the {@link Dropdown} component. */
 export default Dropdown

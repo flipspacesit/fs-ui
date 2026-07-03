@@ -7,7 +7,7 @@ export const IndianFlag = ({ size = 20 }: { size?: number }) => {
       viewBox="0 0 20 20"
       fill="none"
     >
-      <g clip-path="url(#clip0_7414_46265)">
+      <g clipPath="url(#clip0_7414_46265)">
         <rect width="20" height="20" rx="10" fill="#FF4E4E" />
         <path d="M-5 0H25V20H-5V0Z" fill="white" />
         <path d="M-5 0H25V6.66667H-5V0Z" fill="#F15B25" />

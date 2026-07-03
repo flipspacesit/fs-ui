@@ -1,24 +1,39 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Typography,
-  Divider,
-  AppBar,
-  Toolbar,
-  IconButton,
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
+import React, { useCallback, useEffect, useState } from "react";
+import { Box, Drawer } from "@mui/material";
+import { version } from "../../package.json";
+import { t, EASE, TOPBAR_H, SIDEBAR_W, TOC_W } from "./docTokens";
+import { DocPageProvider } from "./DocPage";
+import { menuItems, findItem } from "./shell/nav";
+import TopBar from "./shell/TopBar";
+import SidebarContent from "./shell/Sidebar";
+import TocRail from "./shell/TocRail";
+import Footer from "./shell/Footer";
+import CommandPalette from "./shell/CommandPalette";
 
 // Documentation pages
 import GettingStarted from "./pages/GettingStarted";
+import InstallationDocs from "./pages/InstallationDocs";
+import ApiReferenceDocs from "./pages/ApiReferenceDocs";
 import ThemeDocs from "./pages/ThemeDocs";
+import TypographyDocs from "./pages/TypographyDocs";
+import SpacingDocs from "./pages/SpacingDocs";
+import BordersShadowsDocs from "./pages/BordersShadowsDocs";
 import DropdownDocs from "./pages/DropdownDocs";
 import ButtonDocs from "./pages/ButtonDocs";
+import ButtonExtrasDocs from "./pages/ButtonExtrasDocs";
+import InputExtrasDocs from "./pages/InputExtrasDocs";
+import CalendarDocs from "./pages/CalendarDocs";
+import ControlsDocs from "./pages/ControlsDocs";
+import DropdownExtrasDocs from "./pages/DropdownExtrasDocs";
+import TabsDocs from "./pages/TabsDocs";
+import SidebarNavDocs from "./pages/SidebarNavDocs";
+import BadgesDocs from "./pages/BadgesDocs";
+import PinsDocs from "./pages/PinsDocs";
+import FeedbackDocs from "./pages/FeedbackDocs";
+import ToolbarDocs from "./pages/ToolbarDocs";
+import FilterDocs from "./pages/FilterDocs";
+import StructureDocs from "./pages/StructureDocs";
+import CardsDocs from "./pages/CardsDocs";
 import AccordionDocs from "./pages/AccordionDocs";
 import TagDocs from "./pages/TagDocs";
 import EllipsisTooltipDocs from "./pages/EllipsisTooltipDocs";
@@ -44,44 +59,17 @@ import NoDataContentDocs from "./pages/NoDataContentDocs";
 import UseSearchInputDocs from "./pages/UseSearchInputDocs";
 import UtilsDocs from "./pages/UtilsDocs";
 
-const SIDEBAR_WIDTH = 260;
-
-const menuItems = [
-  { id: "getting-started", label: "Getting Started", category: "Introduction" },
-  { id: "theme", label: "Theme", category: "Foundation" },
-  { id: "dropdown", label: "Dropdown", category: "Components" },
-  { id: "button", label: "Button", category: "Components" },
-  { id: "accordion", label: "Accordion", category: "Components" },
-  { id: "tag", label: "Tag & StatusChip", category: "Components" },
-  { id: "chip-card", label: "ChipCard", category: "Components" },
-  { id: "ellipsis-tooltip", label: "EllipsisTooltip", category: "Components" },
-  { id: "split-menu", label: "SplitMenu", category: "Components" },
-  { id: "modal-layout", label: "ModalLayout", category: "Components" },
-  { id: "dialog", label: "Dialog", category: "Components" },
-  { id: "search-input", label: "SearchInput", category: "Components" },
-  { id: "autocomplete", label: "AutoComplete", category: "Components" },
-  { id: "table", label: "Table", category: "Components" },
-  { id: "table-skeleton", label: "TableSkeletonLoader", category: "Components" },
-  { id: "loading", label: "LoadingSpinner", category: "Components" },
-  { id: "loaders", label: "Loader & PageLoader", category: "Components" },
-  { id: "image-fallback", label: "ImageWithFallback", category: "Components" },
-  { id: "text-input", label: "TextInput", category: "Components" },
-  { id: "select-input", label: "SelectInput", category: "Components" },
-  { id: "date-input", label: "DateInput", category: "Components" },
-  { id: "file-upload", label: "FileUpload", category: "Components" },
-  { id: "no-data-content", label: "NoDataContent", category: "Components" },
-  { id: "notification", label: "useNotification", category: "Hooks" },
-  { id: "use-search-input", label: "useSearchInput", category: "Hooks" },
-  { id: "icons", label: "Icons", category: "Utilities" },
-  { id: "constants", label: "Constants", category: "Utilities" },
-  { id: "utils", label: "Utility Functions", category: "Utilities" },
-];
-
-const pageComponents: Record<string, React.FC> = {
+const pageComponents: Record<string, React.FC<{ onNavigate?: (id: string) => void }>> = {
   "getting-started": GettingStarted,
+  installation: InstallationDocs,
+  "api-reference": ApiReferenceDocs,
   theme: ThemeDocs,
+  typography: TypographyDocs,
+  spacing: SpacingDocs,
+  "borders-shadows": BordersShadowsDocs,
   dropdown: DropdownDocs,
   button: ButtonDocs,
+  "button-extras": ButtonExtrasDocs,
   accordion: AccordionDocs,
   tag: TagDocs,
   "chip-card": ChipCardDocs,
@@ -99,6 +87,19 @@ const pageComponents: Record<string, React.FC> = {
   "text-input": TextInputDocs,
   "select-input": SelectInputDocs,
   "date-input": DateInputDocs,
+  "input-extras": InputExtrasDocs,
+  calendar: CalendarDocs,
+  controls: ControlsDocs,
+  "dropdown-extras": DropdownExtrasDocs,
+  tabs: TabsDocs,
+  "sidebar-nav": SidebarNavDocs,
+  badges: BadgesDocs,
+  pins: PinsDocs,
+  feedback: FeedbackDocs,
+  toolbar: ToolbarDocs,
+  "filter-panel": FilterDocs,
+  structure: StructureDocs,
+  cards: CardsDocs,
   "file-upload": FileUploadDocs,
   "no-data-content": NoDataContentDocs,
   notification: NotificationDocs,
@@ -108,164 +109,178 @@ const pageComponents: Record<string, React.FC> = {
   utils: UtilsDocs,
 };
 
+const PagerCard: React.FC<{
+  dir: "prev" | "next";
+  label: string;
+  onClick: () => void;
+}> = ({ dir, label, onClick }) => (
+  <Box
+    component="button"
+    onClick={onClick}
+    className="doc-chrome"
+    sx={{
+      flex: 1,
+      minWidth: 0,
+      textAlign: dir === "next" ? "right" : "left",
+      border: `1px solid ${t.border}`,
+      borderRadius: "12px",
+      backgroundColor: t.surface,
+      cursor: "pointer",
+      p: "16px 20px",
+      transition: `box-shadow 160ms ${EASE}, border-color 160ms ${EASE}, transform 160ms ${EASE}`,
+      "&:hover": { boxShadow: t.shadowLg, borderColor: t.accent, transform: "translateY(-1px)" },
+    }}
+  >
+    <Box sx={{ fontSize: 12, color: t.textSubtle, mb: "4px" }}>
+      {dir === "prev" ? "← Previous" : "Next →"}
+    </Box>
+    <Box sx={{ fontSize: 15, fontWeight: 600, color: t.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+      {label}
+    </Box>
+  </Box>
+);
+
 function App() {
   const [activePage, setActivePage] = useState("getting-started");
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileNav, setMobileNav] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+  const navigate = useCallback((id: string) => {
+    setActivePage(id);
+    setMobileNav(false);
+    window.scrollTo({ top: 0 });
+  }, []);
 
-  const renderPage = () => {
-    const PageComponent = pageComponents[activePage];
-    return PageComponent ? <PageComponent /> : <GettingStarted />;
-  };
+  // topbar scroll shadow
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  const groupedItems = menuItems.reduce(
-    (acc, item) => {
-      if (!acc[item.category]) {
-        acc[item.category] = [];
+  // ⌘K / Ctrl-K / "/" open search
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      const typing = tag === "INPUT" || tag === "TEXTAREA";
+      if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !typing)) {
+        e.preventDefault();
+        setSearchOpen(true);
       }
-      acc[item.category].push(item);
-      return acc;
-    },
-    {} as Record<string, typeof menuItems>
-  );
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
-  const drawer = (
-    <Box sx={{ overflow: "auto" }}>
-      <Box sx={{ p: 2 }}>
-        <Typography
-          variant="h5"
-          sx={{ fontWeight: 700, color: "#3361FF" }}
-        >
-          FS-UI
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Flipspaces Component Library
-        </Typography>
-      </Box>
-      <Divider />
-      {Object.entries(groupedItems).map(([category, items]) => (
-        <Box key={category}>
-          <Typography
-            variant="overline"
-            sx={{
-              px: 2,
-              pt: 2,
-              pb: 1,
-              display: "block",
-              color: "text.secondary",
-              fontWeight: 600,
-            }}
-          >
-            {category}
-          </Typography>
-          <List dense>
-            {items.map((item) => (
-              <ListItem key={item.id} disablePadding>
-                <ListItemButton
-                  selected={activePage === item.id}
-                  onClick={() => {
-                    setActivePage(item.id);
-                    setMobileOpen(false);
-                  }}
-                  sx={{
-                    mx: 1,
-                    borderRadius: 1,
-                    "&.Mui-selected": {
-                      backgroundColor: "#DEE7FF",
-                      "&:hover": {
-                        backgroundColor: "#C3D0F5",
-                      },
-                    },
-                  }}
-                >
-                  <ListItemText primary={item.label} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      ))}
-    </Box>
-  );
+  const Page = pageComponents[activePage] || GettingStarted;
+  const item = findItem(activePage);
+  const isHome = activePage === "getting-started";
+
+  const idx = menuItems.findIndex((m) => m.id === activePage);
+  const prev = idx > 0 ? menuItems[idx - 1] : null;
+  const next = idx >= 0 && idx < menuItems.length - 1 ? menuItems[idx + 1] : null;
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { sm: `calc(100% - ${SIDEBAR_WIDTH}px)` },
-          ml: { sm: `${SIDEBAR_WIDTH}px` },
-          backgroundColor: "#fff",
-          color: "#1B1C1E",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            {menuItems.find((item) => item.id === activePage)?.label ||
-              "Documentation"}
-          </Typography>
-        </Toolbar>
-      </AppBar>
+    <Box className="doc-chrome" sx={{ minHeight: "100vh", backgroundColor: t.bg }}>
+      <TopBar
+        version={version}
+        scrolled={scrolled}
+        onOpenSearch={() => setSearchOpen(true)}
+        onOpenMobileNav={() => setMobileNav(true)}
+      />
 
-      <Box
-        component="nav"
-        sx={{ width: { sm: SIDEBAR_WIDTH }, flexShrink: { sm: 0 } }}
+      {/* mobile drawer */}
+      <Drawer
+        open={mobileNav}
+        onClose={() => setMobileNav(false)}
+        sx={{ display: { md: "none" }, "& .MuiDrawer-paper": { width: SIDEBAR_W, backgroundColor: t.bg, backgroundImage: "none", top: TOPBAR_H, height: `calc(100% - ${TOPBAR_H}px)` } }}
       >
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
+        <SidebarContent activePage={activePage} onNavigate={navigate} />
+      </Drawer>
+
+      {/* frame */}
+      <Box sx={{ maxWidth: 1440, mx: "auto", pt: `${TOPBAR_H}px`, display: "flex", alignItems: "flex-start" }}>
+        {/* sidebar (desktop) */}
+        <Box
+          component="nav"
           sx={{
-            display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: SIDEBAR_WIDTH,
-            },
+            display: { xs: "none", md: "block" },
+            width: SIDEBAR_W,
+            flexShrink: 0,
+            position: "sticky",
+            top: TOPBAR_H,
+            alignSelf: "flex-start",
+            height: `calc(100vh - ${TOPBAR_H}px)`,
+            overflowY: "auto",
+            borderRight: `1px solid ${t.border}`,
+            scrollbarGutter: "stable",
           }}
         >
-          {drawer}
-        </Drawer>
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: SIDEBAR_WIDTH,
-              borderRight: "1px solid #E5E7EB",
-            },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
+          <SidebarContent activePage={activePage} onNavigate={navigate} />
+        </Box>
+
+        <DocPageProvider key={activePage}>
+          {/* content */}
+          <Box component="main" sx={{ flex: 1, minWidth: 0 }}>
+            <Box
+              key={activePage}
+              className="doc-page-enter"
+              sx={{
+                maxWidth: isHome ? 1080 : "100%",
+                mx: isHome ? "auto" : 0,
+                px: isHome ? { xs: "20px", md: "32px" } : { xs: "20px", md: "56px" },
+                pt: isHome ? 0 : "48px",
+                pb: "24px",
+              }}
+            >
+              {!isHome && (
+                <>
+                  {/* breadcrumb */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: "6px", fontSize: 13, fontWeight: 500, color: t.textSubtle, mb: "16px" }}>
+                    <span>{item?.category}</span>
+                    <span>›</span>
+                    <span style={{ color: "var(--doc-text)" }}>{item?.label}</span>
+                  </Box>
+                </>
+              )}
+
+              <Box sx={{ maxWidth: isHome ? "100%" : 760 }}>
+                <Page onNavigate={navigate} />
+              </Box>
+
+              {!isHome && (prev || next) && (
+                <Box sx={{ display: "flex", gap: "16px", mt: "48px", flexWrap: "wrap" }}>
+                  {prev ? <PagerCard dir="prev" label={prev.label} onClick={() => navigate(prev.id)} /> : <Box sx={{ flex: 1 }} />}
+                  {next ? <PagerCard dir="next" label={next.label} onClick={() => navigate(next.id)} /> : <Box sx={{ flex: 1 }} />}
+                </Box>
+              )}
+            </Box>
+            <Footer onNavigate={navigate} />
+          </Box>
+
+          {/* right rail TOC */}
+          {!isHome && (
+            <Box
+              sx={{
+                display: { xs: "none", lg: "block" },
+                width: TOC_W,
+                flexShrink: 0,
+                position: "sticky",
+                top: TOPBAR_H,
+                alignSelf: "flex-start",
+                height: `calc(100vh - ${TOPBAR_H}px)`,
+                overflowY: "auto",
+              }}
+            >
+              <TocRail />
+            </Box>
+          )}
+        </DocPageProvider>
       </Box>
 
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${SIDEBAR_WIDTH}px)` },
-          mt: 8,
-          minHeight: "100vh",
-        }}
-      >
-        {renderPage()}
-      </Box>
+      <CommandPalette open={searchOpen} onClose={() => setSearchOpen(false)} onSelect={navigate} />
     </Box>
   );
 }

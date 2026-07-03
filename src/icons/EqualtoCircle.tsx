@@ -19,12 +19,12 @@ export const EqualtoCircle = ({
       <path
         d="M3.46875 6.61719L7.9102 6.6112"
         stroke={stroke}
-        stroke-linecap="round"
+        strokeLinecap="round"
       />
       <path
         d="M3.46875 4.77344L7.91037 4.77379"
         stroke={stroke}
-        stroke-linecap="round"
+        strokeLinecap="round"
       />
     </svg>
   );

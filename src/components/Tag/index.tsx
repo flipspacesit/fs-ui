@@ -8,7 +8,9 @@ import {
   ComponentVariant,
 } from "../../constants";
 import { theme } from "../../theme";
+import { semantic, neutral } from "../../theme/tokens/colors";
 
+/** Props for the {@link Tag} component. */
 export interface TagProps {
   /** Text label for the tag */
   label: string;
@@ -24,17 +26,20 @@ export interface TagProps {
   variant?: ComponentVariant;
   /** Size of the tag */
   size?: ComponentSize;
-  /** Additional styles */
+  /** MUI `sx` overrides, merged last. */
   sx?: SxProps<Theme>;
 }
 
 /**
- * Tag/Badge component for displaying labels with optional icons
+ * Tag/Badge component for displaying a label with an optional leading icon.
+ * Colors, border, size (`ComponentSize` height) and shape (`rectangular` vs
+ * `round` via `ComponentVariant`) are all configurable; defaults render a
+ * light-blue rectangular tag. Height scales with the `--scale` CSS variable.
  */
 export const Tag: React.FC<TagProps> = ({
   label,
   color = "#1B1C1E",
-  backgroundColor = "#F0F4FF",
+  backgroundColor = "#F1F7FF",
   borderColor = "#AEB6CE",
   icon,
   variant = "rectangular",
@@ -74,41 +79,105 @@ export const Tag: React.FC<TagProps> = ({
   );
 };
 
+/** Props for the {@link StatusChip} component. */
 export interface StatusChipProps {
   /** Status label text */
   label: string;
   /** Status type for automatic coloring */
-  status?: "success" | "warning" | "error" | "info" | "default";
+  status?: "success" | "warning" | "error" | "info" | "interactive" | "default";
+  /** Outlined (tinted bg + border) or Filled (solid) */
+  emphasis?: "outlined" | "filled";
+  /** Round (pill) or rectangular */
+  shape?: ComponentVariant;
   /** Override background color */
   backgroundColor?: string;
   /** Override text color */
   color?: string;
   /** Size of the chip */
   size?: ComponentSize;
-  /** Additional styles */
+  /** MUI `sx` overrides, merged last. */
   sx?: SxProps<Theme>;
 }
 
-const statusColors = {
-  success: { bg: "#D1FAE5", color: "#065F46", border: "#10B981" },
-  warning: { bg: "#FEF3C7", color: "#92400E", border: "#F59E0B" },
-  error: { bg: "#FEE2E2", color: "#991B1B", border: "#EF4444" },
-  info: { bg: "#DBEAFE", color: "#1E40AF", border: "#3B82F6" },
-  default: { bg: "#F3F4F6", color: "#374151", border: "#9CA3AF" },
+/** Resolved color set for one status, covering both the outlined and filled emphases. */
+interface StatusStyle {
+  /** Outlined background (tinted). */
+  bg: string;
+  /** Outlined text color. */
+  color: string;
+  /** Outlined border color. */
+  border: string;
+  /** Filled (solid) background. */
+  filledBg: string;
+  /** Filled text color. */
+  filledColor: string;
+}
+
+// Design-system semantic chip colors (Figma "Tags" 442:14616).
+const statusColors: Record<string, StatusStyle> = {
+  success: {
+    bg: semantic.success[200],
+    color: neutral.black,
+    border: semantic.success[700],
+    filledBg: semantic.success.primary,
+    filledColor: neutral.white,
+  },
+  warning: {
+    bg: semantic.warning[200],
+    color: neutral.black,
+    border: semantic.warning.primary,
+    filledBg: semantic.warning.primary,
+    filledColor: neutral.black,
+  },
+  error: {
+    bg: semantic.error[200],
+    color: neutral.black,
+    border: semantic.error.primary,
+    filledBg: semantic.error.primary,
+    filledColor: neutral.white,
+  },
+  info: {
+    bg: semantic.interactive[200],
+    color: neutral.black,
+    border: semantic.interactive.primary,
+    filledBg: semantic.interactive.primary,
+    filledColor: neutral.white,
+  },
+  interactive: {
+    bg: semantic.interactive[200],
+    color: neutral.black,
+    border: semantic.interactive.primary,
+    filledBg: semantic.interactive.primary,
+    filledColor: neutral.white,
+  },
+  default: {
+    bg: neutral.white,
+    color: neutral.black,
+    border: neutral.softSteel[400],
+    filledBg: neutral.grey[400],
+    filledColor: neutral.white,
+  },
 };
 
 /**
- * Status Chip component for displaying status indicators
+ * Status Chip for status indicators, auto-colored per `status` from the
+ * design-system palette (Figma "Tags" 442:14616). `emphasis` toggles
+ * outlined (tinted bg + border) vs filled (solid); `shape` toggles pill vs
+ * rectangular; `size` sets `--scale`-aware height. `backgroundColor`/`color`
+ * override the derived colors.
  */
 export const StatusChip: React.FC<StatusChipProps> = ({
   label,
   status = "default",
+  emphasis = "outlined",
+  shape = "round",
   backgroundColor,
   color,
   size = "small",
   sx = {},
 }) => {
-  const statusStyle = statusColors[status];
+  const statusStyle = statusColors[status] ?? statusColors.default;
+  const filled = emphasis === "filled";
 
   return (
     <Stack
@@ -116,12 +185,13 @@ export const StatusChip: React.FC<StatusChipProps> = ({
       alignItems="center"
       justifyContent="center"
       sx={{
-        backgroundColor: backgroundColor || statusStyle.bg,
-        color: color || statusStyle.color,
-        borderRadius: "100px",
+        backgroundColor:
+          backgroundColor || (filled ? statusStyle.filledBg : statusStyle.bg),
+        color: color || (filled ? statusStyle.filledColor : statusStyle.color),
+        borderRadius: shape === "round" ? "100px" : "4px",
         padding: "4px 12px",
         height: `calc(${HEIGHTS[size]} * var(--scale, 1))`,
-        border: `1px solid ${statusStyle.border}`,
+        border: filled ? "none" : `0.5px solid ${statusStyle.border}`,
         display: "inline-flex",
         width: "fit-content",
         ...sx,
@@ -129,7 +199,11 @@ export const StatusChip: React.FC<StatusChipProps> = ({
     >
       <Typography
         variant={FontSizeMap[size] as "h1" | "h2" | "h3" | "h4" | "body1" | "body2"}
-        sx={{ fontWeight: theme.typography.fontWeight.medium, whiteSpace: "nowrap" }}
+        sx={{
+          fontWeight: theme.typography.fontWeight.medium,
+          whiteSpace: "nowrap",
+          color: "inherit",
+        }}
       >
         {label}
       </Typography>
@@ -137,4 +211,5 @@ export const StatusChip: React.FC<StatusChipProps> = ({
   );
 };
 
+/** Default export: the {@link Tag} component. */
 export default Tag;

@@ -14,9 +14,10 @@ import { ArrowDown } from "../../icons/ArrowDown";
 import { theme } from "../../theme";
 
 // Styled components for Accordion using MUI styled
+/** DS-styled MUI `Accordion` shell: rounded card, primary-blue border, white surface, no default shadow/divider. */
 export const StyledAccordion = styled(MUIAccordion)({
-  border: `0.5px solid ${theme.palette.softSteel[400]}`,
-  borderRadius: "4px",
+  border: `0.5px solid ${theme.palette.primaryBlue[300]}`,
+  borderRadius: "8px",
   margin: "6px 0",
   "&:before": {
     display: "none",
@@ -28,11 +29,12 @@ export const StyledAccordion = styled(MUIAccordion)({
   boxShadow: "none",
 });
 
+/** DS-styled MUI `AccordionSummary`: compact clickable header row with 12px content gap and hover transition. */
 export const StyledAccordionSummary = styled(AccordionSummary)({
   padding: "4px 12px",
   minHeight: "auto",
   borderRadius: "4px",
-  backgroundColor: theme.palette.blue[50],
+  backgroundColor: theme.palette.white.main,
   "& .MuiAccordionSummary-content": {
     margin: "0px",
     display: "flex",
@@ -48,6 +50,7 @@ export const StyledAccordionSummary = styled(AccordionSummary)({
   transition: "all 0.2s ease",
 });
 
+/** DS-styled MUI `AccordionDetails`: white expanded-content panel with 12px padding (no top padding). */
 export const StyledAccordionDetails = styled(AccordionDetails)({
   backgroundColor: theme.palette.white.main,
   borderRadius: "4px",
@@ -55,6 +58,7 @@ export const StyledAccordionDetails = styled(AccordionDetails)({
   paddingTop: "0px",
 });
 
+/** Props for the single {@link Accordion} component. */
 export interface AccordionProps {
   /** Title of the accordion - can be string or ReactNode */
   title: string | React.ReactNode;
@@ -66,13 +70,13 @@ export interface AccordionProps {
   children: React.ReactNode;
   /** Disabled state */
   disabled?: boolean;
-  /** Styles for title text */
+  /** MUI `sx` overrides, merged last. */
   titleSx?: SxProps<Theme>;
-  /** Styles for accordion container */
+  /** MUI `sx` overrides, merged last. */
   accordionSx?: SxProps<Theme>;
-  /** Styles for accordion summary */
+  /** MUI `sx` overrides, merged last. */
   accordionSummarySx?: SystemStyleObject<Theme>;
-  /** Styles for accordion details */
+  /** MUI `sx` overrides, merged last. */
   accordionDetailsSx?: SxProps<Theme>;
   /** Default expanded state (uncontrolled) */
   defaultExpanded?: boolean;
@@ -87,7 +91,10 @@ export interface AccordionProps {
 }
 
 /**
- * Single Accordion component with controlled/uncontrolled state support
+ * Single collapsible DS accordion (title header + expandable content panel).
+ * Works controlled (`open` + `handleChange`) or uncontrolled (`defaultExpanded`).
+ * Supports left/right expand-icon placement, custom expand/collapse icons or a
+ * rotating default arrow, a disabled state, and per-slot `sx` overrides.
  */
 export const Accordion: React.FC<AccordionProps> = ({
   title,
@@ -161,7 +168,9 @@ export const Accordion: React.FC<AccordionProps> = ({
             variant="b1"
             sx={{
               fontWeight: theme.typography.fontWeight.medium,
-              color: isOpen ? theme.palette.blue[600] : theme.palette.black.main,
+              color: isOpen
+                ? theme.palette.primaryBlue.primary
+                : theme.palette.black.main,
               ...titleSx,
             }}
           >
@@ -178,11 +187,15 @@ export const Accordion: React.FC<AccordionProps> = ({
   );
 };
 
+/** A single item rendered inside an {@link AccordionGroup}. */
 export interface AccordionGroupItem {
+  /** Header label - can be string or ReactNode */
   title: string | React.ReactNode;
+  /** Expandable panel content; a bare string is wrapped in a Typography */
   content: React.ReactNode;
 }
 
+/** Props for the {@link AccordionGroup} component. */
 export interface AccordionGroupProps {
   /** Array of accordion items */
   items?: AccordionGroupItem[];
@@ -192,18 +205,20 @@ export interface AccordionGroupProps {
   allowMultiple?: boolean;
   /** Disabled state */
   disabled?: boolean;
-  /** Styles for title text */
+  /** MUI `sx` overrides, merged last. */
   titleSx?: SxProps<Theme>;
-  /** Styles for accordion container */
+  /** MUI `sx` overrides, merged last. */
   accordionSx?: SxProps<Theme>;
-  /** Styles for accordion summary */
+  /** MUI `sx` overrides, merged last. */
   accordionSummarySx?: SystemStyleObject<Theme>;
-  /** Styles for accordion details */
+  /** MUI `sx` overrides, merged last. */
   accordionDetailsSx?: SxProps<Theme>;
 }
 
 /**
- * Group of accordions with single/multiple expand support
+ * Renders an `items` array as a stack of DS accordions with its own internal
+ * expand state. Defaults to single-open (accordion behavior); set
+ * `allowMultiple` to let several panels stay open at once.
  */
 export const AccordionGroup: React.FC<AccordionGroupProps> = ({
   items = [],
@@ -236,6 +251,7 @@ export const AccordionGroup: React.FC<AccordionGroupProps> = ({
         }
       };
 
+  // Resolves expanded state per panel: keyed lookup in multi mode, index match in single mode.
   const isItemExpanded = (panelId: number): boolean => {
     if (allowMultiple && typeof expanded === "object") {
       return expanded?.[panelId] || false;
@@ -268,8 +284,8 @@ export const AccordionGroup: React.FC<AccordionGroupProps> = ({
                   : "rotate(0deg)",
                 transition: "transform 0.3s ease",
                 marginLeft: "8px",
-                ...accordionSummarySx,
               },
+              ...accordionSummarySx,
             }}
           >
             <Typography
@@ -277,7 +293,7 @@ export const AccordionGroup: React.FC<AccordionGroupProps> = ({
               sx={{
                 fontWeight: theme.typography.fontWeight.medium,
                 color: isItemExpanded(index)
-                  ? theme.palette.blue[700]
+                  ? theme.palette.primaryBlue.primary
                   : theme.palette.black.main,
                 ...titleSx,
               }}
