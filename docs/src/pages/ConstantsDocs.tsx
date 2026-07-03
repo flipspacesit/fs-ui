@@ -63,6 +63,13 @@ const ConstantsDocs: React.FC = () => {
 // Usage with CSS variable for scaling
 height: \`calc(\${HEIGHTS[size]} * var(--scale, 1))\``}
         />
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+          <code>ComponentSize</code> (extraSmall → extraLarge) is the canonical
+          size scale. The step is +4px through <code>large</code> (32px);{" "}
+          <code>extraLarge</code> jumps to 48px as a touch-target size. Not every
+          component exposes all five steps — each accepts the subset its design
+          defines.
+        </Typography>
       </DocSection>
 
       <DocSection
@@ -81,11 +88,11 @@ height: \`calc(\${HEIGHTS[size]} * var(--scale, 1))\``}
         </ExampleBox>
         <CodeBlock
           code={`const FontSizeMap = {
-  extraSmall: "b2",
-  small: "b2",
-  medium: "h4",
-  large: "h3",
-  extraLarge: "h4",
+  extraSmall: "c1", // 11px
+  small: "b2",      // 12px
+  medium: "b1",     // 13px
+  large: "h4",      // 14px
+  extraLarge: "h4", // 14px
 };
 
 // Usage
@@ -133,8 +140,8 @@ height: \`calc(\${HEIGHTS[size]} * var(--scale, 1))\``}
           code={`const ButtonBorderRadiusMap = {
   rectangular: {
     extraSmall: "4px",
-    small: "4px",
-    medium: "6px",
+    small: "8px",
+    medium: "8px",
     large: "8px",
     extraLarge: "8px",
   },
@@ -203,32 +210,34 @@ borderRadius: ButtonBorderRadiusMap[variant][size]`}
           </Stack>
         </ExampleBox>
         <CodeBlock
-          code={`const Colors = {
+          code={`// @deprecated — derived from the DS token layer (theme.palette / tokens).
+// Prefer the theme palette; kept for backward compatibility.
+const Colors = {
   primary: {
-    main: "#3361FF",
-    light: "#DEE7FF",
-    dark: "#1B1C1E",
+    main: "#3659db",  // semantic.interactive.primary
+    light: "#c5d2ff", // interactive[200]
+    dark: "#344168",  // slateBlue.primaryDark
   },
   border: {
-    light: "#AEB6CE",
-    medium: "#C3D0F5",
-    dark: "#1B1C1E",
+    light: "#aeb6ce", // softSteel[400]
+    medium: "#a5bad5", // slateBlue[300]
+    dark: "#212529",  // neutral.black
   },
   background: {
-    white: "#FFFFFF",
-    selected: "#DEE7FF",
-    hover: "#DEE7FF",
+    white: "#ffffff",
+    selected: "#e2ebf7", // slateBlue[100]
+    hover: "#f1f7ff",    // slateBlue[50]
   },
   text: {
     primary: "#1B1C1E",
-    secondary: "#6B7280",
-    disabled: "#9CA3AF",
+    secondary: "#616161", // grey[400]
+    disabled: "#919191",  // grey[300]
   },
   status: {
-    success: "#10B981",
-    warning: "#F59E0B",
-    error: "#EF4444",
-    info: "#3B82F6",
+    success: "#469951", // semantic.success.primary
+    warning: "#f59e0b", // semantic.warning.primary
+    error: "#df2409",   // semantic.error.primary
+    info: "#3659db",    // semantic.interactive.primary
   },
 };`}
         />

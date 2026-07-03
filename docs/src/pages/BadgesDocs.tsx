@@ -7,7 +7,7 @@ import { IconBadge, PriorityBadge, CheckIcon, Warning, Info } from "../../../src
 const BadgesDocs: React.FC = () => (
   <Box>
     <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-      Tags & Badges
+      IconBadge & PriorityBadge
     </Typography>
     <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
       IconBadge and PriorityBadge — small status/priority indicators from the DS

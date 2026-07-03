@@ -141,6 +141,9 @@ export const Tabs: React.FC<TabsProps> = ({
     );
   }
 
+  // The `underline` variant is a single fixed DS style (Primary/Blue-100 bar,
+  // yellow selected accent) — `color` intentionally does not apply here, unlike
+  // the pill/segmented/folder variants. Do not wire `c` into this branch.
   if (variant === "underline") {
     return (
       <Stack

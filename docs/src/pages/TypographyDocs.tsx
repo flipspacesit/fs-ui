@@ -2,15 +2,12 @@ import React from "react";
 import { Box, Typography, Paper, Stack } from "@mui/material";
 import { fontSize, fontWeight, fontFamily } from "../../../src";
 
+// Derived from the `fontSize` token so the scale can never drift out of sync
+// with the library (h1…f2). `t1` (32px) is a theme-only display variant that
+// has no entry in the `fontSize` token, so it is prepended explicitly.
 const SIZES: [string, number][] = [
-  ["h1", fontSize.h1],
-  ["h2", fontSize.h2],
-  ["h3", fontSize.h3],
-  ["h4", fontSize.h4],
-  ["b1", fontSize.b1],
-  ["b2", fontSize.b2],
-  ["c1", fontSize.c1],
-  ["f1", fontSize.f1],
+  ["t1", 32],
+  ...Object.entries(fontSize),
 ];
 
 const TypographyDocs: React.FC = () => (

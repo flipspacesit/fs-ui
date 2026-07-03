@@ -34,7 +34,13 @@ const DialogDocs: React.FC = () => {
             title="Basic Dialog"
             footer={
               <Stack direction="row" spacing={1}>
-                <Button onClick={() => setBasicOpen(false)}>Cancel</Button>
+                <Button
+                  variant="text"
+                  color="black"
+                  onClick={() => setBasicOpen(false)}
+                >
+                  Cancel
+                </Button>
                 <Button variant="contained" onClick={() => setBasicOpen(false)}>
                   Confirm
                 </Button>
@@ -60,7 +66,7 @@ const [open, setOpen] = useState(false);
   title="Basic Dialog"
   footer={
     <Stack direction="row" spacing={1}>
-      <Button onClick={() => setOpen(false)}>Cancel</Button>
+      <Button variant="text" color="black" onClick={() => setOpen(false)}>Cancel</Button>
       <Button variant="contained" onClick={() => setOpen(false)}>
         Confirm
       </Button>

@@ -131,6 +131,9 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
   }, [options, inputValue, filterOptions, isFilteringActive]);
 
   const openDropDown = () => {
+    // Restore the anchor here (not only in onFocus) so the dropdown can reopen
+    // after Escape closed it (which nulls anchorEl) while the input keeps focus.
+    setAnchorEl(autoCompleteRef.current);
     setIsDropdownOpen(true);
     // Update input width when opening dropdown
     if (inputRef.current) {
@@ -160,7 +163,12 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
 
   return (
     <AutoCompleteContainer ref={autoCompleteRef}>
-      <Tooltip title={inputValue} placement="top">
+      {/* Tooltip is an overflow-disclosure aid — only show it when the value is
+          long enough to be clipped, so short values don't pop a spurious bubble. */}
+      <Tooltip
+        title={inputValue && inputValue.length > 40 ? inputValue : ""}
+        placement="top"
+      >
         <StyledInput
           ref={inputRef}
           type="text"
@@ -174,6 +182,15 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
             }
             if (allowCustomValue || options.includes(newValue)) {
               onInputChange?.(newValue);
+            }
+          }}
+          onKeyDown={(e) => {
+            // Escape closes the suggestion list (standard combobox behavior),
+            // keeping focus in the input so the user can keep typing.
+            if (e.key === "Escape" && isDropdownOpen) {
+              e.stopPropagation();
+              closeDropDown();
+              setIsFilteringActive(false);
             }
           }}
           onFocus={() => {

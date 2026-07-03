@@ -22,7 +22,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <CssBaseline />
         <SnackbarProvider
           maxSnack={3}
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+          // useNotification pins toasts top-right; offset the whole CONTAINER
+          // below the fixed 64px TopBar. (Offsetting via `style` would apply the
+          // margin to every toast and compound the gaps between stacked ones.)
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          classes={{ containerRoot: "docs-snackbar-offset" }}
         >
           <App />
         </SnackbarProvider>
