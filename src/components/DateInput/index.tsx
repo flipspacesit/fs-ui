@@ -102,6 +102,12 @@ export const DateInput = ({
               field: {
                 clearable: false,
               },
+              // Open below the field by default (matches the DS Dropdown popover)
+              // so the calendar doesn't flip up over adjacent content in tall
+              // layouts / near the viewport bottom.
+              popper: {
+                placement: 'bottom-start',
+              },
             }}
             slots={{
               openPickerIcon: () => (

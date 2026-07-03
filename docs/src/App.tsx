@@ -59,7 +59,13 @@ import NoDataContentDocs from "./pages/NoDataContentDocs";
 import UseSearchInputDocs from "./pages/UseSearchInputDocs";
 import UtilsDocs from "./pages/UtilsDocs";
 
-const pageComponents: Record<string, React.FC<{ onNavigate?: (id: string) => void }>> = {
+const pageComponents: Record<
+  string,
+  React.FC<{
+    onNavigate?: (id: string) => void;
+    iconQuery?: { term: string; nonce: number };
+  }>
+> = {
   "getting-started": GettingStarted,
   installation: InstallationDocs,
   "api-reference": ApiReferenceDocs,
@@ -152,6 +158,20 @@ function App() {
     window.scrollTo({ top: 0 });
   }, []);
 
+  // The ⌘K palette can select an icon → jump to the Icons page pre-filtered to
+  // it. The nonce makes IconsDocs re-apply the filter even when it's already open.
+  const [iconQuery, setIconQuery] = useState<{ term: string; nonce: number }>({
+    term: "",
+    nonce: 0,
+  });
+  const requestIconSearch = useCallback(
+    (term: string) => {
+      setIconQuery((prev) => ({ term, nonce: prev.nonce + 1 }));
+      navigate("icons");
+    },
+    [navigate]
+  );
+
   // topbar scroll shadow
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -223,7 +243,7 @@ function App() {
 
         <DocPageProvider key={activePage}>
           {/* content */}
-          <Box component="main" sx={{ flex: 1, minWidth: 0 }}>
+          <Box component="main" className="doc-content" sx={{ flex: 1, minWidth: 0 }}>
             <Box
               key={activePage}
               className="doc-page-enter"
@@ -247,7 +267,7 @@ function App() {
               )}
 
               <Box sx={{ maxWidth: isHome ? "100%" : 760 }}>
-                <Page onNavigate={navigate} />
+                <Page onNavigate={navigate} iconQuery={iconQuery} />
               </Box>
 
               {!isHome && (prev || next) && (
@@ -280,7 +300,12 @@ function App() {
         </DocPageProvider>
       </Box>
 
-      <CommandPalette open={searchOpen} onClose={() => setSearchOpen(false)} onSelect={navigate} />
+      <CommandPalette
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onSelect={navigate}
+        onSelectIcon={requestIconSearch}
+      />
     </Box>
   );
 }

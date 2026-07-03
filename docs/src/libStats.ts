@@ -34,31 +34,39 @@ export const iconEntries: IconEntry[] = Object.entries(IconsNS)
 
 export const iconCount = iconEntries.length;
 
-// Names re-exported through ./icons: the hand-authored glyphs above PLUS the
-// full @phosphor-icons/react set (bare names + `<Name>Icon` aliases) and its
-// helpers (IconContext, IconBase, SSR). Excluded wholesale from the non-icon
-// classification below so the ~3,000 Phosphor forwardRef exports are never
-// miscounted as fs-ui Components.
-const iconNsNames = new Set(Object.keys(IconsNS));
-
 /**
- * Distinct Phosphor icons reachable from the package root. Phosphor v2 ships an
- * `<Name>Icon` alias for every icon, so counting bare names that have a matching
- * alias yields the catalog size (1,512) while excluding the alias duplicates and
- * helpers (IconContext / IconBase / SSR). Derived, so it can't drift.
+ * The Phosphor icons re-exported at the package root (`export * from
+ * "@phosphor-icons/react"` in src/icons), as {name, Comp} for the docs gallery.
+ * Phosphor v2 ships an `<Name>Icon` alias for every icon, so the bare names that
+ * have a matching alias are exactly the catalog (1,512) — excluding the alias
+ * duplicates and the helpers (IconContext / IconBase / SSR). Sorted by name.
  */
-export const phosphorIconCount = Object.keys(IconsNS).filter(
-  (name) => !name.endsWith("Icon") && `${name}Icon` in IconsNS
-).length;
+export const phosphorIconEntries: IconEntry[] = Object.keys(IconsNS)
+  .filter((name) => !name.endsWith("Icon") && `${name}Icon` in IconsNS)
+  .sort((a, b) => a.localeCompare(b))
+  .map((name) => ({
+    name,
+    Comp: (IconsNS as Record<string, unknown>)[name] as React.FC<Record<string, unknown>>,
+  }));
+
+/** Count of distinct Phosphor icons reachable from the root (see {@link phosphorIconEntries}). */
+export const phosphorIconCount = phosphorIconEntries.length;
 
 export interface LibExport {
   name: string;
   kind: ExportKind;
 }
 
+// A barrel export is an icon (and excluded from the classification below) only
+// when its binding IS the ./icons binding — so the hand-authored glyphs and the
+// ~3,000 Phosphor forwardRef exports drop out, while real components whose name
+// also exists in Phosphor (Table, Tag, Tabs, Tree, Calendar, RadioButton) are
+// KEPT (their barrel binding is the component, not the same-named icon).
+const iconExports = IconsNS as Record<string, unknown>;
+
 /** Every non-icon value export from the barrel, classified by kind. */
 export const libExports: LibExport[] = Object.entries(FsUi)
-  .filter(([name]) => !iconNsNames.has(name))
+  .filter(([name, val]) => iconExports[name] !== val)
   .map(([name, val]): LibExport => {
     let kind: ExportKind;
     if (typeof val === "function" && /^use[A-Z]/.test(name)) kind = "Hook";

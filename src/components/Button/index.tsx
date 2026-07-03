@@ -76,6 +76,9 @@ export interface DropDownApplyButtonProps extends ButtonProps {
 /**
  * Apply/Submit button for dropdown actions.
  * Full-width, small, pill-shaped tertiary button with a darkened hover state.
+ * The pale fill is the DS `Buttons/Blue/Selected` (tertiary) token — an
+ * intentionally low-saturation "selected" affordance, not a disabled state; the
+ * dark ink label keeps it well above AA contrast (~13.8:1).
  */
 export const DropDownApplyButton: React.FC<DropDownApplyButtonProps> = ({
   children,

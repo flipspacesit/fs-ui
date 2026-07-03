@@ -15,7 +15,7 @@ import {
 const FeedbackDocs: React.FC = () => (
   <Box>
     <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>
-      Feedback & Navigation
+      Alert, Snackbar & Breadcrumb
     </Typography>
     <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
       Alert, Snackbar and Breadcrumb components — feedback banners, transient

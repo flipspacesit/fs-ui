@@ -32,7 +32,7 @@ const UseSearchInputDocs: React.FC = () => {
         <ExampleBox>
           <Stack spacing={2}>
             <TextField
-              label="Search"
+              placeholder="Search"
               size="small"
               value={value}
               onChange={(e) => setValue(e.target.value)}

@@ -38,7 +38,10 @@ const ButtonExtrasDocs: React.FC = () => {
       >
         <ExampleBox>
           <Stack direction="row" gap={2} alignItems="center">
-            <IconButton color="white" icon={<Gear />} />
+            {/* `white` is for dark/coloured surfaces — shown on a dark tile so it is visible. */}
+            <Box sx={{ p: 0.75, borderRadius: 2, bgcolor: "#1b1c1e", display: "flex" }}>
+              <IconButton color="white" icon={<Gear />} />
+            </Box>
             <IconButton color="yellow" icon={<Gear />} />
             <IconButton color="blue" icon={<Download />} />
             <IconButton color="green" icon={<CheckIcon />} />
@@ -86,7 +89,7 @@ const ButtonExtrasDocs: React.FC = () => {
               type: '"extraSmall" | "small" | "medium" | "large" | "extraLarge"',
               default: '"medium"',
               description:
-                "Square footprint size — matches button heights (24/28/32)",
+                "Square footprint size — matches button heights (20/24/28/32/48)",
             },
             {
               name: "variant",

@@ -27,35 +27,44 @@ export interface IconBadgeProps {
   sx?: SxProps<Theme>;
 }
 
-// Per-color token lookup: `primary` = solid/icon color, `tint` = pale surface, `on` = icon color on a filled badge.
-const MAP: Record<IconBadgeColor, { primary: string; tint: string; on: string }> =
-  {
-    success: {
-      primary: semantic.success.primary,
-      tint: semantic.success[200],
-      on: neutral.white,
-    },
-    error: {
-      primary: semantic.error.primary,
-      tint: semantic.error[200],
-      on: neutral.white,
-    },
-    warning: {
-      primary: semantic.warning.primary,
-      tint: semantic.warning[200],
-      on: neutral.black,
-    },
-    interactive: {
-      primary: semantic.interactive.primary,
-      tint: semantic.interactive[200],
-      on: neutral.white,
-    },
-    grey: {
-      primary: neutral.grey[400],
-      tint: neutral.grey[50],
-      on: neutral.white,
-    },
-  };
+// Per-color token lookup: `primary` = solid/icon color, `tint` = pale surface,
+// `on` = icon color on a filled badge, `deep` = the darker step used for the
+// icon on a `tinted` (pale) surface so it clears AA (mirrors Alert's accent).
+const MAP: Record<
+  IconBadgeColor,
+  { primary: string; tint: string; on: string; deep: string }
+> = {
+  success: {
+    primary: semantic.success.primary,
+    tint: semantic.success[200],
+    on: neutral.white,
+    deep: semantic.success[700],
+  },
+  error: {
+    primary: semantic.error.primary,
+    tint: semantic.error[200],
+    on: neutral.white,
+    deep: semantic.error[700],
+  },
+  warning: {
+    primary: semantic.warning.primary,
+    tint: semantic.warning[200],
+    on: neutral.black,
+    deep: semantic.warning[800],
+  },
+  interactive: {
+    primary: semantic.interactive.primary,
+    tint: semantic.interactive[200],
+    on: neutral.white,
+    deep: semantic.interactive[600],
+  },
+  grey: {
+    primary: neutral.grey[400],
+    tint: neutral.grey[50],
+    on: neutral.white,
+    deep: neutral.grey[400],
+  },
+};
 
 /**
  * Icon badge — Figma "Tags & Badges" (442:14616). `filled` = circular solid
@@ -82,7 +91,7 @@ export const IconBadge: React.FC<IconBadgeProps> = ({
         justifyContent: "center",
         borderRadius: filled ? "100px" : "8px",
         backgroundColor: filled ? c.primary : c.tint,
-        color: filled ? c.on : c.primary,
+        color: filled ? c.on : c.deep,
         ...(filled && { boxShadow: "inset 0px 2px 4px rgba(47, 32, 18, 0.06)" }),
         "& svg": { width: "60%", height: "60%" },
         ...sx,

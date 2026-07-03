@@ -21,12 +21,18 @@ const StructureDocs: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>
-        Structure Components
+        Badge, Stepper, Tree & SideModal
       </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
         Structural and progress components — notification badges, horizontal and
         vertical steppers, hierarchical trees, right-docked side modals, and the
         inline project row editor.
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+        Note — three components share the "stepper" name: <code>Stepper</code>{" "}
+        (this wizard/progress stepper), <code>MilestoneStepper</code> (timeline
+        milestones), and <code>NumberStepper</code> (a quantity input, documented
+        under Input Extras). Pick by role when importing.
       </Typography>
 
       <DocSection title="Import">

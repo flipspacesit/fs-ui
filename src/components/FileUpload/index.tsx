@@ -77,7 +77,11 @@ const UploadContainer = styled(Box, {
 }));
 
 const UploadIconContainer = styled(Stack)(() => ({
-  height: "100%",
+  // `alignSelf: stretch` fills the flex container's full height. `height: 100%`
+  // does not work here — the container only sets `minHeight` (no definite
+  // height), so the percentage collapses to content height and the icon pins to
+  // the top instead of centering.
+  alignSelf: "stretch",
   width: "calc(42px * var(--scale))",
   backgroundColor: theme.palette.purple[50],
   alignItems: "center",

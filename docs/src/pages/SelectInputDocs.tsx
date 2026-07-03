@@ -41,7 +41,7 @@ import type { Option } from '@flipspacesit/fs-ui';`}
 
       <DocSection title="Basic Usage">
         <ExampleBox>
-          <Stack spacing={2} sx={{ maxWidth: 400 }}>
+          <Stack spacing={2} sx={{ width: "100%", maxWidth: 400 }}>
             <SelectInput
               label="Status"
               value={status}
@@ -73,7 +73,7 @@ const [status, setStatus] = useState('');
 
       <DocSection title="With Start Adornment">
         <ExampleBox>
-          <Stack spacing={2} sx={{ maxWidth: 400 }}>
+          <Stack spacing={2} sx={{ width: "100%", maxWidth: 400 }}>
             <SelectInput
               label="City"
               value={city}
@@ -100,7 +100,7 @@ const [status, setStatus] = useState('');
 
       <DocSection title="Without Selected Icon">
         <ExampleBox>
-          <Stack spacing={2} sx={{ maxWidth: 400 }}>
+          <Stack spacing={2} sx={{ width: "100%", maxWidth: 400 }}>
             <SelectInput
               label="City"
               value={city}
@@ -124,7 +124,7 @@ const [status, setStatus] = useState('');
 
       <DocSection title="Required & Error State">
         <ExampleBox>
-          <Stack spacing={2} sx={{ maxWidth: 400 }}>
+          <Stack spacing={2} sx={{ width: "100%", maxWidth: 400 }}>
             <SelectInput
               label="Category"
               required

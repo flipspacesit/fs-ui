@@ -18,7 +18,7 @@ const ControlsDocs: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>
-        Checkboxes, Tooltips & Scrolls
+        Checkbox, Radio, Tooltip & Scroll
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
         Selection controls, tooltips and scroll affordances from the Figma
@@ -50,6 +50,21 @@ const ControlsDocs: React.FC = () => {
               <Checkbox key={c + "-soft"} color={c} variant="soft" defaultChecked />
             ))}
           </Stack>
+          {/* The `white` family is for dark/coloured surfaces — shown on a dark
+              tile so the sixth family is actually visible. */}
+          <Stack
+            direction="row"
+            gap={1}
+            alignItems="center"
+            sx={{ p: 1, borderRadius: 2, bgcolor: "#1b1c1e", width: "fit-content" }}
+          >
+            <Checkbox color="white" defaultChecked />
+            <RadioButton color="white" defaultChecked />
+          </Stack>
+          <Typography variant="caption" color="text.secondary">
+            The <code>white</code> family is designed for dark or coloured
+            surfaces.
+          </Typography>
         </ExampleBox>
         <CodeBlock
           code={`{/* Hard variant (default) — checked and unchecked */}

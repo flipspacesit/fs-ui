@@ -18,7 +18,7 @@ export interface FsIconButtonProps
   icon?: React.ReactNode;
   /** Design-system colour family */
   color?: IconButtonColor;
-  /** Square footprint size — matches button heights (24/28/32) */
+  /** Square footprint size — matches button heights (20/24/28/32/48) */
   size?: ComponentSize;
   /** Shape — round (pill) or rectangular (radius-sm) */
   variant?: ComponentVariant;

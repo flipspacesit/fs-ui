@@ -2,11 +2,12 @@ import React from "react";
 import { Box, Typography, Stack, Paper, useTheme } from "@mui/material";
 import { DocSection, ExampleBox } from "../components/DocSection";
 import CodeBlock from "../components/CodeBlock";
+import { fontWeight } from "../../../src";
 
-const ColorSwatch: React.FC<{ name: string; color: string; textColor?: string }> = ({
+const ColorSwatch: React.FC<{ name: string; color: string; alias?: string }> = ({
   name,
   color,
-  textColor: _textColor = "#1B1C1E",
+  alias,
 }) => (
   <Paper
     variant="outlined"
@@ -33,6 +34,16 @@ const ColorSwatch: React.FC<{ name: string; color: string; textColor?: string }>
     <Typography variant="caption" display="block" color="text.secondary">
       {color}
     </Typography>
+    {alias && (
+      <Typography
+        variant="caption"
+        display="block"
+        color="text.secondary"
+        sx={{ fontStyle: "italic", fontSize: 10 }}
+      >
+        {alias}
+      </Typography>
+    )}
   </Paper>
 );
 
@@ -41,54 +52,71 @@ const ThemeDocs: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const palette = theme.palette as any;
 
-  const colorGroups = [
+  type Swatch = { name: string; color?: string; alias?: string };
+  type ColorGroup = {
+    name: string;
+    note?: string;
+    deprecated?: boolean;
+    colors: Swatch[];
+  };
+
+  const colorGroups: ColorGroup[] = [
     {
-      name: "Primary & Brand",
+      name: "Brand roles",
+      note: "Semantic role tokens — each is an alias of a palette group below, not a separate color.",
       colors: [
-        { name: "primary", color: palette.primary?.main },
-        { name: "secondary", color: palette.secondary?.main },
-        { name: "yellow", color: palette.yellow?.main },
+        { name: "primary", color: palette.primary?.main, alias: "= yellow.brand" },
+        {
+          name: "secondary",
+          color: palette.secondary?.main,
+          alias: "= slateBlue.primary",
+        },
+      ],
+    },
+    {
+      name: "Yellow",
+      colors: [
+        { name: "50", color: palette.yellow?.[50] },
+        { name: "200", color: palette.yellow?.[200] },
+        { name: "400", color: palette.yellow?.[400] },
+        { name: "brand", color: palette.yellow?.brand },
+        { name: "hover", color: palette.yellow?.hover },
+        { name: "700", color: palette.yellow?.[700] },
+        { name: "900", color: palette.yellow?.[900] },
+      ],
+    },
+    {
+      name: "SlateBlue",
+      colors: [
+        { name: "50", color: palette.slateBlue?.[50] },
+        { name: "100", color: palette.slateBlue?.[100] },
+        { name: "300", color: palette.slateBlue?.[300] },
+        { name: "primary", color: palette.slateBlue?.primary },
+        { name: "primaryDark", color: palette.slateBlue?.primaryDark },
+        { name: "700", color: palette.slateBlue?.[700] },
+        { name: "900", color: palette.slateBlue?.[900] },
       ],
     },
     {
       name: "Blue",
+      note: "The design-system Blue — palette.primaryBlue.",
       colors: [
-        { name: "50", color: palette.blue?.[50] },
-        { name: "200", color: palette.blue?.[200] },
-        { name: "300", color: palette.blue?.[300] },
-        { name: "main", color: palette.blue?.main },
-        { name: "700", color: palette.blue?.[700] },
+        { name: "50", color: palette.primaryBlue?.[50] },
+        { name: "300", color: palette.primaryBlue?.[300] },
+        { name: "500", color: palette.primaryBlue?.[500] },
+        { name: "primary", color: palette.primaryBlue?.primary },
+        { name: "700", color: palette.primaryBlue?.[700] },
+        { name: "900", color: palette.primaryBlue?.[900] },
       ],
     },
     {
-      name: "Purple",
+      name: "SoftSteel",
       colors: [
-        { name: "50", color: palette.purple?.[50] },
-        { name: "100", color: palette.purple?.[100] },
-        { name: "200", color: palette.purple?.[200] },
-        { name: "400", color: palette.purple?.[400] },
-        { name: "600", color: palette.purple?.[600] },
-        { name: "800", color: palette.purple?.[800] },
-      ],
-    },
-    {
-      name: "Green",
-      colors: [
-        { name: "50", color: palette.green?.[50] },
-        { name: "200", color: palette.green?.[200] },
-        { name: "400", color: palette.green?.[400] },
-        { name: "main", color: palette.green?.main },
-        { name: "800", color: palette.green?.[800] },
-      ],
-    },
-    {
-      name: "Orange",
-      colors: [
-        { name: "50", color: palette.orange?.[50] },
-        { name: "200", color: palette.orange?.[200] },
-        { name: "400", color: palette.orange?.[400] },
-        { name: "main", color: palette.orange?.main },
-        { name: "800", color: palette.orange?.[800] },
+        { name: "50", color: palette.softSteel?.[50] },
+        { name: "100", color: palette.softSteel?.[100] },
+        { name: "200", color: palette.softSteel?.[200] },
+        { name: "300", color: palette.softSteel?.[300] },
+        { name: "400", color: palette.softSteel?.[400] },
       ],
     },
     {
@@ -107,6 +135,7 @@ const ThemeDocs: React.FC = () => {
         { name: "success", color: palette.success?.main },
         { name: "warning", color: palette.warning?.main },
         { name: "error", color: palette.error?.main },
+        { name: "interactive", color: palette.interactive?.main },
       ],
     },
     {
@@ -114,9 +143,21 @@ const ThemeDocs: React.FC = () => {
       colors: [
         { name: "white", color: palette.white?.main },
         { name: "black", color: palette.black?.main },
-        { name: "border", color: palette.border?.main },
-        { name: "softSteel", color: palette.softSteel?.main },
+        { name: "border", color: palette.border?.main, alias: "= softSteel.400" },
         { name: "surface", color: palette.surface?.main },
+      ],
+    },
+    {
+      name: "Legacy (deprecated)",
+      note: "Retained for backward compatibility only — migrate to the DS groups above.",
+      deprecated: true,
+      colors: [
+        { name: "purple", color: palette.purple?.main },
+        { name: "blue", color: palette.blue?.main },
+        { name: "green", color: palette.green?.main },
+        { name: "orange", color: palette.orange?.main },
+        { name: "grey1", color: palette.grey1?.main },
+        { name: "grey2", color: palette.grey2?.main },
       ],
     },
   ];
@@ -152,19 +193,51 @@ import { ThemeProvider } from '@mui/material/styles';
           <Box key={group.name} sx={{ mb: 3 }}>
             <Typography
               variant="subtitle2"
-              sx={{ fontWeight: 600, mb: 1, textTransform: "capitalize" }}
+              sx={{
+                fontWeight: 600,
+                mb: group.note ? 0.25 : 1,
+                ...(group.deprecated && { color: "text.secondary" }),
+              }}
             >
               {group.name}
             </Typography>
-            <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
+            {group.note && (
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                display="block"
+                sx={{ mb: 1 }}
+              >
+                {group.note}
+              </Typography>
+            )}
+            <Stack
+              direction="row"
+              spacing={1}
+              flexWrap="wrap"
+              gap={1}
+              sx={{ ...(group.deprecated && { opacity: 0.72 }) }}
+            >
               {group.colors
                 .filter((c) => c.color)
                 .map((c) => (
-                  <ColorSwatch key={c.name} name={c.name} color={c.color} />
+                  <ColorSwatch
+                    key={c.name}
+                    name={c.name}
+                    color={c.color as string}
+                    alias={c.alias}
+                  />
                 ))}
             </Stack>
           </Box>
         ))}
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+          Brand split (by design): <strong>Yellow</strong> is the primary / action
+          color (primary buttons, key CTAs), while <strong>Blue</strong> and{" "}
+          <strong>Interactive</strong> drive secondary controls — switches,
+          toggles, steppers and progress. The two-tone system is intentional, not
+          an inconsistency.
+        </Typography>
       </DocSection>
 
       <DocSection title="Typography Variants">
@@ -217,39 +290,37 @@ import { ThemeProvider } from '@mui/material/styles';
       </DocSection>
 
       <DocSection title="Font Weights">
+        <Typography variant="body2" sx={{ mb: 2 }}>
+          The design-system weight scale (Inter). These names and values match the{" "}
+          <code>fontWeight</code> token exported from the library and the{" "}
+          <strong>Typography</strong> page.
+        </Typography>
         <ExampleBox>
           <Stack spacing={1}>
-            <Typography sx={{ fontWeight: 300 }}>
-              small (300) - Light text
-            </Typography>
-            <Typography sx={{ fontWeight: 400 }}>
-              light (400) - Regular text
-            </Typography>
-            <Typography sx={{ fontWeight: 500 }}>
-              regular (500) - Medium text
-            </Typography>
-            <Typography sx={{ fontWeight: 600 }}>
-              medium (600) - Semi-bold text
-            </Typography>
-            <Typography sx={{ fontWeight: 700 }}>
-              bold (700) - Bold text
-            </Typography>
+            {Object.entries(fontWeight).map(([name, w]) => (
+              <Typography key={name} sx={{ fontWeight: w as number }}>
+                {name} ({w}) — The quick brown fox
+              </Typography>
+            ))}
           </Stack>
         </ExampleBox>
         <CodeBlock
-          code={`// Access font weights from theme
-const theme = useTheme();
+          code={`import { fontWeight } from '@flipspacesit/fs-ui';
 
-<Typography sx={{ fontWeight: theme.typography.fontWeight.small }}>
-  Light (300)
-</Typography>
-<Typography sx={{ fontWeight: theme.typography.fontWeight.regular }}>
-  Regular (500)
-</Typography>
-<Typography sx={{ fontWeight: theme.typography.fontWeight.bold }}>
-  Bold (700)
-</Typography>`}
+<Typography sx={{ fontWeight: fontWeight.regular }}>Regular (400)</Typography>
+<Typography sx={{ fontWeight: fontWeight.medium }}>Medium (500)</Typography>
+<Typography sx={{ fontWeight: fontWeight.bold }}>Bold (700)</Typography>`}
         />
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          display="block"
+          sx={{ mt: 2 }}
+        >
+          Note: the legacy <code>theme.typography.fontWeight</code> object uses
+          different historical numeric mappings (e.g. <code>regular</code> = 500)
+          and is deprecated — prefer the <code>fontWeight</code> token above.
+        </Typography>
       </DocSection>
 
       <DocSection title="Responsive Typography">
@@ -338,7 +409,7 @@ function MyComponent() {
   return (
     <Box
       sx={{
-        backgroundColor: theme.palette.purple[50],
+        backgroundColor: theme.palette.slateBlue[50],
         color: theme.palette.black.main,
         border: \`1px solid \${theme.palette.border.main}\`,
       }}
@@ -351,7 +422,7 @@ function MyComponent() {
 // Or directly in sx prop
 <Box
   sx={(theme) => ({
-    backgroundColor: theme.palette.blue[200],
+    backgroundColor: theme.palette.primaryBlue[300],
     color: theme.palette.text.primary,
   })}
 />`}

@@ -17,10 +17,13 @@ export type CheckColor =
   | "grey"
   | "black";
 
-// Per-colour hue table: `solid` = hard fill/border, `soft` = pale soft fill, `onSolid` = glyph colour on a solid fill.
+// Per-colour hue table: `solid` = hard fill/border, `soft` = pale soft fill,
+// `onSolid` = glyph colour on a solid fill. `softMark` overrides the soft-variant
+// glyph colour for light families whose `solid` hue is illegible on the pale soft
+// fill (yellow, blue); families without it fall back to `solid`.
 const HUES: Record<
   CheckColor,
-  { solid: string; soft: string; onSolid: string }
+  { solid: string; soft: string; onSolid: string; softMark?: string }
 > = {
   white: { solid: "#ffffff", soft: "#ffffff", onSolid: neutral.black },
   slateBlue: {
@@ -32,11 +35,13 @@ const HUES: Record<
     solid: primary.yellow.brand,
     soft: primary.yellow[50],
     onSolid: neutral.black,
+    softMark: primary.yellow[900],
   },
   blue: {
     solid: primary.blue[500],
     soft: primary.blue[50],
     onSolid: neutral.white,
+    softMark: primary.blue[700],
   },
   grey: {
     solid: neutral.grey[400],
@@ -92,7 +97,7 @@ export const Checkbox: React.FC<FsCheckboxProps> = ({
     variant === "soft"
       ? color === "white"
         ? neutral.black
-        : h.solid
+        : (h.softMark ?? h.solid)
       : h.onSolid;
   return (
     <MUICheckbox

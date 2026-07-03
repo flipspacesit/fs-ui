@@ -1,19 +1,15 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { DocSection, Example, PropsTable, DocSearchField } from "../components/DocSection";
 import CodeBlock from "../components/CodeBlock";
 import { t } from "../docTokens";
 // The icon catalog is derived from the library exports (see libStats) so this
 // gallery can never drift from what ships.
-import { iconEntries, phosphorIconCount } from "../libStats";
+import { iconEntries, phosphorIconCount, phosphorIconEntries } from "../libStats";
 import { Download, CheckCircle, Warning, Info } from "../../../src";
-// A representative sample of the full Phosphor set, imported straight from the
-// package root — proving the re-export resolves in a real consumer app. None of
-// these are hand-authored; they come from @phosphor-icons/react.
-import {
-  Heart, Star, Bell, House, Camera, Rocket, Compass, Gift, Cloud, Sun, Moon, Fire,
-  Leaf, Butterfly, Cat, Dog, Trophy, Crown, Anchor, Airplane, Rainbow, Bug, Confetti, Coffee,
-} from "../../../src";
+// Heart drives the weight demo below; the searchable Phosphor gallery renders
+// from phosphorIconEntries (the full re-exported set), not hand-picked imports.
+import { Heart } from "../../../src";
 
 type Category =
   | "Navigation"
@@ -156,34 +152,6 @@ const ALL_ICONS: IconEntry[] = iconEntries.map(({ name, Comp }) => ({
   description: META[name]?.description ?? name.replace(/([a-z])([A-Z])/g, "$1 $2"),
 }));
 
-// Curated sample of Phosphor icons (all re-exported from the package root).
-const PHOSPHOR_SAMPLE = [
-  { name: "Heart", Comp: Heart },
-  { name: "Star", Comp: Star },
-  { name: "Bell", Comp: Bell },
-  { name: "House", Comp: House },
-  { name: "Camera", Comp: Camera },
-  { name: "Rocket", Comp: Rocket },
-  { name: "Compass", Comp: Compass },
-  { name: "Gift", Comp: Gift },
-  { name: "Cloud", Comp: Cloud },
-  { name: "Sun", Comp: Sun },
-  { name: "Moon", Comp: Moon },
-  { name: "Fire", Comp: Fire },
-  { name: "Leaf", Comp: Leaf },
-  { name: "Butterfly", Comp: Butterfly },
-  { name: "Cat", Comp: Cat },
-  { name: "Dog", Comp: Dog },
-  { name: "Trophy", Comp: Trophy },
-  { name: "Crown", Comp: Crown },
-  { name: "Anchor", Comp: Anchor },
-  { name: "Airplane", Comp: Airplane },
-  { name: "Rainbow", Comp: Rainbow },
-  { name: "Bug", Comp: Bug },
-  { name: "Confetti", Comp: Confetti },
-  { name: "Coffee", Comp: Coffee },
-];
-
 const PHOSPHOR_WEIGHTS = [
   "thin",
   "light",
@@ -235,7 +203,9 @@ const IconTile: React.FC<{ entry: IconEntry }> = ({ entry }) => (
   </Box>
 );
 
-const IconsDocs: React.FC = () => {
+const IconsDocs: React.FC<{ iconQuery?: { term: string; nonce: number } }> = ({
+  iconQuery,
+}) => {
   const [q, setQ] = useState("");
 
   const filtered = useMemo(() => {
@@ -255,6 +225,49 @@ const IconsDocs: React.FC = () => {
     [filtered]
   );
 
+  // Searchable Phosphor gallery — filter the full re-exported set by name.
+  const [pq, setPq] = useState("");
+  const phosphorMatches = useMemo(() => {
+    const s = pq.trim().toLowerCase();
+    return s
+      ? phosphorIconEntries.filter((i) => i.name.toLowerCase().includes(s))
+      : phosphorIconEntries;
+  }, [pq]);
+  const phosphorShown = phosphorMatches.slice(0, pq.trim() ? 150 : 60);
+
+  // Seed the filter from a ⌘K palette icon selection. Done during render (the
+  // "adjust state during render" pattern, as CommandPalette does) rather than in
+  // an effect, so it doesn't trip react-hooks/set-state-in-effect. Hand-authored
+  // icons live in the Gallery (q); Phosphor icons in the Phosphor section (pq).
+  const [appliedIconNonce, setAppliedIconNonce] = useState<number | undefined>(
+    undefined
+  );
+  if (iconQuery && iconQuery.nonce !== appliedIconNonce) {
+    setAppliedIconNonce(iconQuery.nonce);
+    const term = iconQuery.term.trim();
+    if (term) {
+      if (ALL_ICONS.some((i) => i.name.toLowerCase() === term.toLowerCase()))
+        setQ(term);
+      else setPq(term);
+    }
+  }
+
+  // Scroll the matching section into view after the filter applies (DOM
+  // side-effect only — no setState here).
+  useEffect(() => {
+    const term = iconQuery?.term?.trim();
+    if (!term) return;
+    const inGallery = ALL_ICONS.some(
+      (i) => i.name.toLowerCase() === term.toLowerCase()
+    );
+    const handle = window.setTimeout(() => {
+      document
+        .getElementById(inGallery ? "gallery" : "phosphor-icons")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+    return () => window.clearTimeout(handle);
+  }, [iconQuery?.nonce]);
+
   return (
     <Box>
       <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
@@ -267,6 +280,12 @@ const IconsDocs: React.FC = () => {
         exports, so it always matches what ships. Design-system icons accept{" "}
         <code>size</code> and <code>fill</code> / <code>color</code>; Phosphor
         icons accept <code>size</code>, <code>weight</code> and <code>color</code>.
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+        Some glyphs ship in closely-related variants — e.g.{" "}
+        <code>CheckCircle</code> / <code>CheckCircle2</code>,{" "}
+        <code>ArrowDown</code> / <code>ArrowDown2</code>. Use the per-icon
+        descriptions below (and the search) to pick the exact one you want.
       </Typography>
 
       <DocSection title="Import" description="Import any icon by name from the package root.">
@@ -292,56 +311,48 @@ const IconsDocs: React.FC = () => {
   <Heart /> <Rocket /> <GameController />
 </IconContext.Provider>`}
         />
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(104px, 1fr))",
-            gap: "12px",
-            mt: "24px",
-          }}
-        >
-          {PHOSPHOR_SAMPLE.map(({ name, Comp }) => (
+        <DocSearchField
+          value={pq}
+          onChange={setPq}
+          placeholder={`Search all ${phosphorIconCount} Phosphor icons…`}
+          sx={{ mt: "24px", mb: "16px" }}
+        />
+        {phosphorMatches.length === 0 ? (
+          <Box sx={{ fontSize: 14, color: t.textMuted, py: "16px" }}>
+            No Phosphor icon matches “{pq}”.
+          </Box>
+        ) : (
+          <>
             <Box
-              key={name}
-              className="doc-chrome"
-              title={name}
               sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "8px",
-                p: "16px 8px",
-                borderRadius: "10px",
-                border: `1px solid ${t.border}`,
-                backgroundColor: t.surface,
-                transition: "border-color 150ms, background-color 150ms",
-                "&:hover": { borderColor: t.accent, backgroundColor: t.accentTint },
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(104px, 1fr))",
+                gap: "12px",
               }}
             >
-              <Box sx={{ height: 28, display: "flex", alignItems: "center", color: t.text }}>
-                <Comp size={24} />
-              </Box>
-              <Box
-                className="doc-mono"
-                sx={{ fontSize: 11, color: t.textMuted, textAlign: "center", wordBreak: "break-word", lineHeight: 1.3 }}
-              >
-                {name}
-              </Box>
+              {phosphorShown.map((entry) => (
+                <IconTile
+                  key={entry.name}
+                  entry={{ ...entry, category: "Misc", description: entry.name }}
+                />
+              ))}
             </Box>
-          ))}
-        </Box>
-        <Typography sx={{ fontSize: 13, color: t.textMuted, mt: "16px" }}>
-          A small sample of {phosphorIconCount}. Browse and search the full set at{" "}
-          <a
-            href="https://phosphoricons.com"
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: t.accent, textDecoration: "underline" }}
-          >
-            phosphoricons.com
-          </a>{" "}
-          — every icon there is importable from <code>@flipspacesit/fs-ui</code>.
-        </Typography>
+            <Typography sx={{ fontSize: 13, color: t.textMuted, mt: "16px" }}>
+              Showing {phosphorShown.length} of {phosphorMatches.length}
+              {pq.trim() ? " matches" : " icons"} — every one is importable by name
+              from <code>@flipspacesit/fs-ui</code>. Full reference at{" "}
+              <a
+                href="https://phosphoricons.com"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: t.accent, textDecoration: "underline" }}
+              >
+                phosphoricons.com
+              </a>
+              .
+            </Typography>
+          </>
+        )}
       </DocSection>
 
       <DocSection

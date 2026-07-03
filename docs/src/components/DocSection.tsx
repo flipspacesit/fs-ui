@@ -141,7 +141,7 @@ const LightCaption: React.FC = () => (
       zIndex: 1,
     }}
   >
-    Light preview
+    Light theme only
   </Box>
 );
 
@@ -165,6 +165,12 @@ const PreviewSurface: React.FC<{ children: React.ReactNode; pad?: number }> = ({
       justifyContent: "center",
       gap: "16px",
       p: `${pad}px`,
+      // Always-light island: re-pin the light-mode text tokens so any MUI
+      // heading rendered inside a preview stays dark on the white artboard,
+      // even when the surrounding docs are in dark mode.
+      "--doc-text": "#1b1c1e",
+      "--doc-text-muted": "#616161",
+      "--doc-text-subtle": "#919191",
     }}
   >
     <LightCaption />
@@ -278,7 +284,7 @@ export const Example: React.FC<ExampleProps> = ({
           className="doc-mono"
           sx={{ fontSize: 10, letterSpacing: "0.04em", color: t.textSubtle, textTransform: "uppercase" }}
         >
-          Light preview
+          Light theme only
         </Box>
       </Box>
 
