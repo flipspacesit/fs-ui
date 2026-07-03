@@ -5,8 +5,15 @@ import CodeBlock from "../components/CodeBlock";
 import { t } from "../docTokens";
 // The icon catalog is derived from the library exports (see libStats) so this
 // gallery can never drift from what ships.
-import { iconEntries } from "../libStats";
+import { iconEntries, phosphorIconCount } from "../libStats";
 import { Download, CheckCircle, Warning, Info } from "../../../src";
+// A representative sample of the full Phosphor set, imported straight from the
+// package root — proving the re-export resolves in a real consumer app. None of
+// these are hand-authored; they come from @phosphor-icons/react.
+import {
+  Heart, Star, Bell, House, Camera, Rocket, Compass, Gift, Cloud, Sun, Moon, Fire,
+  Leaf, Butterfly, Cat, Dog, Trophy, Crown, Anchor, Airplane, Rainbow, Bug, Confetti, Coffee,
+} from "../../../src";
 
 type Category =
   | "Navigation"
@@ -149,6 +156,43 @@ const ALL_ICONS: IconEntry[] = iconEntries.map(({ name, Comp }) => ({
   description: META[name]?.description ?? name.replace(/([a-z])([A-Z])/g, "$1 $2"),
 }));
 
+// Curated sample of Phosphor icons (all re-exported from the package root).
+const PHOSPHOR_SAMPLE = [
+  { name: "Heart", Comp: Heart },
+  { name: "Star", Comp: Star },
+  { name: "Bell", Comp: Bell },
+  { name: "House", Comp: House },
+  { name: "Camera", Comp: Camera },
+  { name: "Rocket", Comp: Rocket },
+  { name: "Compass", Comp: Compass },
+  { name: "Gift", Comp: Gift },
+  { name: "Cloud", Comp: Cloud },
+  { name: "Sun", Comp: Sun },
+  { name: "Moon", Comp: Moon },
+  { name: "Fire", Comp: Fire },
+  { name: "Leaf", Comp: Leaf },
+  { name: "Butterfly", Comp: Butterfly },
+  { name: "Cat", Comp: Cat },
+  { name: "Dog", Comp: Dog },
+  { name: "Trophy", Comp: Trophy },
+  { name: "Crown", Comp: Crown },
+  { name: "Anchor", Comp: Anchor },
+  { name: "Airplane", Comp: Airplane },
+  { name: "Rainbow", Comp: Rainbow },
+  { name: "Bug", Comp: Bug },
+  { name: "Confetti", Comp: Confetti },
+  { name: "Coffee", Comp: Coffee },
+];
+
+const PHOSPHOR_WEIGHTS = [
+  "thin",
+  "light",
+  "regular",
+  "bold",
+  "fill",
+  "duotone",
+] as const;
+
 const IconTile: React.FC<{ entry: IconEntry }> = ({ entry }) => (
   <Box
     className="doc-chrome"
@@ -217,10 +261,12 @@ const IconsDocs: React.FC = () => {
         Icons
       </Typography>
       <Typography sx={{ fontSize: 18, lineHeight: 1.6, color: t.textMuted, mb: 4 }}>
-        {ALL_ICONS.length} SVG icons, exported from the package root. This gallery
-        is generated directly from the library's icon exports, so it always
-        matches what ships. Every icon accepts <code>size</code> and{" "}
-        <code>fill</code> / <code>color</code> props.
+        {ALL_ICONS.length} hand-crafted design-system icons — plus the complete{" "}
+        {phosphorIconCount}-icon Phosphor set — all exported from the package
+        root. The gallery below is generated directly from the library's icon
+        exports, so it always matches what ships. Design-system icons accept{" "}
+        <code>size</code> and <code>fill</code> / <code>color</code>; Phosphor
+        icons accept <code>size</code>, <code>weight</code> and <code>color</code>.
       </Typography>
 
       <DocSection title="Import" description="Import any icon by name from the package root.">
@@ -228,6 +274,97 @@ const IconsDocs: React.FC = () => {
           code={`import { ArrowRight, MagnifyingGlass, CheckCircle, Download } from '@flipspacesit/fs-ui';
 
 // A few icons also export aliases: Check → CheckIcon, Close → CloseIcon, Error → ErrorIcon`}
+        />
+      </DocSection>
+
+      <DocSection
+        title="Phosphor Icons"
+        description={`Beyond the ${ALL_ICONS.length} hand-crafted design-system glyphs below, fs-ui re-exports the complete Phosphor Icons set — ${phosphorIconCount} icons, each in six weights. Import any of them by name from the package root; they're tree-shaken, so only the icons you actually use are bundled.`}
+      >
+        <CodeBlock
+          code={`import { Heart, Rocket, GameController, IconContext } from '@flipspacesit/fs-ui'
+
+// Phosphor icons take \`size\`, \`weight\` and \`color\`:
+<Rocket size={24} weight="duotone" color="#425281" />
+
+// Set defaults for a whole subtree with Phosphor's IconContext:
+<IconContext.Provider value={{ size: 20, weight: 'bold', color: '#425281' }}>
+  <Heart /> <Rocket /> <GameController />
+</IconContext.Provider>`}
+        />
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(104px, 1fr))",
+            gap: "12px",
+            mt: "24px",
+          }}
+        >
+          {PHOSPHOR_SAMPLE.map(({ name, Comp }) => (
+            <Box
+              key={name}
+              className="doc-chrome"
+              title={name}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "8px",
+                p: "16px 8px",
+                borderRadius: "10px",
+                border: `1px solid ${t.border}`,
+                backgroundColor: t.surface,
+                transition: "border-color 150ms, background-color 150ms",
+                "&:hover": { borderColor: t.accent, backgroundColor: t.accentTint },
+              }}
+            >
+              <Box sx={{ height: 28, display: "flex", alignItems: "center", color: t.text }}>
+                <Comp size={24} />
+              </Box>
+              <Box
+                className="doc-mono"
+                sx={{ fontSize: 11, color: t.textMuted, textAlign: "center", wordBreak: "break-word", lineHeight: 1.3 }}
+              >
+                {name}
+              </Box>
+            </Box>
+          ))}
+        </Box>
+        <Typography sx={{ fontSize: 13, color: t.textMuted, mt: "16px" }}>
+          A small sample of {phosphorIconCount}. Browse and search the full set at{" "}
+          <a
+            href="https://phosphoricons.com"
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: t.accent, textDecoration: "underline" }}
+          >
+            phosphoricons.com
+          </a>{" "}
+          — every icon there is importable from <code>@flipspacesit/fs-ui</code>.
+        </Typography>
+      </DocSection>
+
+      <DocSection
+        title="Phosphor weights"
+        description="Every Phosphor icon supports six weights via the `weight` prop."
+      >
+        <Example
+          code={`<Heart weight="thin" />
+<Heart weight="light" />
+<Heart weight="regular" />
+<Heart weight="bold" />
+<Heart weight="fill" />
+<Heart weight="duotone" />`}
+          preview={
+            <Box sx={{ display: "flex", gap: 28, alignItems: "center", flexWrap: "wrap", color: "#1b1c1e" }}>
+              {PHOSPHOR_WEIGHTS.map((w) => (
+                <Box key={w} sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+                  <Heart size={32} weight={w} color="#df2409" />
+                  <Box sx={{ fontSize: 11, color: "#616161" }}>{w}</Box>
+                </Box>
+              ))}
+            </Box>
+          }
         />
       </DocSection>
 

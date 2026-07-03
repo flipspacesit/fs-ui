@@ -34,7 +34,22 @@ export const iconEntries: IconEntry[] = Object.entries(IconsNS)
 
 export const iconCount = iconEntries.length;
 
-const iconNames = new Set(iconEntries.map((i) => i.name));
+// Names re-exported through ./icons: the hand-authored glyphs above PLUS the
+// full @phosphor-icons/react set (bare names + `<Name>Icon` aliases) and its
+// helpers (IconContext, IconBase, SSR). Excluded wholesale from the non-icon
+// classification below so the ~3,000 Phosphor forwardRef exports are never
+// miscounted as fs-ui Components.
+const iconNsNames = new Set(Object.keys(IconsNS));
+
+/**
+ * Distinct Phosphor icons reachable from the package root. Phosphor v2 ships an
+ * `<Name>Icon` alias for every icon, so counting bare names that have a matching
+ * alias yields the catalog size (1,512) while excluding the alias duplicates and
+ * helpers (IconContext / IconBase / SSR). Derived, so it can't drift.
+ */
+export const phosphorIconCount = Object.keys(IconsNS).filter(
+  (name) => !name.endsWith("Icon") && `${name}Icon` in IconsNS
+).length;
 
 export interface LibExport {
   name: string;
@@ -43,7 +58,7 @@ export interface LibExport {
 
 /** Every non-icon value export from the barrel, classified by kind. */
 export const libExports: LibExport[] = Object.entries(FsUi)
-  .filter(([name]) => !iconNames.has(name))
+  .filter(([name]) => !iconNsNames.has(name))
   .map(([name, val]): LibExport => {
     let kind: ExportKind;
     if (typeof val === "function" && /^use[A-Z]/.test(name)) kind = "Hook";

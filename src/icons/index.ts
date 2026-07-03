@@ -88,3 +88,23 @@ export { ListChecks } from "./ListChecks";
 export { ClipboardText } from "./ClipboardText";
 export { Certificate } from "./Certificate";
 export { Users } from "./Users";
+
+// ---------------------------------------------------------------------------
+// Phosphor Icons — the full @phosphor-icons/react set (~1,512 icons, each with
+// thin / light / regular / bold / fill / duotone weights). Re-exported wholesale
+// so every Phosphor icon is importable straight from `@flipspacesit/fs-ui`.
+//
+// The hand-authored icons above are EXPLICIT named exports, so per ES-module
+// semantics they shadow their Phosphor namesakes (ArrowDown, CheckCircle,
+// Funnel, MagnifyingGlass, Trash, Users, …) with no ambiguity — importing those
+// names keeps the existing fs-ui glyph and `{ size, color | fill }` API exactly
+// as before. Likewise the component exports in ../index.ts (Table, Tag, Tabs,
+// Tree, Calendar, RadioButton) shadow the Phosphor icons of the same name at the
+// package root. New Phosphor icons use Phosphor's own `<Icon size weight color />`
+// API (see IconContext / IconProps / IconWeight, also re-exported here).
+//
+// `@phosphor-icons/react` is externalized in vite.config.ts, so it is NOT bundled
+// into fs-ui's dist — consumers' bundlers tree-shake it and only pull the icons
+// they actually import.
+// ---------------------------------------------------------------------------
+export * from "@phosphor-icons/react";
