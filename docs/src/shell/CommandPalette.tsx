@@ -3,14 +3,35 @@ import { Dialog, Box } from "@mui/material";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { t } from "../docTokens";
 import { menuItems, CATEGORIES, chapterNo, type MenuItem } from "./nav";
+import { iconEntries, phosphorIconEntries, type IconEntry } from "../libStats";
 
 interface Props {
   open: boolean;
   onClose: () => void;
   onSelect: (id: string) => void;
+  onSelectIcon: (name: string) => void;
 }
 
 const RECENT_KEY = "fsui-docs-recent";
+
+// Every icon exported from the library — hand-authored glyphs + the full Phosphor
+// set — deduped by name (hand-authored wins) so the palette can surface icons,
+// not just pages.
+const ICON_INDEX: IconEntry[] = (() => {
+  const byName = new Map<string, IconEntry>();
+  for (const e of phosphorIconEntries) byName.set(e.name, e);
+  for (const e of iconEntries) byName.set(e.name, e);
+  return Array.from(byName.values()).sort((a, b) => a.name.localeCompare(b.name));
+})();
+const ICON_RESULT_CAP = 24;
+
+type Result =
+  | { kind: "page"; item: MenuItem }
+  | { kind: "icon"; name: string; Comp: IconEntry["Comp"] };
+
+/** Group key used to draw the section headers. */
+const groupOf = (r: Result): string =>
+  r.kind === "page" ? r.item.category : "Icons";
 
 const getRecents = (): string[] => {
   try {
@@ -77,8 +98,9 @@ export const CommandPalette: React.FC<Props> = ({ open, onClose, onSelect }) => 
     return () => clearTimeout(id);
   }, [open]);
 
-  // Build the result list (flat, ordered by category) + group boundaries.
-  const results = useMemo<MenuItem[]>(() => {
+  // Build the result list — pages first (ordered by category), then icon matches
+  // under their own group + group boundaries.
+  const results = useMemo<Result[]>(() => {
     const q = query.trim().toLowerCase();
     if (!q) {
       const recents = getRecents();
@@ -93,9 +115,10 @@ export const CommandPalette: React.FC<Props> = ({ open, onClose, onSelect }) => 
       const seen = new Set<string>();
       return jump
         .map((id) => menuItems.find((m) => m.id === id))
-        .filter((m): m is MenuItem => !!m && !seen.has(m.id) && !!seen.add(m.id));
+        .filter((m): m is MenuItem => !!m && !seen.has(m.id) && !!seen.add(m.id))
+        .map((item): Result => ({ kind: "page", item }));
     }
-    const scored = menuItems
+    const pages: Result[] = menuItems
       .filter(
         (m) =>
           m.label.toLowerCase().includes(q) ||
@@ -105,17 +128,29 @@ export const CommandPalette: React.FC<Props> = ({ open, onClose, onSelect }) => 
         const ai = CATEGORIES.indexOf(a.category as (typeof CATEGORIES)[number]);
         const bi = CATEGORIES.indexOf(b.category as (typeof CATEGORIES)[number]);
         return ai - bi;
-      });
-    return scored;
+      })
+      .map((item): Result => ({ kind: "page", item }));
+    const icons: Result[] = ICON_INDEX.filter((e) =>
+      e.name.toLowerCase().includes(q)
+    )
+      .slice(0, ICON_RESULT_CAP)
+      .map((e): Result => ({ kind: "icon", name: e.name, Comp: e.Comp }));
+    return [...pages, ...icons];
     // `open` is a dep so the empty-query "recents" list re-reads localStorage each open.
   }, [query, open]);
 
   // Clamp the active index into range without an effect.
   const activeIdx = results.length ? Math.min(active, results.length - 1) : 0;
 
-  const select = (item: MenuItem) => {
+  const select = (r: Result) => {
+    if (r.kind === "icon") {
+      onSelectIcon(r.name);
+      onClose();
+      return;
+    }
+    const { item } = r;
     try {
-      const next = [item.id, ...getRecents().filter((r) => r !== item.id)].slice(0, 3);
+      const next = [item.id, ...getRecents().filter((x) => x !== item.id)].slice(0, 3);
       localStorage.setItem(RECENT_KEY, JSON.stringify(next));
     } catch {
       /* ignore */
@@ -172,7 +207,7 @@ export const CommandPalette: React.FC<Props> = ({ open, onClose, onSelect }) => 
           ref={inputRef}
           value={query}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
-          placeholder="Search components…"
+          placeholder="Search components & icons…"
           sx={{
             flex: 1,
             border: "none",
@@ -199,11 +234,14 @@ export const CommandPalette: React.FC<Props> = ({ open, onClose, onSelect }) => 
             </Box>
           </Box>
         )}
-        {results.map((item, i) => {
-          const header = i === 0 || results[i - 1].category !== item.category;
+        {results.map((r, i) => {
+          const group = groupOf(r);
+          const header = i === 0 || groupOf(results[i - 1]) !== group;
           const isActive = i === activeIdx;
+          const key = r.kind === "page" ? `p:${r.item.id}` : `i:${r.name}`;
+          const label = r.kind === "page" ? r.item.label : r.name;
           return (
-            <React.Fragment key={item.id}>
+            <React.Fragment key={key}>
               {header && (
                 <Box
                   sx={{
@@ -215,27 +253,29 @@ export const CommandPalette: React.FC<Props> = ({ open, onClose, onSelect }) => 
                     pb: "4px",
                   }}
                 >
-                  <Box
-                    className="doc-mono"
-                    sx={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      color: t.textSubtle,
-                      backgroundColor: t.signalTint,
-                      borderRadius: "5px",
-                      px: "5px",
-                    }}
-                  >
-                    {chapterNo(item.category)}
-                  </Box>
+                  {r.kind === "page" && (
+                    <Box
+                      className="doc-mono"
+                      sx={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        color: t.textSubtle,
+                        backgroundColor: t.signalTint,
+                        borderRadius: "5px",
+                        px: "5px",
+                      }}
+                    >
+                      {chapterNo(group)}
+                    </Box>
+                  )}
                   <Box sx={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: t.textSubtle }}>
-                    {item.category}
+                    {group}
                   </Box>
                 </Box>
               )}
               <Box
                 onMouseEnter={() => setActive(i)}
-                onClick={() => select(item)}
+                onClick={() => select(r)}
                 sx={{
                   position: "relative",
                   mx: "8px",
@@ -252,10 +292,27 @@ export const CommandPalette: React.FC<Props> = ({ open, onClose, onSelect }) => 
                 {isActive && (
                   <Box sx={{ position: "absolute", left: 0, top: 10, bottom: 10, width: 3, borderRadius: 3, backgroundColor: t.signal }} />
                 )}
+                {r.kind === "icon" && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      width: 20,
+                      color: t.text,
+                      "& svg": { width: 18, height: 18 },
+                    }}
+                  >
+                    <r.Comp size={18} color="var(--doc-text)" fill="var(--doc-text)" />
+                  </Box>
+                )}
                 <Box sx={{ flex: 1, fontSize: 15, fontWeight: 500, color: t.text }}>
-                  <Highlighted text={item.label} q={query.trim()} />
+                  <Highlighted text={label} q={query.trim()} />
                 </Box>
-                <Box sx={{ fontSize: 12, color: t.textSubtle }}>{item.category}</Box>
+                <Box sx={{ fontSize: 12, color: t.textSubtle }}>
+                  {r.kind === "page" ? r.item.category : "Icon"}
+                </Box>
               </Box>
             </React.Fragment>
           );

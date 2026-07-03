@@ -32,6 +32,9 @@ export default defineConfig({
         "@emotion/styled",
         "styled-components",
         "notistack",
+        // Re-exported wholesale from src/icons — keep external so the full
+        // Phosphor set is never inlined and consumers tree-shake per-import.
+        /^@phosphor-icons\/react/,
       ],
       output: {
         globals: {
@@ -43,6 +46,7 @@ export default defineConfig({
           "@emotion/styled": "emotionStyled",
           "styled-components": "styled",
           notistack: "notistack",
+          "@phosphor-icons/react": "PhosphorReact",
         },
       },
     },
