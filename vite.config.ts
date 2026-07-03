@@ -17,6 +17,9 @@ export default defineConfig({
       name: "FsUI",
       formats: ["es", "cjs"],
       fileName: (format) => `fs-ui.${format}.js`,
+      // Emit the design-token stylesheet as dist/style.css to match the
+      // "./styles" package export.
+      cssFileName: "style",
     },
     rollupOptions: {
       external: [

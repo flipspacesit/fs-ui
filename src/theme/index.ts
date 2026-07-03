@@ -2,36 +2,70 @@ import { createTheme } from "@mui/material";
 import React from "react";
 
 import "@mui/material/styles";
+import "@mui/x-date-pickers/themeAugmentation";
+
+import {
+  primary as primaryColors,
+  neutral,
+  semantic,
+  buttons,
+} from "./tokens/colors";
+import { shadows } from "./tokens/shadows";
+import { fontFamily, fontSize } from "./tokens/typography";
+import { radii } from "./tokens/radii";
 
 // Module augmentation for custom palette colors
 declare module "@mui/material/styles" {
   interface Palette {
+    // Design-system palette groups (full ramps)
     softSteel: Record<string, string> & Palette["primary"];
+    slateBlue: Record<string, string> & Palette["primary"];
+    primaryBlue: Record<string, string> & Palette["primary"];
+    interactive: Record<string, string> & Palette["primary"];
+    tertiary: Record<string, string> & Palette["primary"];
+    teal: Record<string, string> & Palette["primary"];
     surface: Record<string, string> & Palette["primary"];
     white: Record<string, string> & Palette["primary"];
-    purple: Record<string, string> & Palette["primary"];
     black: Record<string, string> & Palette["primary"];
     border: Record<string, string> & Palette["primary"];
     yellow: Record<string, string> & Palette["primary"];
-    grey1: Record<string, string> & Palette["primary"];
-    grey2: Record<string, string> & Palette["primary"];
-    green: Record<string, string> & Palette["primary"];
-    orange: Record<string, string> & Palette["primary"];
+    /** @deprecated Not in the design system — use `slateBlue`, `misc.duskyPurple`, or `misc.lavenderIndigo`. Retained for backward compatibility. */
+    purple: Record<string, string> & Palette["primary"];
+    /** @deprecated Legacy Blue ramp — use `primaryBlue` (the DS Blue). Retained for backward compatibility. */
     blue: Record<string, string> & Palette["primary"];
+    /** @deprecated Not in the design system palette — use `success` or `misc.lightSeaGreen`. Retained for backward compatibility. */
+    green: Record<string, string> & Palette["primary"];
+    /** @deprecated Not in the design system palette — use `misc.sunriseOrange` / `misc.cocoaBrown`. Retained for backward compatibility. */
+    orange: Record<string, string> & Palette["primary"];
+    /** @deprecated Superseded by DS neutrals — use `grey` / `softSteel`. Retained for backward compatibility. */
+    grey1: Record<string, string> & Palette["primary"];
+    /** @deprecated Superseded by DS neutrals — use `grey` / `softSteel`. Retained for backward compatibility. */
+    grey2: Record<string, string> & Palette["primary"];
   }
   interface PaletteOptions {
     softSteel?: Record<string, string> & PaletteOptions["primary"];
+    slateBlue?: Record<string, string> & PaletteOptions["primary"];
+    primaryBlue?: Record<string, string> & PaletteOptions["primary"];
+    interactive?: Record<string, string> & PaletteOptions["primary"];
+    tertiary?: Record<string, string> & PaletteOptions["primary"];
+    teal?: Record<string, string> & PaletteOptions["primary"];
     surface?: Record<string, string> & PaletteOptions["primary"];
     white?: Record<string, string> & PaletteOptions["primary"];
-    purple?: Record<string, string> & PaletteOptions["primary"];
     black?: Record<string, string> & PaletteOptions["primary"];
     border?: Record<string, string> & PaletteOptions["primary"];
     yellow?: Record<string, string> & PaletteOptions["primary"];
-    grey1?: Record<string, string> & PaletteOptions["primary"];
-    grey2?: Record<string, string> & PaletteOptions["primary"];
-    green?: Record<string, string> & PaletteOptions["primary"];
-    orange?: Record<string, string> & PaletteOptions["primary"];
+    /** @deprecated Not in the design system — use `slateBlue` / `misc`. Retained for backward compatibility. */
+    purple?: Record<string, string> & PaletteOptions["primary"];
+    /** @deprecated Legacy Blue ramp — use `primaryBlue`. Retained for backward compatibility. */
     blue?: Record<string, string> & PaletteOptions["primary"];
+    /** @deprecated Not in the design system palette — use `success` / `misc`. Retained for backward compatibility. */
+    green?: Record<string, string> & PaletteOptions["primary"];
+    /** @deprecated Not in the design system palette — use `misc`. Retained for backward compatibility. */
+    orange?: Record<string, string> & PaletteOptions["primary"];
+    /** @deprecated Superseded by DS neutrals. Retained for backward compatibility. */
+    grey1?: Record<string, string> & PaletteOptions["primary"];
+    /** @deprecated Superseded by DS neutrals. Retained for backward compatibility. */
+    grey2?: Record<string, string> & PaletteOptions["primary"];
   }
 
   interface PaletteColor {
@@ -41,10 +75,15 @@ declare module "@mui/material/styles" {
     200?: string;
     300?: string;
     400?: string;
+    500?: string;
     600?: string;
     700?: string;
     800?: string;
     900?: string;
+    950?: string;
+    brand?: string;
+    hover?: string;
+    primaryDark?: string;
   }
 
   interface TypographyVariants {
@@ -80,10 +119,16 @@ declare module "@mui/material/styles" {
   }
 }
 
+// Augment MUI's component prop types so the DS additions type-check on consumers.
 declare module "@mui/material" {
+  /** Extra `color` values accepted by `<Button color>` / `<IconButton>` beyond MUI's defaults. */
   interface ButtonPropsColorOverrides {
     softSteel: true;
+    tertiary: true;
+    black: true;
+    teal: true;
   }
+  /** DS typography variants selectable via `<Typography variant>` (t1 + b1/b2/c1/f1/f2). */
   interface TypographyPropsVariantOverrides {
     t1: true;
     b1: true;
@@ -92,61 +137,130 @@ declare module "@mui/material" {
     f1: true;
     f2: true;
   }
+  /** Extra `<TextField size>` steps mapped to the DS height scale. */
   interface TextFieldPropsSizeOverrides {
     large: true;
     extraLarge: true;
   }
+  /** DS-only `<Button shape>` prop — drives corner radius (round = pill, rectangular = radius-sm). */
   interface ButtonOwnProps {
-    shape?: "square" | "round";
+    shape?: "square" | "rectangular" | "round";
   }
 }
 
 /**
  * Flipspaces Design System Theme
  *
- * This theme provides consistent styling across all Flipspaces applications.
+ * Faithful implementation of the canonical Figma Design System
+ * (file `adSPuBSUsaaSvaCUvLPMf1`). All color values are sourced from the token
+ * layer in `./tokens` — do not hardcode hex here.
+ *
  * It includes:
- * - Custom color palette with brand colors
+ * - Design-system color palette (primary / neutral / semantic groups)
  * - Responsive typography variants
  * - Component style overrides for MUI components
+ *
+ * Legacy palette keys (`purple`, `blue`, `green`, `orange`, `grey1`, `grey2`)
+ * are retained unchanged and marked `@deprecated` for a non-breaking rollout —
+ * migrate consumers to the DS groups (`slateBlue`, `primaryBlue`, `misc`, …).
  */
 export const theme = createTheme({
   palette: {
+    // Brand — Primary/Yellow
     primary: {
-      main: "#ffc100",
+      main: primaryColors.yellow.brand,
+      light: primaryColors.yellow[300],
+      dark: primaryColors.yellow[700],
+      contrastText: neutral.black,
     },
+    // Accent — Primary/SlateBlue
     secondary: {
-      main: "#6868B4",
+      main: primaryColors.slateBlue.primary,
+      light: primaryColors.slateBlue[300],
+      dark: primaryColors.slateBlue.primaryDark,
+      contrastText: neutral.white,
     },
     text: {
-      primary: "#1B1C1E",
-      secondary: "#616161",
+      primary: neutral.ink,
+      secondary: neutral.grey[400],
     },
-    // Custom Flipspaces colors
-    blue: {
-      main: "#3361FF",
-      50: "#F0F4FF",
-      100: "#DEE7FF",
-      200: "#DEE7FF",
-      300: "#C3D0F5",
-      400: "#7B9CFF",
-      600: "#2952CC",
-      700: "#1E40AF",
-      800: "#1E3A8A",
-      900: "#1E3A5F",
+
+    // --- Design system palette groups (full ramps) ---
+    yellow: { ...primaryColors.yellow, main: primaryColors.yellow.brand },
+    slateBlue: {
+      ...primaryColors.slateBlue,
+      main: primaryColors.slateBlue.primary,
     },
-    softSteel: {
-      main: "#AEB6CE",
-      400: "#AEB6CE",
+    primaryBlue: { ...primaryColors.blue, main: primaryColors.blue.primary },
+    softSteel: { ...neutral.softSteel, main: neutral.softSteel[400] },
+    interactive: {
+      ...semantic.interactive,
+      main: semantic.interactive.primary,
     },
+    // Button color families
+    tertiary: {
+      main: buttons.tertiary,
+      light: buttons.tertiary,
+      dark: buttons.tertiaryHover,
+      contrastText: "#1B1C1E",
+    },
+    teal: {
+      main: primaryColors.teal.primary,
+      light: primaryColors.teal.primary,
+      dark: primaryColors.teal.hover,
+      contrastText: neutral.white,
+    },
+    grey: { ...neutral.grey },
+    border: { main: neutral.softSteel[400] },
     surface: {
       main: "#EEEEE7",
       300: "#F6F6F4",
       200: "#FBFBFF",
     },
-    white: {
-      main: "#FFFFFF",
+    white: { main: neutral.white },
+    black: { main: neutral.ink, 900: "#000000" },
+
+    // --- Semantics ---
+    success: {
+      main: semantic.success.primary,
+      light: semantic.success[300],
+      dark: semantic.success[950],
+      200: semantic.success[200],
+      300: semantic.success[300],
+      700: semantic.success[700],
+      900: semantic.success[950],
     },
+    error: {
+      main: semantic.error.primary,
+      light: semantic.error[300],
+      dark: semantic.error[900],
+      200: semantic.error[200],
+      300: semantic.error[300],
+      400: semantic.error[400],
+      700: semantic.error[700],
+      900: semantic.error[900],
+    },
+    warning: {
+      main: semantic.warning.primary,
+      light: semantic.warning[400],
+      dark: semantic.warning[800],
+      200: semantic.warning[200],
+      400: semantic.warning[400],
+      600: semantic.warning[600],
+      800: semantic.warning[800],
+    },
+    info: {
+      main: semantic.interactive.primary,
+      light: semantic.interactive[400],
+      dark: semantic.interactive[800],
+      200: semantic.interactive[200],
+      400: semantic.interactive[400],
+      600: semantic.interactive[600],
+      800: semantic.interactive[800],
+    },
+
+    // --- Legacy (deprecated): unchanged values, retained for backward compatibility ---
+    /** @deprecated Not in the design system — use `slateBlue` / `misc`. */
     purple: {
       primary: "#8686D5",
       main: "#8686D5",
@@ -160,38 +274,20 @@ export const theme = createTheme({
       100: "#DADAF2",
       50: "#F1F1FF",
     },
-    grey: {
-      400: "#616161",
-      300: "#919191",
-      200: "#BFBFBF",
-      100: "#D9D9D9",
-      50: "#F0F0F0",
+    /** @deprecated Legacy Blue ramp — use `primaryBlue` (the DS Blue). */
+    blue: {
+      main: "#3361FF",
+      50: "#F0F4FF",
+      100: "#DEE7FF",
+      200: "#DEE7FF",
+      300: "#C3D0F5",
+      400: "#7B9CFF",
+      600: "#2952CC",
+      700: "#1E40AF",
+      800: "#1E3A8A",
+      900: "#1E3A5F",
     },
-    grey1: {
-      main: "#929279",
-      400: "#929279",
-      300: "#BDBDA6",
-      200: "#D1D1BF",
-      100: "#E4E4D8",
-    },
-    grey2: {
-      main: "#989891",
-      400: "#989891",
-      300: "#BABAB1",
-      200: "#DADAD4",
-      100: "#EBEBE7",
-      50: "#E6E6F6",
-    },
-    black: {
-      main: "#1B1C1E",
-      900: "#000000",
-    },
-    border: {
-      main: "#AEB6CE",
-    },
-    yellow: {
-      main: "#ffc100",
-    },
+    /** @deprecated Not in the design system palette — use `success` / `misc.lightSeaGreen`. */
     green: {
       primary: "#8DB749",
       main: "#8DB749",
@@ -205,6 +301,7 @@ export const theme = createTheme({
       100: "#E7F6CF",
       50: "#F4F8ED",
     },
+    /** @deprecated Not in the design system palette — use `misc.sunriseOrange` / `misc.cocoaBrown`. */
     orange: {
       primary: "#D89F62",
       main: "#D89F62",
@@ -218,25 +315,27 @@ export const theme = createTheme({
       100: "#FFEFD5",
       50: "#FBF5EF",
     },
-    warning: {
-      main: "#DB8709",
-      600: "#DB8709",
-      200: "#FCEEC0",
+    /** @deprecated Superseded by DS neutrals — use `grey` / `softSteel`. */
+    grey1: {
+      main: "#929279",
+      400: "#929279",
+      300: "#BDBDA6",
+      200: "#D1D1BF",
+      100: "#E4E4D8",
     },
-    error: {
-      main: "#DF2409",
-      400: "#FB452B",
-      200: "#FFE4E0",
-    },
-    success: {
-      main: "#1A5E24",
-      200: "#E5F5E8",
-      900: "#1A5E24",
+    /** @deprecated Superseded by DS neutrals — use `grey` / `softSteel`. */
+    grey2: {
+      main: "#989891",
+      400: "#989891",
+      300: "#BABAB1",
+      200: "#DADAD4",
+      100: "#EBEBE7",
+      50: "#E6E6F6",
     },
   },
   typography: {
-    fontSize: 13,
-    fontFamily: '"Inter", sans-serif',
+    fontSize: fontSize.b1,
+    fontFamily,
     fontWeight: {
       small: 300,
       light: 400,
@@ -247,88 +346,88 @@ export const theme = createTheme({
     t1: {
       fontSize: 32,
       fontWeight: 600,
-      color: "#1B1C1E",
+      color: neutral.ink,
       "@media (min-width:1280px)": { fontSize: "32px" },
       "@media (min-width:1536px)": { fontSize: "33.60px" },
       "@media (min-width:1920px)": { fontSize: "35.84px" },
       "@media (min-width:2500px)": { fontSize: "41.60px" },
     },
     h1: {
-      fontSize: 24,
+      fontSize: fontSize.h1,
       fontWeight: 600,
-      color: "#1B1C1E",
+      color: neutral.ink,
       "@media (min-width:1280px)": { fontSize: "24px" },
       "@media (min-width:1536px)": { fontSize: "25.20px" },
       "@media (min-width:1920px)": { fontSize: "26.88px" },
       "@media (min-width:2500px)": { fontSize: "31.20px" },
     },
     h2: {
-      fontSize: 20,
+      fontSize: fontSize.h2,
       fontWeight: 600,
-      color: "#1B1C1E",
+      color: neutral.ink,
       "@media (min-width:1280px)": { fontSize: "20px" },
       "@media (min-width:1536px)": { fontSize: "21.00px" },
       "@media (min-width:1920px)": { fontSize: "22.40px" },
       "@media (min-width:2500px)": { fontSize: "26.00px" },
     },
     h3: {
-      fontSize: 16,
+      fontSize: fontSize.h3,
       fontWeight: 600,
-      color: "#1B1C1E",
+      color: neutral.ink,
       "@media (min-width:1280px)": { fontSize: "16px" },
       "@media (min-width:1536px)": { fontSize: "16.80px" },
       "@media (min-width:1920px)": { fontSize: "17.92px" },
       "@media (min-width:2500px)": { fontSize: "20.80px" },
     },
     h4: {
-      fontSize: 14,
+      fontSize: fontSize.h4,
       fontWeight: 600,
-      color: "#1B1C1E",
+      color: neutral.ink,
       "@media (min-width:1280px)": { fontSize: "14px" },
       "@media (min-width:1536px)": { fontSize: "14.70px" },
       "@media (min-width:1920px)": { fontSize: "15.68px" },
       "@media (min-width:2500px)": { fontSize: "18.20px" },
     },
     b1: {
-      fontSize: 13,
+      fontSize: fontSize.b1,
       fontWeight: 600,
-      color: "#1B1C1E",
+      color: neutral.ink,
       "@media (min-width:1280px)": { fontSize: "13px" },
       "@media (min-width:1536px)": { fontSize: "13.65px" },
       "@media (min-width:1920px)": { fontSize: "14.56px" },
       "@media (min-width:2500px)": { fontSize: "16.90px" },
     },
     b2: {
-      fontSize: 12,
+      fontSize: fontSize.b2,
       fontWeight: 600,
-      color: "#1B1C1E",
+      color: neutral.ink,
       "@media (min-width:1280px)": { fontSize: "12px" },
       "@media (min-width:1536px)": { fontSize: "12.60px" },
       "@media (min-width:1920px)": { fontSize: "13.44px" },
       "@media (min-width:2500px)": { fontSize: "15.60px" },
     },
     c1: {
-      fontSize: 11,
+      fontSize: fontSize.c1,
       fontWeight: 600,
-      color: "#1B1C1E",
+      color: neutral.ink,
       "@media (min-width:1280px)": { fontSize: "11px" },
       "@media (min-width:1536px)": { fontSize: "11.55px" },
       "@media (min-width:1920px)": { fontSize: "12.32px" },
       "@media (min-width:2500px)": { fontSize: "14.30px" },
     },
     f1: {
-      fontSize: 10,
+      fontSize: fontSize.f1,
       fontWeight: 600,
-      color: "#1B1C1E",
+      color: neutral.ink,
       "@media (min-width:1280px)": { fontSize: "10px" },
       "@media (min-width:1536px)": { fontSize: "10.50px" },
       "@media (min-width:1920px)": { fontSize: "11.20px" },
       "@media (min-width:2500px)": { fontSize: "13.00px" },
     },
     f2: {
-      fontSize: 9,
+      fontSize: fontSize.f2,
       fontWeight: 600,
-      color: "#1B1C1E",
+      color: neutral.ink,
       "@media (min-width:1280px)": { fontSize: "9px" },
       "@media (min-width:1536px)": { fontSize: "9.45px" },
       "@media (min-width:1920px)": { fontSize: "10.08px" },
@@ -343,87 +442,111 @@ export const theme = createTheme({
         variant: "contained",
       },
       styleOverrides: {
+        // Design-system Button — Figma "Buttons" (257:2). Shape (round/rectangular),
+        // per-size type + icon, and a contained/outlined/ghost × colour taxonomy.
         root: ({ ownerState, theme }) => {
+          const iconPx =
+            ownerState.size === "large"
+              ? 18
+              : ownerState.size === "medium"
+                ? 16
+                : 14;
           return {
             fontWeight: 600,
-            fontSize: "calc(13px * var(--scale))",
             color: theme.palette.black.main,
-            height: "calc(24px * var(--scale))",
             lineHeight: "16px",
-            padding: "8px 12px",
-            borderRadius: "6px",
+            padding: "4px 12px",
+            gap: "8px",
             boxShadow: "none",
             textTransform: "none",
+            // Shape → corner radius (rectangular = radius-sm, round = pill)
+            borderRadius:
+              ownerState.shape === "round"
+                ? `${radii.pill100}px`
+                : `${radii.sm}px`,
+            // Size → height + label type + icon size (responsive via --scale)
+            ...(ownerState.size === "large" && {
+              height: "calc(32px * var(--scale))",
+              fontSize: `calc(${fontSize.h4}px * var(--scale))`,
+            }),
+            ...(ownerState.size === "medium" && {
+              height: "calc(28px * var(--scale))",
+              fontSize: `calc(${fontSize.b1}px * var(--scale))`,
+            }),
+            ...(ownerState.size === "small" && {
+              height: "calc(24px * var(--scale))",
+              fontSize: `calc(${fontSize.b2}px * var(--scale))`,
+            }),
+            "& .MuiButton-startIcon, & .MuiButton-endIcon": { margin: 0 },
+            "& .MuiButton-startIcon svg, & .MuiButton-endIcon svg": {
+              width: `calc(${iconPx}px * var(--scale))`,
+              height: `calc(${iconPx}px * var(--scale))`,
+            },
             "&.Mui-disabled": {
-              backgroundColor: "#F0F0F0 !important",
-              color: "#919191 !important",
+              backgroundColor: `${theme.palette.grey[50]} !important`,
+              color: `${theme.palette.grey[300]} !important`,
+              border: "none",
               cursor: "not-allowed",
               pointerEvents: "auto",
               boxShadow: "none",
             },
-            ...(ownerState.shape === "square" && {
-              borderRadius: "8px",
-              "& .MuiButton-startIcon": {
-                margin: "0",
-              },
-            }),
-            ...(ownerState.shape === "round" && {
-              borderRadius: "100px",
-              "& .MuiButton-startIcon": {
-                margin: "0",
-              },
-            }),
-            ...(ownerState.size === "large" && {
-              height: `calc(32px * var(--scale))`,
-            }),
-            ...(ownerState.size === "medium" && {
-              height: `calc(28px * var(--scale))`,
-            }),
-            ...(ownerState.size === "small" && {
-              height: `calc(24px * var(--scale))`,
-            }),
-            // Variant styles
+            // ---- Contained ----
             ...(ownerState.variant === "contained" && {
               ...(ownerState.color === "primary" && {
-                backgroundColor: theme.palette.yellow.main,
-                color: theme.palette.black.main + " !important",
+                backgroundColor: primaryColors.yellow.brand,
+                color: `${theme.palette.black.main} !important`,
+                "&:hover": { backgroundColor: primaryColors.yellow.hover },
               }),
               ...(ownerState.color === "secondary" && {
-                backgroundColor: theme.palette.purple[600],
-                color: theme.palette.white.main + " !important",
+                backgroundColor: primaryColors.blue.primary,
+                color: `${neutral.white} !important`,
+                "&:hover": { backgroundColor: primaryColors.blue[700] },
+              }),
+              ...(ownerState.color === "tertiary" && {
+                backgroundColor: buttons.tertiary,
+                color: `${theme.palette.black.main} !important`,
+                "&:hover": { backgroundColor: buttons.tertiaryHover },
               }),
             }),
+            // ---- Outlined ----
             ...(ownerState.variant === "outlined" && {
-              backgroundColor: "transparent",
-              border: `1px solid ${theme.palette.border.main}`,
+              backgroundColor: neutral.white,
+              borderWidth: "0.5px",
+              borderStyle: "solid",
               ...(ownerState.color === "primary" && {
-                borderColor: theme.palette.yellow.main,
-                color: theme.palette.black.main,
-                "&:hover": {
-                  backgroundColor: theme.palette.yellow.main + "10",
-                },
+                borderColor: primaryColors.yellow.brand,
+                color: primaryColors.yellow[700],
+                "&:hover": { backgroundColor: primaryColors.yellow[50] },
               }),
               ...(ownerState.color === "secondary" && {
-                borderColor: theme.palette.purple[600],
+                borderColor: primaryColors.blue[400],
+                color: primaryColors.blue.primary,
+                "&:hover": { backgroundColor: primaryColors.blue[50] },
+              }),
+              ...(ownerState.color === "black" && {
+                borderColor: theme.palette.black.main,
                 color: theme.palette.black.main,
-                "&:hover": {
-                  backgroundColor: theme.palette.purple[50],
-                },
+                "&:hover": { backgroundColor: neutral.softSteel[50] },
               }),
             }),
+            // ---- Text (Ghost) ----
             ...(ownerState.variant === "text" && {
               backgroundColor: "transparent",
               ...(ownerState.color === "primary" && {
-                color: theme.palette.black.main,
-                "&:hover": {
-                  backgroundColor: theme.palette.yellow.main + "10",
-                },
+                color: primaryColors.yellow[700],
+                "&:hover": { backgroundColor: primaryColors.yellow[50] },
               }),
               ...(ownerState.color === "secondary" && {
+                color: primaryColors.blue.primary,
+                "&:hover": { backgroundColor: primaryColors.blue[50] },
+              }),
+              ...(ownerState.color === "black" && {
                 color: theme.palette.black.main,
-                "&:hover": {
-                  backgroundColor: theme.palette.purple[50],
-                },
+                "&:hover": { backgroundColor: neutral.softSteel[50] },
+              }),
+              ...(ownerState.color === "teal" && {
+                color: primaryColors.teal.primary,
+                "&:hover": { backgroundColor: "transparent" },
               }),
             }),
           };
@@ -451,15 +574,19 @@ export const theme = createTheme({
             }),
             ...(ownerState.size === "extraLarge" && {
               height: "calc(48px * var(--scale))",
+              fontSize: `${fontSize.h4}px !important`,
             }),
             ...(ownerState.size === "large" && {
               height: "calc(32px * var(--scale))",
+              fontSize: `${fontSize.h4}px !important`,
             }),
             ...(ownerState.size === "medium" && {
               height: "calc(28px * var(--scale))",
+              fontSize: `${fontSize.b1}px !important`,
             }),
             ...(ownerState.size === "small" && {
               height: "calc(24px * var(--scale))",
+              fontSize: `${fontSize.b2}px !important`,
             }),
             "&.MuiInputBase-adornedStart": {
               paddingLeft: "10px !important",
@@ -508,12 +635,18 @@ export const theme = createTheme({
             borderWidth: "0.5px",
           },
           "& .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.palette.border.main,
-            boxShadow: "0 4px 12px 0 rgba(209, 209, 230, 0.60)",
+            borderColor: theme.palette.slateBlue[400],
+            boxShadow: shadows.elevation03,
           },
           "& .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.palette.border.main,
+            borderColor: theme.palette.slateBlue[400],
             borderWidth: "0.5px",
+          },
+          "& .MuiInputBase-root.Mui-error .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.error[300],
+          },
+          "& .MuiFormHelperText-root.Mui-error": {
+            color: theme.palette.error.main,
           },
           "& .MuiFormHelperText-root": {
             marginLeft: "0px",
@@ -522,6 +655,8 @@ export const theme = createTheme({
         }),
       },
     },
+    // Select — mirrors the DS TextField: SoftSteel default border, SlateBlue/400
+    // hover+focus (with elevation-03 hover shadow), per-size height, rotating caret.
     MuiSelect: {
       defaultProps: {
         size: "medium",
@@ -537,11 +672,11 @@ export const theme = createTheme({
             borderWidth: "0.5px",
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.palette.border.main,
-            boxShadow: "0 4px 12px 0 rgba(209, 209, 230, 0.60)",
+            borderColor: theme.palette.slateBlue[400],
+            boxShadow: shadows.elevation03,
           },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.palette.border.main,
+            borderColor: theme.palette.slateBlue[400],
             borderWidth: "0.5px",
           },
           ...(ownerState.size === "small" && {
@@ -569,14 +704,16 @@ export const theme = createTheme({
         },
       },
     },
+    // DS Table — Figma "Tables & Filter" (479:125). Rounded SoftSteel-bordered
+    // container; SlateBlue-100 header cells with ink text; body rows on white
+    // with PrimaryBlue-300 gridlines. (See also the Styled* helpers in
+    // components/Table for the composed variant.)
     MuiTableContainer: {
       styleOverrides: {
         root: ({ theme }) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const palette = theme.palette as any;
           return {
             boxShadow: "none",
-            border: `0.5px solid ${palette.grey2?.[400] || "#989891"}`,
+            border: `0.5px solid ${theme.palette.softSteel[400]}`,
             borderRadius: "12px",
             maxHeight: "100%",
           };
@@ -586,18 +723,16 @@ export const theme = createTheme({
     MuiTableHead: {
       styleOverrides: {
         root: ({ theme }) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const palette = theme.palette as any;
           return {
             "& .MuiTableRow-root": {
-              backgroundColor: palette.purple?.[50] || "#F1F1FF",
+              backgroundColor: theme.palette.slateBlue[100],
               "& .MuiTableCell-root": {
-                backgroundColor: palette.purple?.[50] || "#F1F1FF",
+                backgroundColor: theme.palette.slateBlue[100],
                 border: "none",
-                borderRight: `0.5px solid ${palette.softSteel?.[400] || "#AEB6CE"}`,
+                borderRight: `0.5px solid ${theme.palette.softSteel[400]}`,
                 fontSize: "12px",
                 fontWeight: 500,
-                color: palette.grey?.[400] || "#616161",
+                color: theme.palette.black.main,
                 padding: "1px 8px",
                 height: "calc(20px * var(--scale, 1))",
                 lineHeight: 1.2,
@@ -613,19 +748,17 @@ export const theme = createTheme({
     MuiTableBody: {
       styleOverrides: {
         root: ({ theme }) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const palette = theme.palette as any;
           return {
             "& .MuiTableRow-root": {
-              backgroundColor: palette.white?.main || "#FFFFFF",
+              backgroundColor: theme.palette.white.main,
               "& .MuiTableCell-root": {
-                backgroundColor: palette.white?.main || "#FFFFFF",
+                backgroundColor: theme.palette.white.main,
                 border: "none",
-                borderBottom: `0.5px solid ${palette.purple?.[200] || "#C7C7EC"}`,
-                borderRight: `0.5px solid ${palette.purple?.[200] || "#C7C7EC"}`,
+                borderBottom: `0.5px solid ${theme.palette.primaryBlue[300]}`,
+                borderRight: `0.5px solid ${theme.palette.primaryBlue[300]}`,
                 fontSize: "12px",
                 fontWeight: 500,
-                color: palette.black?.main || "#1B1C1E",
+                color: theme.palette.black.main,
                 height: "calc(36px * var(--scale, 1))",
                 padding: "6px 8px",
                 lineHeight: 1,
@@ -639,6 +772,66 @@ export const theme = createTheme({
             },
           };
         },
+      },
+    },
+    // Date pickers — Figma "Calender Components" (902:7306)
+    MuiPickerPopper: {
+      styleOverrides: {
+        paper: {
+          border: `0.5px solid ${primaryColors.blue[500]}`,
+          borderRadius: `${radii.sm}px`,
+          boxShadow: shadows.elevation03,
+        },
+      },
+    },
+    MuiPickersCalendarHeader: {
+      styleOverrides: {
+        root: {
+          backgroundColor: buttons.tertiary,
+          borderRadius: `${radii.xxs}px`,
+          minHeight: "auto",
+          paddingLeft: "12px",
+          paddingRight: "4px",
+          marginTop: "8px",
+          marginBottom: "8px",
+        },
+        label: {
+          fontSize: `${fontSize.b2}px`,
+          fontWeight: 600,
+        },
+      },
+    },
+    MuiDayCalendar: {
+      styleOverrides: {
+        weekDayLabel: {
+          color: primaryColors.blue.primary,
+          fontWeight: 600,
+          fontSize: `${fontSize.b2}px`,
+        },
+      },
+    },
+    MuiPickersDay: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          fontSize: `${fontSize.b2}px`,
+          fontWeight: 500,
+          color: theme.palette.black.main,
+          "&.MuiPickersDay-dayOutsideMonth": {
+            color: theme.palette.grey[400],
+            fontWeight: 400,
+          },
+          "&.Mui-selected": {
+            backgroundColor: `${primaryColors.yellow.brand} !important`,
+            color: `${theme.palette.black.main} !important`,
+            fontWeight: 600,
+          },
+          "&.Mui-selected:hover": {
+            backgroundColor: `${primaryColors.yellow.hover} !important`,
+          },
+          "&.MuiPickersDay-today": {
+            borderColor: primaryColors.blue.primary,
+          },
+        }),
       },
     },
   },

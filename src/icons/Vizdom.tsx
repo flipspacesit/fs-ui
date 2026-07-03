@@ -13,8 +13,8 @@ export function Vizdom({ height = '15', width = '20' } : VizdomIconProps) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M16.068 9.23596C14.4516 10.1793 13.2775 9.65701 12.1964 8.73209C9.77794 6.66598 7.59718 3.65885 5.43709 1.25683C3.16744 -1.26944 -0.865414 2.95941 1.7577 5.88141L8.30205 13.1634C9.45961 14.4542 11.3572 14.4542 12.5168 13.1634L16.099 9.27507L16.2107 9.15313L16.068 9.23596Z"
         fill="#FFC702"
       />

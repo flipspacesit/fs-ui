@@ -1,651 +1,309 @@
-import React, { useState } from "react";
-import { Box, Typography, Stack, Paper, TextField, InputAdornment } from "@mui/material";
-import { DocSection, ExampleBox, PropsTable } from "../components/DocSection";
+import React, { useMemo, useState } from "react";
+import { Box, Typography } from "@mui/material";
+import { DocSection, Example, PropsTable, DocSearchField } from "../components/DocSection";
 import CodeBlock from "../components/CodeBlock";
-import {
-  Add,
-  AddFloor,
-  AirplaneTilt,
-  ArrowDown,
-  ArrowDown2,
-  ArrowLeft,
-  ArrowLeft2,
-  ArrowRight,
-  ArrowUp,
-  Bank,
-  Building,
-  CalendarBlank,
-  Cardholder,
-  CheckIcon,
-  CheckCircle,
-  CheckCircle2,
-  CheckRectangle,
-  CheckSquareOffset,
-  CloseIcon,
-  CreditCard,
-  CurrencyInr,
-  CurrencyInr2,
-  Download,
-  ErrorIcon,
-  FileText,
-  FillFileText,
-  FillThumbsDown,
-  FillThumbsUp,
-  FloppyDisk,
-  FloorInfo,
-  FullScreen,
-  Funnel,
-  Gear,
-  IdentificationCard,
-  Info,
-  InvoiceUS,
-  KeyboardArrowDown,
-  Logout,
-  MagnifyingGlass,
-  MapPin,
-  Minus,
-  MinimizeFullScreen,
-  MinusCircle,
-  NoDataIcon,
-  OutlineThumbsDown,
-  OutlineThumbsUp,
-  PaperPlaneTilt,
-  PdfFile,
-  PencilSimpleLine,
-  Phone,
-  QuestionMark,
-  Refresh,
-  Repeat,
-  Scroll,
-  Scroll2,
-  SealCheck,
-  ShoppingCart,
-  ShieldCheck,
-  Storefront,
-  Subtitles,
-  Success,
-  Trash,
-  Trash2,
-  TrayArrowUp,
-  UploadSimple,
-  UserCircle,
-  UserPlus,
-  VendorIcon,
-  Warning,
-  Warning2,
-  Vizdom,
-} from "../../../src";
+import { t } from "../docTokens";
+// The icon catalog is derived from the library exports (see libStats) so this
+// gallery can never drift from what ships.
+import { iconEntries } from "../libStats";
+import { Download, CheckCircle, Warning, Info } from "../../../src";
 
-interface IconItem {
-  name: string;
-  component: React.FC<Record<string, unknown>>;
-  description: string;
-  category: "Navigation" | "Status" | "Actions" | "Finance" | "Documents" | "Misc";
-  /** Override fill color for display (for icons with white default) */
-  displayFill?: string;
-  /** Note about the icon's default color */
-  defaultNote?: string;
+type Category =
+  | "Navigation"
+  | "Status"
+  | "Actions"
+  | "Finance"
+  | "Documents"
+  | "Misc";
+
+interface Meta {
+  category: Category;
+  description?: string;
 }
 
+/**
+ * Optional curation (category + description) for known icons. Any icon exported
+ * by fs-ui that is NOT listed here still shows up automatically under "Misc" —
+ * so newly added icons appear without touching this file.
+ */
+const META: Record<string, Meta> = {
+  // Navigation
+  ArrowDown: { category: "Navigation", description: "Downward arrow" },
+  ArrowDown2: { category: "Navigation", description: "Downward chevron" },
+  ArrowLeft: { category: "Navigation", description: "Left arrow" },
+  ArrowLeft2: { category: "Navigation", description: "Left arrow with line" },
+  ArrowLineDown: { category: "Navigation", description: "Arrow to baseline" },
+  ArrowRight: { category: "Navigation", description: "Right arrow" },
+  ArrowUp: { category: "Navigation", description: "Upward arrow" },
+  FullScreen: { category: "Navigation", description: "Enter fullscreen" },
+  MinimizeFullScreen: { category: "Navigation", description: "Exit fullscreen" },
+  KeyboardArrowDown: { category: "Navigation", description: "Chevron down" },
+  // Status
+  CheckIcon: { category: "Status", description: "Checkmark" },
+  CheckCircle: { category: "Status", description: "Success check in circle" },
+  CheckCircle2: { category: "Status", description: "Check in circle (outline)" },
+  CheckRectangle: { category: "Status", description: "Check in rectangle" },
+  CheckSquareOffset: { category: "Status", description: "Check with square offset" },
+  CloseIcon: { category: "Status", description: "Close / X" },
+  ErrorIcon: { category: "Status", description: "Error" },
+  EqualtoCircle: { category: "Status", description: "Equals in circle" },
+  Info: { category: "Status", description: "Information" },
+  FillInfo: { category: "Status", description: "Information (filled)" },
+  FloorInfo: { category: "Status", description: "Floor / layered info" },
+  QuestionMark: { category: "Status", description: "Help in circle" },
+  OutlineQuestionMark: { category: "Status", description: "Help (outline)" },
+  Success: { category: "Status", description: "Double checkmark" },
+  Warning: { category: "Status", description: "Warning badge" },
+  Warning2: { category: "Status", description: "Warning triangle" },
+  MinusCircle: { category: "Status", description: "Minus in circle" },
+  PlusCircle: { category: "Status", description: "Plus in circle" },
+  SealCheck: { category: "Status", description: "Verified seal" },
+  ShieldCheck: { category: "Status", description: "Shield with check" },
+  Certificate: { category: "Status", description: "Certificate" },
+  // Actions
+  Add: { category: "Actions", description: "Plus / add" },
+  AddFloor: { category: "Actions", description: "Add floor" },
+  Minus: { category: "Actions", description: "Minus / subtract" },
+  Download: { category: "Actions", description: "Download" },
+  UploadSimple: { category: "Actions", description: "Upload" },
+  TrayArrowUp: { category: "Actions", description: "Tray upload" },
+  MagnifyingGlass: { category: "Actions", description: "Search" },
+  Pencil: { category: "Actions", description: "Edit / pencil" },
+  PencilSimpleLine: { category: "Actions", description: "Edit (line)" },
+  FloppyDisk: { category: "Actions", description: "Save" },
+  Repeat: { category: "Actions", description: "Repeat" },
+  Refresh: { category: "Actions", description: "Reload" },
+  PaperPlaneTilt: { category: "Actions", description: "Send" },
+  Trash: { category: "Actions", description: "Delete" },
+  Trash2: { category: "Actions", description: "Delete (large)" },
+  ShoppingCart: { category: "Actions", description: "Cart" },
+  Funnel: { category: "Actions", description: "Filter" },
+  ListChecks: { category: "Actions", description: "Checklist" },
+  UserPlus: { category: "Actions", description: "Add user" },
+  Logout: { category: "Actions", description: "Sign out" },
+  FillThumbsUp: { category: "Actions", description: "Thumbs up (filled)" },
+  FillThumbsDown: { category: "Actions", description: "Thumbs down (filled)" },
+  OutlineThumbsUp: { category: "Actions", description: "Thumbs up (outline)" },
+  OutlineThumbsDown: { category: "Actions", description: "Thumbs down (outline)" },
+  AirplaneTilt: { category: "Actions", description: "Airplane" },
+  // Finance
+  Bank: { category: "Finance", description: "Bank" },
+  CreditCard: { category: "Finance", description: "Credit card" },
+  Cardholder: { category: "Finance", description: "Card holder" },
+  CurrencyInr: { category: "Finance", description: "Indian Rupee" },
+  CurrencyInr2: { category: "Finance", description: "Indian Rupee (alt)" },
+  Building: { category: "Finance", description: "Office building" },
+  InvoiceUS: { category: "Finance", description: "Invoice (US)" },
+  Receipt: { category: "Finance", description: "Receipt" },
+  RequestPayment: { category: "Finance", description: "Request payment" },
+  Percentage: { category: "Finance", description: "Percentage" },
+  // Documents
+  FileText: { category: "Documents", description: "File with text" },
+  FillFileText: { category: "Documents", description: "File with text (filled)" },
+  PdfFile: { category: "Documents", description: "PDF document" },
+  Scroll: { category: "Documents", description: "Scroll" },
+  Scroll2: { category: "Documents", description: "Scroll (alt)" },
+  IdentificationCard: { category: "Documents", description: "ID card" },
+  Subtitles: { category: "Documents", description: "Subtitles" },
+  Folder: { category: "Documents", description: "Folder" },
+  ClipboardText: { category: "Documents", description: "Clipboard" },
+  Ticket: { category: "Documents", description: "Ticket" },
+  // Misc
+  Gear: { category: "Misc", description: "Settings" },
+  CalendarBlank: { category: "Misc", description: "Calendar" },
+  MapPin: { category: "Misc", description: "Location" },
+  Phone: { category: "Misc", description: "Phone" },
+  Email: { category: "Misc", description: "Email" },
+  Storefront: { category: "Misc", description: "Store" },
+  UserCircle: { category: "Misc", description: "User avatar" },
+  Users: { category: "Misc", description: "Multiple users" },
+  VendorIcon: { category: "Misc", description: "Vendor logo" },
+  Vizdom: { category: "Misc", description: "Vizdom logo" },
+  IndianFlag: { category: "Misc", description: "India flag" },
+  NoDataIcon: { category: "Misc", description: "No data placeholder" },
+  FillBulb: { category: "Misc", description: "Idea (filled)" },
+  OutlineBulb: { category: "Misc", description: "Idea (outline)" },
+};
+
+const CATEGORY_ORDER: Category[] = [
+  "Navigation",
+  "Status",
+  "Actions",
+  "Finance",
+  "Documents",
+  "Misc",
+];
+
+interface IconEntry {
+  name: string;
+  Comp: React.FC<Record<string, unknown>>;
+  category: Category;
+  description: string;
+}
+
+// Layer curation (category/description) onto the derived icon catalog.
+const ALL_ICONS: IconEntry[] = iconEntries.map(({ name, Comp }) => ({
+  name,
+  Comp,
+  category: META[name]?.category ?? "Misc",
+  description: META[name]?.description ?? name.replace(/([a-z])([A-Z])/g, "$1 $2"),
+}));
+
+const IconTile: React.FC<{ entry: IconEntry }> = ({ entry }) => (
+  <Box
+    className="doc-chrome"
+    title={entry.description}
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: "8px",
+      p: "16px 8px",
+      borderRadius: "10px",
+      border: `1px solid ${t.border}`,
+      backgroundColor: t.surface,
+      cursor: "default",
+      transition: "border-color 150ms, background-color 150ms",
+      "&:hover": { borderColor: t.accent, backgroundColor: t.accentTint },
+    }}
+  >
+    <Box
+      sx={{
+        height: 28,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: t.text,
+        // Constrain every icon to 24px regardless of its own size/width/height
+        // props (some icons ignore `size`), and tint via both fill & color
+        // since the icon set is split across the two APIs.
+        "& svg": { width: 24, height: 24 },
+      }}
+    >
+      <entry.Comp size={24} fill="var(--doc-text)" color="var(--doc-text)" />
+    </Box>
+    <Box
+      className="doc-mono"
+      sx={{ fontSize: 11, color: t.textMuted, textAlign: "center", wordBreak: "break-word", lineHeight: 1.3 }}
+    >
+      {entry.name}
+    </Box>
+  </Box>
+);
+
 const IconsDocs: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [q, setQ] = useState("");
 
-  const icons: IconItem[] = [
-    // Navigation
-    { name: "ArrowDown", component: ArrowDown, description: "Downward arrow", category: "Navigation" },
-    { name: "ArrowDown2", component: ArrowDown2, description: "Downward chevron arrow", category: "Navigation" },
-    { name: "ArrowLeft", component: ArrowLeft, description: "Left arrow", category: "Navigation" },
-    { name: "ArrowLeft2", component: ArrowLeft2, description: "Left arrow with line", category: "Navigation" },
-    { name: "ArrowRight", component: ArrowRight, description: "Right arrow", category: "Navigation" },
-    { name: "ArrowUp", component: ArrowUp, description: "Upward arrow", category: "Navigation" },
-    { name: "FullScreen", component: FullScreen, description: "Enter fullscreen", category: "Navigation" },
-    { name: "MinimizeFullScreen", component: MinimizeFullScreen, description: "Exit fullscreen", category: "Navigation" },
-    { name: "KeyboardArrowDown", component: KeyboardArrowDown, description: "Keyboard arrow down/right chevron", category: "Navigation" },
+  const filtered = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return ALL_ICONS;
+    return ALL_ICONS.filter(
+      (i) => i.name.toLowerCase().includes(s) || i.description.toLowerCase().includes(s) || i.category.toLowerCase().includes(s)
+    );
+  }, [q]);
 
-    // Status
-    { name: "CheckIcon", component: CheckIcon, description: "Checkmark", category: "Status" },
-    { name: "CheckCircle", component: CheckCircle, description: "Success check in circle", category: "Status" },
-    { name: "CheckCircle2", component: CheckCircle2, description: "Check in circle (outline)", category: "Status" },
-    { name: "CheckRectangle", component: CheckRectangle, description: "Checkmark in rectangle", category: "Status", displayFill: "#10B981", defaultNote: "Default: white (for dark backgrounds)" },
-    { name: "CheckSquareOffset", component: CheckSquareOffset, description: "Check with square offset", category: "Status" },
-    { name: "CloseIcon", component: CloseIcon, description: "Close/X icon", category: "Status" },
-    { name: "ErrorIcon", component: ErrorIcon, description: "Error indicator", category: "Status", displayFill: "#EF4444", defaultNote: "Default: white (for dark backgrounds)" },
-    { name: "Info", component: Info, description: "Information icon", category: "Status" },
-    { name: "FloorInfo", component: FloorInfo, description: "Floor / layered building info", category: "Status" },
-    { name: "QuestionMark", component: QuestionMark, description: "Help / unknown in circle", category: "Status" },
-    { name: "Success", component: Success, description: "Double checkmark", category: "Status", displayFill: "#10B981", defaultNote: "Default: white (for dark backgrounds)" },
-    { name: "Warning", component: Warning, description: "Warning badge", category: "Status", displayFill: "#F59E0B", defaultNote: "Default: white (for dark backgrounds)" },
-    { name: "Warning2", component: Warning2, description: "Warning triangle", category: "Status" },
-    { name: "MinusCircle", component: MinusCircle, description: "Minus in circle", category: "Status" },
-    { name: "SealCheck", component: SealCheck, description: "Verified seal with checkmark", category: "Status", displayFill: "#10B981", defaultNote: "Default: white (for dark backgrounds)" },
-
-    // Actions
-    { name: "Add", component: Add, description: "Plus / add icon", category: "Actions" },
-    { name: "AddFloor", component: AddFloor, description: "Add floor icon", category: "Actions" },
-    { name: "Minus", component: Minus, description: "Minus / subtract icon", category: "Actions" },
-    { name: "Download", component: Download, description: "Download arrow", category: "Actions" },
-    { name: "UploadSimple", component: UploadSimple, description: "Upload arrow", category: "Actions" },
-    { name: "TrayArrowUp", component: TrayArrowUp, description: "Tray with upload arrow", category: "Actions" },
-    { name: "MagnifyingGlass", component: MagnifyingGlass, description: "Search icon", category: "Actions" },
-    { name: "PencilSimpleLine", component: PencilSimpleLine, description: "Edit/pencil", category: "Actions" },
-    { name: "FloppyDisk", component: FloppyDisk, description: "Save icon", category: "Actions" },
-    { name: "Repeat", component: Repeat, description: "Refresh/repeat", category: "Actions", displayFill: "#3361FF", defaultNote: "Default: white (for dark backgrounds)" },
-    { name: "Refresh", component: Refresh, description: "Circular refresh / reload", category: "Actions" },
-    { name: "PaperPlaneTilt", component: PaperPlaneTilt, description: "Send message", category: "Actions", displayFill: "#3361FF", defaultNote: "Default: white (for dark backgrounds)" },
-    { name: "Trash", component: Trash, description: "Delete/trash bin", category: "Actions" },
-    { name: "ShoppingCart", component: ShoppingCart, description: "Shopping cart", category: "Actions" },
-    { name: "AirplaneTilt", component: AirplaneTilt, description: "Airplane tilted", category: "Actions" },
-    { name: "Funnel", component: Funnel, description: "Filter funnel", category: "Actions" },
-    { name: "UserPlus", component: UserPlus, description: "Add user", category: "Actions" },
-    { name: "Logout", component: Logout, description: "Sign out / logout", category: "Actions" },
-    { name: "FillThumbsDown", component: FillThumbsDown, description: "Thumbs down (filled)", category: "Actions" },
-    { name: "FillThumbsUp", component: FillThumbsUp, description: "Thumbs up (filled)", category: "Actions" },
-    { name: "OutlineThumbsDown", component: OutlineThumbsDown, description: "Thumbs down (outline)", category: "Actions" },
-    { name: "OutlineThumbsUp", component: OutlineThumbsUp, description: "Thumbs up (outline)", category: "Actions" },
-
-    // Finance
-    { name: "Bank", component: Bank, description: "Bank building", category: "Finance" },
-    { name: "CreditCard", component: CreditCard, description: "Credit card", category: "Finance" },
-    { name: "Cardholder", component: Cardholder, description: "Card holder", category: "Finance" },
-    { name: "CurrencyInr", component: CurrencyInr, description: "Indian Rupee", category: "Finance" },
-    { name: "CurrencyInr2", component: CurrencyInr2, description: "Indian Rupee (alt)", category: "Finance" },
-    { name: "Building", component: Building, description: "Office building", category: "Finance" },
-    { name: "InvoiceUS", component: InvoiceUS, description: "Invoice (US)", category: "Finance" },
-
-    // Documents
-    { name: "FileText", component: FileText, description: "File with text", category: "Documents" },
-    { name: "PdfFile", component: PdfFile, description: "PDF document", category: "Documents" },
-    { name: "Scroll", component: Scroll, description: "Scroll document", category: "Documents" },
-    { name: "Scroll2", component: Scroll2, description: "Scroll document (alt)", category: "Documents" },
-    { name: "IdentificationCard", component: IdentificationCard, description: "ID card", category: "Documents" },
-    { name: "Subtitles", component: Subtitles, description: "Subtitles/captions", category: "Documents" },
-    { name: "FillFileText", component: FillFileText, description: "File with text (filled)", category: "Documents" },
-    { name: "ShieldCheck", component: ShieldCheck, description: "Shield with check (filled)", category: "Documents" },
-
-    // Misc
-    { name: "Gear", component: Gear, description: "Settings/gear icon", category: "Misc" },
-    { name: "CalendarBlank", component: CalendarBlank, description: "Calendar", category: "Misc" },
-    { name: "MapPin", component: MapPin, description: "Location pin", category: "Misc" },
-    { name: "Phone", component: Phone, description: "Phone icon", category: "Misc" },
-    { name: "Storefront", component: Storefront, description: "Store icon", category: "Misc" },
-    { name: "UserCircle", component: UserCircle, description: "User avatar", category: "Misc" },
-    { name: "VendorIcon", component: VendorIcon, description: "Flipspaces vendor logo", category: "Misc" },
-    { name: "NoDataIcon", component: NoDataIcon, description: "No data placeholder", category: "Misc" },
-    { name: "Trash2", component: Trash2, description: "Large trash bin", category: "Misc", displayFill: "#1B1C1E", defaultNote: "Default: white (for dark backgrounds)" },
-    { name: "Vizdom", component: Vizdom, description: "Vizdom logo", category: "Misc" }
-  ];
-
-  const filteredIcons = icons.filter(
-    (icon) =>
-      icon.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      icon.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      icon.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const categories = ["Navigation", "Status", "Actions", "Finance", "Documents", "Misc"] as const;
-
-  const iconsByCategory = categories.reduce(
-    (acc, category) => {
-      acc[category] = filteredIcons.filter((icon) => icon.category === category);
-      return acc;
-    },
-    {} as Record<string, IconItem[]>
+  const groups = useMemo(
+    () =>
+      CATEGORY_ORDER.map((c) => ({
+        category: c,
+        items: filtered.filter((i) => i.category === c),
+      })).filter((g) => g.items.length > 0),
+    [filtered]
   );
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>
+      <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
         Icons
       </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        A comprehensive set of {icons.length} SVG icons for use throughout your application.
-        All icons accept size and color/fill props for customization.
+      <Typography sx={{ fontSize: 18, lineHeight: 1.6, color: t.textMuted, mb: 4 }}>
+        {ALL_ICONS.length} SVG icons, exported from the package root. This gallery
+        is generated directly from the library's icon exports, so it always
+        matches what ships. Every icon accepts <code>size</code> and{" "}
+        <code>fill</code> / <code>color</code> props.
       </Typography>
 
-      <DocSection title="Import">
+      <DocSection title="Import" description="Import any icon by name from the package root.">
         <CodeBlock
-          code={`import {
-  Add,
-  AddFloor,
-  AirplaneTilt,
-  ArrowDown,
-  ArrowDown2,
-  ArrowLeft,
-  ArrowLeft2,
-  ArrowRight,
-  ArrowUp,
-  Bank,
-  Building,
-  CalendarBlank,
-  Cardholder,
-  CheckIcon,
-  CheckCircle,
-  CheckCircle2,
-  CheckRectangle,
-  CheckSquareOffset,
-  CloseIcon,
-  CreditCard,
-  CurrencyInr,
-  CurrencyInr2,
-  Download,
-  ErrorIcon,
-  FileText,
-  FillFileText,
-  FillThumbsDown,
-  FillThumbsUp,
-  FloppyDisk,
-  FloorInfo,
-  FullScreen,
-  Funnel,
-  Gear,
-  IdentificationCard,
-  Info,
-  InvoiceUS,
-  KeyboardArrowDown,
-  Logout,
-  MagnifyingGlass,
-  MapPin,
-  Minus,
-  MinimizeFullScreen,
-  MinusCircle,
-  NoDataIcon,
-  OutlineThumbsDown,
-  OutlineThumbsUp,
-  PaperPlaneTilt,
-  PdfFile,
-  PencilSimpleLine,
-  Phone,
-  QuestionMark,
-  Refresh,
-  Repeat,
-  Scroll,
-  Scroll2,
-  SealCheck,
-  ShoppingCart,
-  ShieldCheck,
-  Storefront,
-  Subtitles,
-  Success,
-  Trash,
-  Trash2,
-  TrayArrowUp,
-  UploadSimple,
-  UserCircle,
-  UserPlus,
-  VendorIcon,
-  Warning,
-  Warning2,
-} from '@flipspacesit/fs-ui';`}
-        />
-      </DocSection>
+          code={`import { ArrowRight, MagnifyingGlass, CheckCircle, Download } from '@flipspacesit/fs-ui';
 
-      <DocSection title="Icon Gallery">
-        <Box sx={{ mb: 3 }}>
-          <TextField
-            placeholder="Search icons..."
-            size="small"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ width: 300 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <MagnifyingGlass size={16} fill="#6B7280" />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Box>
-
-        {categories.map((category) => {
-          const categoryIcons = iconsByCategory[category];
-          if (categoryIcons.length === 0) return null;
-
-          return (
-            <Box key={category} sx={{ mb: 4 }}>
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: 600, mb: 2, color: "#374151" }}
-              >
-                {category}
-              </Typography>
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
-                  gap: 2,
-                }}
-              >
-                {categoryIcons.map((icon) => (
-                  <Paper
-                    key={icon.name}
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: 1,
-                      cursor: "pointer",
-                      transition: "all 0.2s",
-                      "&:hover": {
-                        backgroundColor: "#F0F4FF",
-                        borderColor: "#3361FF",
-                      },
-                    }}
-                    title={icon.defaultNote ? `${icon.description} - ${icon.defaultNote}` : icon.description}
-                  >
-                    <Box sx={{ height: 32, display: "flex", alignItems: "center" }}>
-                      <icon.component size={24} fill={icon.displayFill} />
-                    </Box>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        textAlign: "center",
-                        fontSize: "11px",
-                        color: "#4B5563",
-                        wordBreak: "break-word",
-                      }}
-                    >
-                      {icon.name}
-                    </Typography>
-                    {icon.displayFill && (
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          fontSize: "9px",
-                          color: "#9CA3AF",
-                          fontStyle: "italic",
-                        }}
-                      >
-                        (white default)
-                      </Typography>
-                    )}
-                  </Paper>
-                ))}
-              </Box>
-            </Box>
-          );
-        })}
-      </DocSection>
-
-      <DocSection title="Basic Usage">
-        <ExampleBox>
-          <Stack direction="row" spacing={3} alignItems="center" flexWrap="wrap">
-            <ArrowDown />
-            <CheckIcon />
-            <CloseIcon />
-            <Download />
-            <Info />
-          </Stack>
-        </ExampleBox>
-        <CodeBlock
-          code={`<ArrowDown />
-<CheckIcon />
-<CloseIcon />
-<Download />
-<Info />`}
-        />
-      </DocSection>
-
-      <DocSection title="Custom Size">
-        <ExampleBox>
-          <Stack direction="row" spacing={4} alignItems="end">
-            <Stack alignItems="center" spacing={1}>
-              <Download size={12} />
-              <Typography variant="caption">12px</Typography>
-            </Stack>
-            <Stack alignItems="center" spacing={1}>
-              <Download size={16} />
-              <Typography variant="caption">16px</Typography>
-            </Stack>
-            <Stack alignItems="center" spacing={1}>
-              <Download size={24} />
-              <Typography variant="caption">24px</Typography>
-            </Stack>
-            <Stack alignItems="center" spacing={1}>
-              <Download size={32} />
-              <Typography variant="caption">32px</Typography>
-            </Stack>
-            <Stack alignItems="center" spacing={1}>
-              <Download size={48} />
-              <Typography variant="caption">48px</Typography>
-            </Stack>
-          </Stack>
-        </ExampleBox>
-        <CodeBlock
-          code={`<Download size={12} />
-<Download size={16} />
-<Download size={24} />
-<Download size={32} />
-<Download size={48} />`}
-        />
-      </DocSection>
-
-      <DocSection title="Custom Colors">
-        <ExampleBox>
-          <Stack direction="row" spacing={4} alignItems="center" flexWrap="wrap">
-            <Stack alignItems="center" spacing={1}>
-              <CheckCircle size={28} fill="#10B981" />
-              <Typography variant="caption">Success</Typography>
-            </Stack>
-            <Stack alignItems="center" spacing={1}>
-              <ErrorIcon size={28} fill="#EF4444" />
-              <Typography variant="caption">Error</Typography>
-            </Stack>
-            <Stack alignItems="center" spacing={1}>
-              <Warning size={28} fill="#F59E0B" />
-              <Typography variant="caption">Warning</Typography>
-            </Stack>
-            <Stack alignItems="center" spacing={1}>
-              <Info size={28} fill="#3361FF" />
-              <Typography variant="caption">Info</Typography>
-            </Stack>
-            <Stack alignItems="center" spacing={1}>
-              <Bank size={28} fill="#6868B4" />
-              <Typography variant="caption">Purple</Typography>
-            </Stack>
-          </Stack>
-        </ExampleBox>
-        <CodeBlock
-          code={`<CheckCircle size={28} fill="#10B981" />  // Success
-<ErrorIcon size={28} fill="#EF4444" />    // Error
-<Warning size={28} fill="#F59E0B" />      // Warning
-<Info size={28} fill="#3361FF" />         // Info
-<Bank size={28} fill="#6868B4" />         // Purple`}
+// A few icons also export aliases: Check → CheckIcon, Close → CloseIcon, Error → ErrorIcon`}
         />
       </DocSection>
 
       <DocSection
-        title="Icons with White Defaults"
-        description="Some icons have white as their default fill color because they're designed for use on dark or colored backgrounds (like buttons, badges, toasts). Always pass a fill color when using these on light backgrounds."
+        title="Gallery"
+        description={`All ${ALL_ICONS.length} icons, grouped by category. Type to filter by name, description or category.`}
       >
-        <ExampleBox>
-          <Stack spacing={3}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-              On dark backgrounds (using default white):
-            </Typography>
-            <Stack direction="row" spacing={2} flexWrap="wrap">
-              <Box sx={{ backgroundColor: "#EF4444", p: 1.5, borderRadius: 1, display: "flex", alignItems: "center", gap: 1 }}>
-                <ErrorIcon size={18} />
-                <Typography variant="caption" sx={{ color: "white" }}>Error</Typography>
-              </Box>
-              <Box sx={{ backgroundColor: "#10B981", p: 1.5, borderRadius: 1, display: "flex", alignItems: "center", gap: 1 }}>
-                <Success size={18} />
-                <Typography variant="caption" sx={{ color: "white" }}>Success</Typography>
-              </Box>
-              <Box sx={{ backgroundColor: "#F59E0B", p: 1.5, borderRadius: 1, display: "flex", alignItems: "center", gap: 1 }}>
-                <Warning size={18} />
-                <Typography variant="caption" sx={{ color: "white" }}>Warning</Typography>
-              </Box>
-              <Box sx={{ backgroundColor: "#3361FF", p: 1.5, borderRadius: 1, display: "flex", alignItems: "center", gap: 1 }}>
-                <PaperPlaneTilt size={18} />
-                <Typography variant="caption" sx={{ color: "white" }}>Send</Typography>
-              </Box>
-              <Box sx={{ backgroundColor: "#1B1C1E", p: 1.5, borderRadius: 1, display: "flex", alignItems: "center", gap: 1 }}>
-                <Repeat size={18} />
-                <Typography variant="caption" sx={{ color: "white" }}>Refresh</Typography>
-              </Box>
-            </Stack>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mt: 2 }}>
-              On light backgrounds (pass a fill color):
-            </Typography>
-            <Stack direction="row" spacing={3} alignItems="center">
-              <Stack alignItems="center" spacing={0.5}>
-                <ErrorIcon size={24} fill="#EF4444" />
-                <Typography variant="caption">ErrorIcon</Typography>
-              </Stack>
-              <Stack alignItems="center" spacing={0.5}>
-                <Success size={24} fill="#10B981" />
-                <Typography variant="caption">Success</Typography>
-              </Stack>
-              <Stack alignItems="center" spacing={0.5}>
-                <Warning size={24} fill="#F59E0B" />
-                <Typography variant="caption">Warning</Typography>
-              </Stack>
-              <Stack alignItems="center" spacing={0.5}>
-                <PaperPlaneTilt size={24} fill="#3361FF" />
-                <Typography variant="caption">PaperPlaneTilt</Typography>
-              </Stack>
-              <Stack alignItems="center" spacing={0.5}>
-                <Repeat size={24} fill="#1B1C1E" />
-                <Typography variant="caption">Repeat</Typography>
-              </Stack>
-            </Stack>
-          </Stack>
-        </ExampleBox>
-        <CodeBlock
-          code={`// On dark/colored backgrounds - use default white fill
-<Box sx={{ backgroundColor: "#EF4444", p: 1.5 }}>
-  <ErrorIcon size={18} />  {/* White by default */}
-</Box>
+        <DocSearchField value={q} onChange={setQ} placeholder="Search icons…" sx={{ mb: "24px" }} />
 
-// On light backgrounds - always pass a fill color
-<ErrorIcon size={24} fill="#EF4444" />
-<Success size={24} fill="#10B981" />
-<Warning size={24} fill="#F59E0B" />
-<PaperPlaneTilt size={24} fill="#3361FF" />
-<Repeat size={24} fill="#1B1C1E" />`}
+        {groups.length === 0 && (
+          <Box sx={{ fontSize: 14, color: t.textMuted, py: "24px" }}>No icons match “{q}”.</Box>
+        )}
+
+        {groups.map((g) => (
+          <Box key={g.category} sx={{ mb: "28px" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: "8px", mb: "12px" }}>
+              <Box sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: t.textSubtle }}>
+                {g.category}
+              </Box>
+              <Box className="doc-tnum" sx={{ fontSize: 11, color: t.textSubtle }}>
+                {g.items.length}
+              </Box>
+            </Box>
+            <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(116px, 1fr))", gap: "12px" }}>
+              {g.items.map((entry) => (
+                <IconTile key={entry.name} entry={entry} />
+              ))}
+            </Box>
+          </Box>
+        ))}
+      </DocSection>
+
+      <DocSection title="Sizing" description="Pass `size` (px) to scale any icon.">
+        <Example
+          code={`<Download size={16} />
+<Download size={24} />
+<Download size={32} />
+<Download size={48} />`}
+          preview={
+            <Box sx={{ display: "flex", alignItems: "flex-end", gap: 32, color: "#1b1c1e" }}>
+              {[16, 24, 32, 48].map((s) => (
+                <Box key={s} sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+                  <Download size={s} />
+                  <Box sx={{ fontSize: 11, color: "#616161" }}>{s}px</Box>
+                </Box>
+              ))}
+            </Box>
+          }
+        />
+      </DocSection>
+
+      <DocSection
+        title="Color"
+        description="Most icons accept a `fill` prop. Some status icons default to white (for dark/colored surfaces) — pass a `fill` when placing them on light backgrounds."
+      >
+        <Example
+          code={`<CheckCircle size={28} fill="#469951" />  // success
+<Warning    size={28} fill="#f59e0b" />  // warning
+<Info       size={28} fill="#5970b7" />  // info`}
+          preview={
+            <Box sx={{ display: "flex", gap: 24, alignItems: "center" }}>
+              <CheckCircle size={28} fill="#469951" />
+              <Warning size={28} fill="#f59e0b" />
+              <Info size={28} fill="#5970b7" />
+            </Box>
+          }
         />
       </DocSection>
 
       <DocSection title="Props">
         <PropsTable
           props={[
-            {
-              name: "size",
-              type: "number | string",
-              default: "14-18 (varies)",
-              description: "Size of the icon in pixels",
-            },
-            {
-              name: "fill / color",
-              type: "string",
-              default: "varies by icon",
-              description: "Color of the icon (CSS color value). Some icons use 'fill', others use 'color'",
-            },
+            { name: "size", type: "number | string", default: "14–24 (varies)", description: "Icon size in pixels." },
+            { name: "fill", type: "string", default: "varies by icon", description: "Fill color (CSS value). A few icons default to white for dark surfaces." },
+            { name: "color", type: "string", description: "Some icons expose `color` instead of `fill`." },
           ]}
-        />
-      </DocSection>
-
-      <DocSection title="All Available Icons">
-        <Box sx={{ overflowX: "auto" }}>
-          <Box
-            component="table"
-            sx={{
-              width: "100%",
-              borderCollapse: "collapse",
-              "& th, & td": {
-                border: "1px solid #E5E7EB",
-                p: 1.5,
-                textAlign: "left",
-              },
-              "& th": {
-                backgroundColor: "#F9FAFB",
-                fontWeight: 600,
-              },
-            }}
-          >
-            <thead>
-              <tr>
-                <th>Icon</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {icons.map((icon) => (
-                <tr key={icon.name}>
-                  <td style={{ textAlign: "center", width: 60 }}>
-                    <icon.component size={20} fill={icon.displayFill} />
-                  </td>
-                  <td>
-                    <code style={{ fontSize: 13 }}>{icon.name}</code>
-                  </td>
-                  <td>{icon.category}</td>
-                  <td>
-                    {icon.description}
-                    {icon.defaultNote && (
-                      <Typography
-                        component="span"
-                        variant="caption"
-                        sx={{ ml: 1, color: "#9CA3AF", fontStyle: "italic" }}
-                      >
-                        ({icon.defaultNote})
-                      </Typography>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Box>
-        </Box>
-      </DocSection>
-
-      <DocSection title="Usage Examples">
-        <CodeBlock
-          code={`// In a button
-import { Button } from '@mui/material';
-import { Download, ArrowRight } from '@flipspacesit/fs-ui';
-
-<Button startIcon={<Download />}>
-  Download File
-</Button>
-
-<Button endIcon={<ArrowRight />}>
-  Next Step
-</Button>
-
-// In an IconButton
-import { IconButton } from '@mui/material';
-import { CloseIcon, PencilSimpleLine } from '@flipspacesit/fs-ui';
-
-<IconButton onClick={onClose}>
-  <CloseIcon />
-</IconButton>
-
-<IconButton onClick={onEdit}>
-  <PencilSimpleLine />
-</IconButton>
-
-// Status indicators
-import { CheckCircle, ErrorIcon, Warning, Info } from '@flipspacesit/fs-ui';
-
-<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-  <CheckCircle fill="#10B981" />
-  <Typography>Payment successful</Typography>
-</Box>
-
-// In navigation
-import { ArrowDown, ArrowUp, ArrowRight } from '@flipspacesit/fs-ui';
-
-<MenuItem>
-  Sort Ascending <ArrowUp size={14} />
-</MenuItem>
-<MenuItem>
-  Sort Descending <ArrowDown size={14} />
-</MenuItem>`}
         />
       </DocSection>
     </Box>

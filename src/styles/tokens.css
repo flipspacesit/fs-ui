@@ -1,0 +1,164 @@
+/*
+ * Flipspaces Design System — CSS custom properties.
+ *
+ * Hand-authored mirror of src/theme/tokens (the Figma Design System, file
+ * adSPuBSUsaaSvaCUvLPMf1). Lets non-MUI / plain-CSS consumers use the same
+ * tokens the MUI theme is built from.
+ *
+ * Consume via:  import "@flipspacesit/fs-ui/styles";
+ *
+ * Note: the responsive `--scale` variable is set by the consuming app, not here.
+ */
+:root {
+  /* --- Primary / Yellow (brand) --- */
+  --fs-color-yellow-50: #fffdf2;
+  --fs-color-yellow-100: #fffce6;
+  --fs-color-yellow-200: #fff5bf;
+  --fs-color-yellow-300: #ffee99;
+  --fs-color-yellow-400: #ffd84d;
+  --fs-color-yellow-brand: #ffc100;
+  --fs-color-yellow-hover: #ffa800;
+  --fs-color-yellow-700: #e69100;
+  --fs-color-yellow-800: #bf7000;
+  --fs-color-yellow-900: #733700;
+  --fs-color-yellow-950: #4a2000;
+
+  /* --- Primary / SlateBlue --- */
+  --fs-color-slateblue-50: #f1f7ff;
+  --fs-color-slateblue-100: #e2ebf7;
+  --fs-color-slateblue-200: #d0ddee;
+  --fs-color-slateblue-300: #a5bad5;
+  --fs-color-slateblue-400: #6f84a8;
+  --fs-color-slateblue-primary: #425281;
+  --fs-color-slateblue-primary-dark: #344168;
+  --fs-color-slateblue-700: #2a375e;
+  --fs-color-slateblue-800: #1d284f;
+  --fs-color-slateblue-900: #0a112e;
+  --fs-color-slateblue-950: #04091f;
+
+  /* --- Primary / Blue --- */
+  --fs-color-blue-50: #f3f6ff;
+  --fs-color-blue-300: #c3d0f5;
+  --fs-color-blue-500: #738bd2;
+  --fs-color-blue-primary: #5970b7;
+  --fs-color-blue-700: #40549c;
+  --fs-color-blue-800: #293a7d;
+  --fs-color-blue-900: #18255e;
+  --fs-color-blue-950: #0a123d;
+
+  /* --- Neutral / SoftSteel --- */
+  --fs-color-softsteel-50: #edeff5;
+  --fs-color-softsteel-100: #dadce6;
+  --fs-color-softsteel-200: #cfd3df;
+  --fs-color-softsteel-300: #bfc5d7;
+  --fs-color-softsteel-400: #aeb6ce;
+
+  /* --- Neutral / Grey --- */
+  --fs-color-grey-50: #f0f0f0;
+  --fs-color-grey-100: #d9d9d9;
+  --fs-color-grey-200: #bfbfbf;
+  --fs-color-grey-300: #919191;
+  --fs-color-grey-400: #616161;
+
+  /* --- Neutral / base --- */
+  --fs-color-black: #212529;
+  --fs-color-white: #ffffff;
+
+  /* --- Semantics / Success --- */
+  --fs-color-success-200: #e5f5e8;
+  --fs-color-success-300: #c3e8ca;
+  --fs-color-success-primary: #469951;
+  --fs-color-success-700: #36763e;
+  --fs-color-success-950: #1a5e24;
+
+  /* --- Semantics / Error --- */
+  --fs-color-error-200: #ffe4e0;
+  --fs-color-error-300: #fb9587;
+  --fs-color-error-400: #fb452b;
+  --fs-color-error-primary: #df2409;
+  --fs-color-error-700: #bf1b03;
+  --fs-color-error-900: #a21703;
+
+  /* --- Semantics / Warning --- */
+  --fs-color-warning-200: #fceec0;
+  --fs-color-warning-400: #f7c352;
+  --fs-color-warning-primary: #f59e0b;
+  --fs-color-warning-600: #db8709;
+  --fs-color-warning-800: #944b03;
+
+  /* --- Semantics / Interactive --- */
+  --fs-color-interactive-200: #c5d2ff;
+  --fs-color-interactive-400: #8fa7fd;
+  --fs-color-interactive-primary: #3659db;
+  --fs-color-interactive-600: #374cab;
+  --fs-color-interactive-800: #233487;
+
+  /* --- Decorative / Misc (base / light / superlight) --- */
+  --fs-color-cocoabrown: #d26515;
+  --fs-color-cocoabrown-light: #ffaa6d;
+  --fs-color-cocoabrown-superlight: #ffcfac;
+  --fs-color-purplishpink: #cd5ea1;
+  --fs-color-purplishpink-light: #fca1d8;
+  --fs-color-sunriseorange: #d97555;
+  --fs-color-sunriseorange-light: #e8a38d;
+  --fs-color-sunriseorange-superlight: #fce9e7;
+  --fs-color-lavenderindigo: #8f5fe0;
+  --fs-color-lavenderindigo-light: #c39ffe;
+  --fs-color-lavenderindigo-superlight: #e1d0fc;
+  --fs-color-duskypurple: #915384;
+  --fs-color-duskypurple-light: #ae78a2;
+  --fs-color-duskypurple-superlight: #cbb2c6;
+  --fs-color-lightseagreen: #41a3b9;
+  --fs-color-lightseagreen-light: #61c5bc;
+  --fs-color-lightseagreen-superlight: #bbe5e2;
+  --fs-color-moodyblue: #7074c8;
+  --fs-color-moodyblue-light: #96aff5;
+  --fs-color-moodyblue-superlight: #becfff;
+
+  /* --- Shadows / Elevations (Borders & Shadows canvas) --- */
+  --fs-shadow-elevation-03: 0px 4px 12px 0px rgba(209, 209, 230, 0.6);
+  --fs-shadow-e1: 0px 4px 4px 0px #d1d1e6;
+  --fs-shadow-e2: 0px 6.47px 32.33px 0px rgba(78, 87, 113, 0.15);
+  --fs-shadow-e3: 0px 6.47px 19.39px 0px rgba(209, 209, 230, 0.6);
+  --fs-shadow-e4: 0px 9.7px 48.49px 0px rgba(78, 87, 113, 0.2);
+  --fs-shadow-e5: 0px 12.93px 32.33px 0px #d1d1e6;
+  --fs-shadow-e6: 0px 12.93px 48.49px 0px rgba(78, 87, 113, 0.3);
+
+  /* --- Typography (Inter) --- */
+  --fs-font-family: "Inter", sans-serif;
+  --fs-font-size-h1: 24px;
+  --fs-font-size-h2: 20px;
+  --fs-font-size-h3: 16px;
+  --fs-font-size-h4: 14px;
+  --fs-font-size-b1: 13px;
+  --fs-font-size-b2: 12px;
+  --fs-font-size-c1: 11px;
+  --fs-font-size-f1: 10px;
+  --fs-font-weight-light: 300;
+  --fs-font-weight-regular: 400;
+  --fs-font-weight-medium: 500;
+  --fs-font-weight-semibold: 600;
+  --fs-font-weight-bold: 700;
+  --fs-font-weight-extrabold: 800;
+
+  /* --- Spacing (4px base scale) --- */
+  --fs-space-1: 4px;
+  --fs-space-2: 8px;
+  --fs-space-3: 12px;
+  --fs-space-4: 16px;
+  --fs-space-5: 20px;
+  --fs-space-6: 24px;
+  --fs-space-7: 28px;
+  --fs-space-8: 32px;
+
+  /* --- Border radius --- */
+  --fs-radius-xxs: 4px;
+  --fs-radius-sm: 8px;
+  --fs-radius-md: 12px;
+  --fs-radius-lg: 16px;
+  --fs-radius-xl: 20px;
+  --fs-radius-xxl: 24px;
+  --fs-radius-pill-100: 100px;
+  --fs-radius-pill-400: 400px;
+  --fs-radius-pill-800: 800px;
+}

@@ -7,11 +7,14 @@ import {
   SxProps,
   Theme,
 } from "@mui/material";
+import { theme } from "../../theme";
+import { shadows } from "../../theme/tokens/shadows";
 
-// Search Icon Component
+/** Internal magnifier (leading) icon; `size` px and `color` default to the DS grey-400. */
+// Magnifier (leading) icon
 const SearchIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 20,
-  color = "#6B7280",
+  size = 16,
+  color = theme.palette.grey[400],
 }) => (
   <svg
     width={size}
@@ -30,10 +33,11 @@ const SearchIcon: React.FC<{ size?: number; color?: string }> = ({
   </svg>
 );
 
-// Clear Icon Component
+/** Internal clear (trailing) "X" icon; `size` px and `color` default to the DS grey-400. */
+// Clear (trailing) icon
 const ClearIcon: React.FC<{ size?: number; color?: string }> = ({
   size = 16,
-  color = "#6B7280",
+  color = theme.palette.grey[400],
 }) => (
   <svg
     width={size}
@@ -52,6 +56,7 @@ const ClearIcon: React.FC<{ size?: number; color?: string }> = ({
   </svg>
 );
 
+/** Props for {@link SearchInput}; extends MUI `TextFieldProps` (minus its own `onChange`/`value`). */
 export interface SearchInputProps
   extends Omit<TextFieldProps, "onChange" | "value"> {
   /** Current search value */
@@ -66,12 +71,24 @@ export interface SearchInputProps
   debounceMs?: number;
   /** Show clear button */
   showClear?: boolean;
+  /** Shape — rounded (pill) or rectangular (radius-xxs). Defaults to round. */
+  shape?: "round" | "rectangular";
+  /** Add the DS elevation-03 drop shadow */
+  elevated?: boolean;
+  /** Leading slot — e.g. a scope/country selector (Secondary search variant) */
+  leadingSlot?: React.ReactNode;
   /** Custom container styles */
   containerSx?: SxProps<Theme>;
 }
 
+// Maps the MUI TextField `size` to an adornment icon px (large 18 / medium 16 / else 14).
+const iconSizeFor = (size?: string): number =>
+  size === "large" ? 18 : size === "medium" ? 16 : 14;
+
 /**
- * Search input with optional debouncing and clear functionality
+ * Search input — Figma "Search Components" (902:5684). Defers border/focus to
+ * the DS theme (SoftSteel default, SlateBlue focus), pill/square shape, italic
+ * placeholder, optional elevation, and an optional leading scope slot.
  */
 export const SearchInput: React.FC<SearchInputProps> = ({
   value: controlledValue,
@@ -79,14 +96,25 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   placeholder = "Search...",
   debounceMs = 300,
   showClear = true,
+  shape = "round",
+  elevated = false,
+  leadingSlot,
+  size = "small",
   containerSx = {},
   onClear,
   ...rest
 }) => {
-  const [internalValue, setInternalValue] = useState("");
+  const [internalValue, setInternalValue] = useState(controlledValue ?? "");
+  const [prevControlled, setPrevControlled] = useState(controlledValue);
   const isControlled = controlledValue !== undefined;
-  const value = isControlled ? controlledValue : internalValue;
+  // Sync the display when an external controlled value changes (render-time, not an effect).
+  if (isControlled && controlledValue !== prevControlled) {
+    setPrevControlled(controlledValue);
+    setInternalValue(controlledValue ?? "");
+  }
+  const value = internalValue;
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const iconPx = iconSizeFor(size as string);
 
   const debouncedOnChange = useCallback(
     (newValue: string) => {
@@ -100,7 +128,6 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     [onChange, debounceMs]
   );
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -111,9 +138,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value;
-    if (!isControlled) {
-      setInternalValue(newValue);
-    }
+    setInternalValue(newValue);
     if (debounceMs > 0) {
       debouncedOnChange(newValue);
     } else {
@@ -122,9 +147,10 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   };
 
   const handleClear = () => {
-    if (!isControlled) {
-      setInternalValue("");
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
+    setInternalValue("");
     onChange?.("");
     onClear?.();
   };
@@ -134,44 +160,39 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       value={value}
       onChange={handleChange}
       placeholder={placeholder}
-      size="small"
+      size={size}
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
-            <SearchIcon />
+            {leadingSlot ?? <SearchIcon size={iconPx} />}
           </InputAdornment>
         ),
-        endAdornment: showClear && value ? (
-          <InputAdornment position="end">
-            <IconButton
-              size="small"
-              onClick={handleClear}
-              edge="end"
-              aria-label="clear search"
-            >
-              <ClearIcon />
-            </IconButton>
-          </InputAdornment>
-        ) : null,
+        endAdornment:
+          showClear && value ? (
+            <InputAdornment position="end">
+              <IconButton
+                size="small"
+                onClick={handleClear}
+                edge="end"
+                aria-label="clear search"
+                disableRipple
+              >
+                <ClearIcon size={iconPx} />
+              </IconButton>
+            </InputAdornment>
+          ) : null,
       }}
       sx={{
+        // Radius wins over the theme's base 4px !important
         "& .MuiOutlinedInput-root": {
-          borderRadius: "8px",
-          backgroundColor: "#FFFFFF",
-          "& fieldset": {
-            borderColor: "#AEB6CE",
-          },
-          "&:hover fieldset": {
-            borderColor: "#3361FF",
-          },
-          "&.Mui-focused fieldset": {
-            borderColor: "#3361FF",
-            borderWidth: "1px",
-          },
+          borderRadius: `${shape === "round" ? "100px" : "4px"} !important`,
+          backgroundColor: theme.palette.white.main,
+          ...(elevated && { boxShadow: shadows.elevation03 }),
         },
-        "& .MuiInputBase-input": {
-          padding: "8px 0",
-          fontSize: "14px",
+        "& input::placeholder": {
+          fontStyle: "italic",
+          color: theme.palette.grey[400],
+          opacity: 1,
         },
         ...containerSx,
       }}

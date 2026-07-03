@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Box, Typography, Stack } from "@mui/material";
-import { DocSection, ExampleBox, PropsTable } from "../components/DocSection";
+import { DocSection, ExampleBox, Example, PropsTable } from "../components/DocSection";
 import CodeBlock from "../components/CodeBlock";
-import { Dropdown } from "../../../src";
+import { Dropdown, SortByContainer } from "../../../src";
 
 const DropdownDocs: React.FC = () => {
   const [value1, setValue1] = useState("");
@@ -194,6 +194,40 @@ const options = [
               description: "Custom styles for the dropdown paper",
             },
           ]}
+        />
+      </DocSection>
+
+      <DocSection
+        title="SortByContainer"
+        description="A tiny flex-row wrapper (`styled.div`) for pairing a label with a Dropdown — e.g. a “Sort by” control. It just aligns its children in a row with the ink text color; pass any content as children."
+      >
+        <Example
+          code={`import { SortByContainer, Dropdown } from '@flipspacesit/fs-ui';
+
+<SortByContainer>
+  <span>Sort by</span>
+  <Dropdown
+    options={[
+      { value: "recent", label: "Most recent" },
+      { value: "name", label: "Name" },
+    ]}
+    value={sort}
+    onChange={(o) => setSort(o.value)}
+  />
+</SortByContainer>`}
+          preview={
+            <SortByContainer style={{ gap: 8 }}>
+              <span style={{ fontSize: 13, fontWeight: 500 }}>Sort by</span>
+              <Dropdown
+                options={[
+                  { value: "recent", label: "Most recent" },
+                  { value: "name", label: "Name" },
+                ]}
+                value="recent"
+                onChange={() => {}}
+              />
+            </SortByContainer>
+          }
         />
       </DocSection>
     </Box>

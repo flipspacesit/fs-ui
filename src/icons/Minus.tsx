@@ -19,8 +19,8 @@ export const Minus: React.FC<MinusProps> = ({
         d='M1.05461 1.19465L1.05461 2.30591H5.34439H6.41684H10.7066L10.7066 1.19465L6.41684 1.19465H5.34439L1.05461 1.19465Z'
         fill={fill}
         stroke={fill}
-        stroke-width='0.5'
-        stroke-linejoin='round'
+        strokeWidth='0.5'
+        strokeLinejoin='round'
       />
     </svg>
   );
