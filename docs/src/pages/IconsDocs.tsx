@@ -222,6 +222,12 @@ const IconsDocs: React.FC = () => {
         matches what ships. Every icon accepts <code>size</code> and{" "}
         <code>fill</code> / <code>color</code> props.
       </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+        Some glyphs ship in closely-related variants — e.g.{" "}
+        <code>CheckCircle</code> / <code>CheckCircle2</code>,{" "}
+        <code>ArrowDown</code> / <code>ArrowDown2</code>. Use the per-icon
+        descriptions below (and the search) to pick the exact one you want.
+      </Typography>
 
       <DocSection title="Import" description="Import any icon by name from the package root.">
         <CodeBlock

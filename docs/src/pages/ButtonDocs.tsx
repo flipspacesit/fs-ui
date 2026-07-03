@@ -36,6 +36,13 @@ const ButtonDocs: React.FC = () => {
 <Button variant="outlined">Outlined</Button>
 <Button variant="text">Text</Button>`}
         />
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+          Accessibility: the primary <code>text</code> and <code>outlined</code>{" "}
+          variants use the design-system ghost-yellow label (#e69100), which does
+          not meet WCAG AA for body-size text on a white surface. For an accessible
+          low-emphasis action, use <code>color="black"</code> or{" "}
+          <code>color="secondary"</code>.
+        </Typography>
       </DocSection>
 
       <DocSection

@@ -176,6 +176,27 @@ a {
   color: var(--doc-text);
 }
 
+/* Doc-content MUI headings follow the doc palette so they remap in dark mode.
+   The fs-ui theme hardcodes `color: neutral.ink` on h1–h6 and is never rebuilt
+   for dark mode, so without this the page titles render dark-on-dark. Live
+   previews re-pin the light palette locally (see PreviewSurface), so headings
+   inside the always-white preview artboards stay dark. */
+.doc-content .MuiTypography-h1,
+.doc-content .MuiTypography-h2,
+.doc-content .MuiTypography-h3,
+.doc-content .MuiTypography-h4,
+.doc-content .MuiTypography-h5,
+.doc-content .MuiTypography-h6 {
+  color: var(--doc-text);
+}
+
+/* Offset the top-anchored notistack container below the fixed 64px TopBar.
+   Applied once to the container (not per toast) so stacked toasts keep their
+   normal spacing. */
+.docs-snackbar-offset {
+  top: 72px !important;
+}
+
 /* Page-enter animation on route change */
 @keyframes doc-page-in {
   from {

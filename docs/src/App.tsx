@@ -223,7 +223,7 @@ function App() {
 
         <DocPageProvider key={activePage}>
           {/* content */}
-          <Box component="main" sx={{ flex: 1, minWidth: 0 }}>
+          <Box component="main" className="doc-content" sx={{ flex: 1, minWidth: 0 }}>
             <Box
               key={activePage}
               className="doc-page-enter"

@@ -32,8 +32,10 @@ const CalendarDocs: React.FC = () => {
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
         Inline day-grid calendar, date-range picker and Month/Quarter/Year
-        selector — Figma "Calender Components". All three share the DS picker
-        styling: white panel, Blue/500 border, yellow selection.
+        selector — from the Figma "Calendar Components" canvas. All three share
+        the DS picker styling: white panel, Blue/500 border, yellow selection.
+        The DS Blue is a muted slate-blue (Blue/500 #738bd2, Blue/Primary
+        #5970b7), so the headers and thin border read subtle against white.
       </Typography>
 
       <DocSection title="Import">

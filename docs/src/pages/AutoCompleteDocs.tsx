@@ -61,7 +61,7 @@ const AutoCompleteDocs: React.FC = () => {
           code={`import { AutoComplete } from '@flipspacesit/fs-ui';
 
 const [value, setValue] = useState('');
-const options = ['Apple', 'Banana', 'Cherry', 'Date'];
+const options = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew'];
 
 <AutoComplete
   value={value}

@@ -75,21 +75,21 @@ const tags = ['Design', 'Development', 'Testing', 'Deployment', 'Maintenance'];
 
       <DocSection
         title="Custom Colors"
-        description="Override the automatic coloring with custom colors."
+        description="Pass any arbitrary color/bgColor via props. These are illustrative custom values, not the design-system status palette — for success / warning / error / info use StatusChip, which is bound to the semantic theme tokens."
       >
         <ExampleBox>
           <Stack direction="row" spacing={2}>
-            <ChipCard label="Success" color="#10B981" bgColor="#D1FAE5" />
-            <ChipCard label="Warning" color="#F59E0B" bgColor="#FEF3C7" />
-            <ChipCard label="Error" color="#EF4444" bgColor="#FEE2E2" />
-            <ChipCard label="Info" color="#3B82F6" bgColor="#DBEAFE" />
+            <ChipCard label="Mint" color="#10B981" bgColor="#D1FAE5" />
+            <ChipCard label="Amber" color="#F59E0B" bgColor="#FEF3C7" />
+            <ChipCard label="Coral" color="#EF4444" bgColor="#FEE2E2" />
+            <ChipCard label="Sky" color="#3B82F6" bgColor="#DBEAFE" />
           </Stack>
         </ExampleBox>
         <CodeBlock
-          code={`<ChipCard label="Success" color="#10B981" bgColor="#D1FAE5" />
-<ChipCard label="Warning" color="#F59E0B" bgColor="#FEF3C7" />
-<ChipCard label="Error" color="#EF4444" bgColor="#FEE2E2" />
-<ChipCard label="Info" color="#3B82F6" bgColor="#DBEAFE" />`}
+          code={`<ChipCard label="Mint" color="#10B981" bgColor="#D1FAE5" />
+<ChipCard label="Amber" color="#F59E0B" bgColor="#FEF3C7" />
+<ChipCard label="Coral" color="#EF4444" bgColor="#FEE2E2" />
+<ChipCard label="Sky" color="#3B82F6" bgColor="#DBEAFE" />`}
         />
       </DocSection>
 

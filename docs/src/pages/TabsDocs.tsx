@@ -2,7 +2,14 @@ import React, { useState } from "react";
 import { Box, Typography, Paper } from "@mui/material";
 import { DocSection, ExampleBox, PropsTable } from "../components/DocSection";
 import CodeBlock from "../components/CodeBlock";
-import { Tabs, type TabsVariant, type TabsColor } from "../../../src";
+import {
+  Tabs,
+  ClipboardText,
+  Pencil,
+  CurrencyInr,
+  type TabsVariant,
+  type TabsColor,
+} from "../../../src";
 
 const ITEMS = [
   { label: "Overview", value: "overview" },
@@ -158,9 +165,9 @@ const [value, setValue] = useState('overview')
         <ExampleBox>
           <Tabs
             items={[
-              { label: "Overview", value: "overview", icon: <span>📋</span> },
-              { label: "Design", value: "design", icon: <span>🎨</span> },
-              { label: "Estimate", value: "estimate", icon: <span>💰</span> },
+              { label: "Overview", value: "overview", icon: <ClipboardText /> },
+              { label: "Design", value: "design", icon: <Pencil /> },
+              { label: "Estimate", value: "estimate", icon: <CurrencyInr /> },
             ]}
             value={value}
             onChange={setValue}
@@ -171,9 +178,9 @@ const [value, setValue] = useState('overview')
         <CodeBlock
           code={`<Tabs
   items={[
-    { label: 'Overview', value: 'overview', icon: <ListIcon /> },
-    { label: 'Design', value: 'design', icon: <PaletteIcon /> },
-    { label: 'Estimate', value: 'estimate', icon: <MoneyIcon /> },
+    { label: 'Overview', value: 'overview', icon: <ClipboardText /> },
+    { label: 'Design', value: 'design', icon: <Pencil /> },
+    { label: 'Estimate', value: 'estimate', icon: <CurrencyInr /> },
   ]}
   value={value}
   onChange={setValue}
