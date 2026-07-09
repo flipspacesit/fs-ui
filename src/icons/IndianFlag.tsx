@@ -1,3 +1,8 @@
+/**
+ * Circular India flag badge (rounded tricolour + Ashoka chakra). For the
+ * rectangular national flag in true proportions — consistent with the rest of
+ * the flag set — use {@link IndiaFlag} instead.
+ */
 export const IndianFlag = ({ size = 20 }: { size?: number }) => {
   return (
     <svg

@@ -17,7 +17,8 @@ type Category =
   | "Actions"
   | "Finance"
   | "Documents"
-  | "Misc";
+  | "Misc"
+  | "Flags";
 
 interface Meta {
   category: Category;
@@ -122,7 +123,7 @@ const META: Record<string, Meta> = {
   Users: { category: "Misc", description: "Multiple users" },
   VendorIcon: { category: "Misc", description: "Vendor logo" },
   Vizdom: { category: "Misc", description: "Vizdom logo" },
-  IndianFlag: { category: "Misc", description: "India flag" },
+  IndianFlag: { category: "Flags", description: "India (circular badge)" },
   NoDataIcon: { category: "Misc", description: "No data placeholder" },
   FillBulb: { category: "Misc", description: "Idea (filled)" },
   OutlineBulb: { category: "Misc", description: "Idea (outline)" },
@@ -135,6 +136,7 @@ const CATEGORY_ORDER: Category[] = [
   "Finance",
   "Documents",
   "Misc",
+  "Flags",
 ];
 
 interface IconEntry {
@@ -144,13 +146,23 @@ interface IconEntry {
   description: string;
 }
 
-// Layer curation (category/description) onto the derived icon catalog.
+// Layer curation (category/description) onto the derived icon catalog. Country
+// flags (name ends in "Flag") auto-file under the "Flags" category without a
+// per-flag META entry, so the ~249 flag components need no hand-maintained list.
 const ALL_ICONS: IconEntry[] = iconEntries.map(({ name, Comp }) => ({
   name,
   Comp,
-  category: META[name]?.category ?? "Misc",
+  category: META[name]?.category ?? (name.endsWith("Flag") ? "Flags" : "Misc"),
   description: META[name]?.description ?? name.replace(/([a-z])([A-Z])/g, "$1 $2"),
 }));
+
+const FLAG_COUNT = ALL_ICONS.filter((i) => i.category === "Flags").length;
+
+// The Flags category is large (~250) and some flags carry heavy coat-of-arms
+// SVGs, so — like the Phosphor gallery below — cap how many mount on first paint
+// when no search is active. Typing a query lifts the cap (the filtered set is
+// small), so every flag stays reachable.
+const FLAG_PREVIEW = 60;
 
 const PHOSPHOR_WEIGHTS = [
   "thin",
@@ -161,7 +173,11 @@ const PHOSPHOR_WEIGHTS = [
   "duotone",
 ] as const;
 
-const IconTile: React.FC<{ entry: IconEntry }> = ({ entry }) => (
+const IconTile: React.FC<{ entry: IconEntry }> = ({ entry }) => {
+  // Flags are rectangular (true national proportions) — pin their height and let
+  // width follow the aspect ratio, rather than squashing them into a 24px square.
+  const isFlag = entry.category === "Flags";
+  return (
   <Box
     className="doc-chrome"
     title={entry.description}
@@ -188,11 +204,14 @@ const IconTile: React.FC<{ entry: IconEntry }> = ({ entry }) => (
         color: t.text,
         // Constrain every icon to 24px regardless of its own size/width/height
         // props (some icons ignore `size`), and tint via both fill & color
-        // since the icon set is split across the two APIs.
-        "& svg": { width: 24, height: 24 },
+        // since the icon set is split across the two APIs. Flags keep their
+        // aspect ratio (height-pinned) instead of being forced square.
+        "& svg": isFlag
+          ? { height: 22, width: "auto", maxWidth: 40, borderRadius: "2px" }
+          : { width: 24, height: 24 },
       }}
     >
-      <entry.Comp size={24} fill="var(--doc-text)" color="var(--doc-text)" />
+      <entry.Comp size={isFlag ? 36 : 24} fill="var(--doc-text)" color="var(--doc-text)" />
     </Box>
     <Box
       className="doc-mono"
@@ -201,7 +220,8 @@ const IconTile: React.FC<{ entry: IconEntry }> = ({ entry }) => (
       {entry.name}
     </Box>
   </Box>
-);
+  );
+};
 
 const IconsDocs: React.FC<{ iconQuery?: { term: string; nonce: number } }> = ({
   iconQuery,
@@ -274,12 +294,14 @@ const IconsDocs: React.FC<{ iconQuery?: { term: string; nonce: number } }> = ({
         Icons
       </Typography>
       <Typography sx={{ fontSize: 18, lineHeight: 1.6, color: t.textMuted, mb: 4 }}>
-        {ALL_ICONS.length} hand-crafted design-system icons — plus the complete{" "}
+        {ALL_ICONS.length - FLAG_COUNT} hand-crafted design-system icons and{" "}
+        {FLAG_COUNT} country &amp; territory flags — plus the complete{" "}
         {phosphorIconCount}-icon Phosphor set — all exported from the package
         root. The gallery below is generated directly from the library's icon
         exports, so it always matches what ships. Design-system icons accept{" "}
-        <code>size</code> and <code>fill</code> / <code>color</code>; Phosphor
-        icons accept <code>size</code>, <code>weight</code> and <code>color</code>.
+        <code>size</code> and <code>fill</code> / <code>color</code>; flags accept{" "}
+        <code>size</code> and keep their true aspect ratio; Phosphor icons accept{" "}
+        <code>size</code>, <code>weight</code> and <code>color</code>.
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
         Some glyphs ship in closely-related variants — e.g.{" "}
@@ -298,7 +320,7 @@ const IconsDocs: React.FC<{ iconQuery?: { term: string; nonce: number } }> = ({
 
       <DocSection
         title="Phosphor Icons"
-        description={`Beyond the ${ALL_ICONS.length} hand-crafted design-system glyphs below, fs-ui re-exports the complete Phosphor Icons set — ${phosphorIconCount} icons, each in six weights. Import any of them by name from the package root; they're tree-shaken, so only the icons you actually use are bundled.`}
+        description={`Beyond the ${ALL_ICONS.length - FLAG_COUNT} hand-crafted design-system glyphs and ${FLAG_COUNT} flags below, fs-ui re-exports the complete Phosphor Icons set — ${phosphorIconCount} icons, each in six weights. Import any of them by name from the package root; they're tree-shaken, so only the icons you actually use are bundled.`}
       >
         <CodeBlock
           code={`import { Heart, Rocket, GameController, IconContext } from '@flipspacesit/fs-ui'
@@ -389,23 +411,35 @@ const IconsDocs: React.FC<{ iconQuery?: { term: string; nonce: number } }> = ({
           <Box sx={{ fontSize: 14, color: t.textMuted, py: "24px" }}>No icons match “{q}”.</Box>
         )}
 
-        {groups.map((g) => (
-          <Box key={g.category} sx={{ mb: "28px" }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: "8px", mb: "12px" }}>
-              <Box sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: t.textSubtle }}>
-                {g.category}
+        {groups.map((g) => {
+          // Cap the heavy Flags group on first paint (no active search); other
+          // categories are small and always render in full.
+          const capped =
+            !q.trim() && g.category === "Flags" && g.items.length > FLAG_PREVIEW;
+          const shown = capped ? g.items.slice(0, FLAG_PREVIEW) : g.items;
+          return (
+            <Box key={g.category} sx={{ mb: "28px" }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: "8px", mb: "12px" }}>
+                <Box sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: t.textSubtle }}>
+                  {g.category}
+                </Box>
+                <Box className="doc-tnum" sx={{ fontSize: 11, color: t.textSubtle }}>
+                  {g.items.length}
+                </Box>
               </Box>
-              <Box className="doc-tnum" sx={{ fontSize: 11, color: t.textSubtle }}>
-                {g.items.length}
+              <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(116px, 1fr))", gap: "12px" }}>
+                {shown.map((entry) => (
+                  <IconTile key={entry.name} entry={entry} />
+                ))}
               </Box>
+              {capped && (
+                <Box sx={{ fontSize: 13, color: t.textMuted, mt: "12px" }}>
+                  Showing {FLAG_PREVIEW} of {g.items.length} — type to filter the rest.
+                </Box>
+              )}
             </Box>
-            <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(116px, 1fr))", gap: "12px" }}>
-              {g.items.map((entry) => (
-                <IconTile key={entry.name} entry={entry} />
-              ))}
-            </Box>
-          </Box>
-        ))}
+          );
+        })}
       </DocSection>
 
       <DocSection title="Sizing" description="Pass `size` (px) to scale any icon.">

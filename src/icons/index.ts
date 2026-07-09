@@ -90,6 +90,15 @@ export { Certificate } from "./Certificate";
 export { Users } from "./Users";
 
 // ---------------------------------------------------------------------------
+// Country / territory / organisation flags — rectangular SVG components ported
+// 1:1 from the Figma Icon Library (node 283-7), each with the same { size } API
+// as the icons above (height follows the flag's true aspect ratio). Names end
+// in "Flag" (USAFlag, GermanyFlag, EUFlag, …). The pre-existing circular
+// IndianFlag glyph above is kept as-is; the rectangular India flag is IndiaFlag.
+// ---------------------------------------------------------------------------
+export * from "./flags";
+
+// ---------------------------------------------------------------------------
 // Phosphor Icons — the full @phosphor-icons/react set (~1,512 icons, each with
 // thin / light / regular / bold / fill / duotone weights). Re-exported wholesale
 // so every Phosphor icon is importable straight from `@flipspacesit/fs-ui`.
