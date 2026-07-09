@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { DocSection, DocSearchField } from "../components/DocSection";
 import { t } from "../docTokens";
-import { libExports, counts, iconCount, type ExportKind } from "../libStats";
+import { libExports, counts, designIconCount, flagCount, type ExportKind } from "../libStats";
 
 interface Props {
   onNavigate?: (id: string) => void;
@@ -170,7 +170,8 @@ const ApiReferenceDocs: React.FC<Props> = ({ onNavigate }) => {
         <StatChip n={counts.Hook} label="Hooks" />
         <StatChip n={counts.Utility} label="Utilities" />
         <StatChip n={counts.Token + counts.Constant} label="Tokens & Consts" />
-        <StatChip n={iconCount} label="Icons" />
+        <StatChip n={designIconCount} label="Icons" />
+        <StatChip n={flagCount} label="Flags" />
       </Box>
 
       <DocSearchField value={q} onChange={setQ} placeholder="Filter exports…" sx={{ mb: "8px" }} />
@@ -189,7 +190,7 @@ const ApiReferenceDocs: React.FC<Props> = ({ onNavigate }) => {
         );
       })}
 
-      <DocSection title="Icons" description={`${iconCount} SVG icons ship from the package root.`}>
+      <DocSection title="Icons" description={`${designIconCount} SVG icons and ${flagCount} country/territory flags ship from the package root.`}>
         <Box
           onClick={() => onNavigate?.("icons")}
           className="doc-chrome"
@@ -208,7 +209,7 @@ const ApiReferenceDocs: React.FC<Props> = ({ onNavigate }) => {
           }}
         >
           <Box>
-            <Box sx={{ fontSize: 15, fontWeight: 600, color: t.text }}>{iconCount} icons</Box>
+            <Box sx={{ fontSize: 15, fontWeight: 600, color: t.text }}>{designIconCount} icons + {flagCount} flags</Box>
             <Box sx={{ fontSize: 13, color: t.textMuted, mt: "2px" }}>
               Browse the full searchable gallery on the Icons page.
             </Box>

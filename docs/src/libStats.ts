@@ -35,6 +35,16 @@ export const iconEntries: IconEntry[] = Object.entries(IconsNS)
 export const iconCount = iconEntries.length;
 
 /**
+ * Country / territory / organisation flags (name ends in "Flag") — a subset of
+ * {@link iconEntries}. Kept distinct so docs stats don't conflate the ~249
+ * ported flags with the hand-authored design-system glyphs.
+ */
+export const flagCount = iconEntries.filter((e) => e.name.endsWith("Flag")).length;
+
+/** Hand-authored design-system icons: {@link iconEntries} minus the flags. */
+export const designIconCount = iconCount - flagCount;
+
+/**
  * The Phosphor icons re-exported at the package root (`export * from
  * "@phosphor-icons/react"` in src/icons), as {name, Comp} for the docs gallery.
  * Phosphor v2 ships an `<Name>Icon` alias for every icon, so the bare names that

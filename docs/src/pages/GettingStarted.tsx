@@ -3,7 +3,7 @@ import { Box } from "@mui/material";
 import { version } from "../../../package.json";
 import CodeBlock from "../components/CodeBlock";
 import { t, EASE } from "../docTokens";
-import { counts, iconCount } from "../libStats";
+import { counts, designIconCount, flagCount } from "../libStats";
 import { useCopy } from "../useCopy";
 import {
   Button,
@@ -173,8 +173,8 @@ const GettingStarted: React.FC<Props> = ({ onNavigate }) => {
             </Box>
             <Box sx={{ fontSize: 18, lineHeight: 1.6, color: t.textMuted, maxWidth: 560, mt: "20px" }}>
               A React + MUI component library with {counts.Component}+ components,{" "}
-              {iconCount} icons, design tokens and hooks — the same primitives these
-              docs are built with.
+              {designIconCount} icons, {flagCount} flags, design tokens and hooks — the
+              same primitives these docs are built with.
             </Box>
             <Box sx={{ display: "flex", gap: "12px", mt: "28px", flexWrap: "wrap", alignItems: "center" }}>
               <Button variant="contained" onClick={() => onNavigate?.("installation")}>
@@ -232,7 +232,7 @@ npm install @flipspacesit/fs-ui`}
           ))}
         </Box>
         <Box className="doc-mono doc-tnum" sx={{ mt: "20px", fontSize: 13, color: t.textSubtle }}>
-          {counts.Component} components · {counts.Hook} hooks · {iconCount} icons · Inter
+          {counts.Component} components · {counts.Hook} hooks · {designIconCount} icons · {flagCount} flags · Inter
         </Box>
       </Box>
 
