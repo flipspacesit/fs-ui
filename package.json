@@ -1,6 +1,6 @@
 {
   "name": "@flipspacesit/fs-ui",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "Flipspaces shared UI component library",
   "type": "module",
   "main": "./dist/fs-ui.cjs.js",
@@ -65,7 +65,8 @@
     "@mui/x-date-pickers": "^8.27.0",
     "@phosphor-icons/react": "^2.1.10",
     "dayjs": "^1.11.19",
-    "notistack": "^3.0.2"
+    "notistack": "^3.0.2",
+    "react-virtuoso": "^4.9.0"
   },
   "repository": {
     "type": "git",

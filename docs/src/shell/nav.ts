@@ -34,6 +34,7 @@ export const menuItems: MenuItem[] = [
   { id: "search-input", label: "SearchInput", category: "Components" },
   { id: "autocomplete", label: "AutoComplete", category: "Components" },
   { id: "table", label: "Table", category: "Components" },
+  { id: "data-table", label: "DataTable", category: "Components" },
   { id: "table-skeleton", label: "TableSkeletonLoader", category: "Components" },
   { id: "loading", label: "LoadingSpinner", category: "Components" },
   { id: "loaders", label: "Loader & PageLoader", category: "Components" },

@@ -41,6 +41,7 @@ import SplitMenuDocs from "./pages/SplitMenuDocs";
 import ModalLayoutDocs from "./pages/ModalLayoutDocs";
 import SearchInputDocs from "./pages/SearchInputDocs";
 import TableDocs from "./pages/TableDocs";
+import DataTableDocs from "./pages/DataTableDocs";
 import LoadingDocs from "./pages/LoadingDocs";
 import NotificationDocs from "./pages/NotificationDocs";
 import IconsDocs from "./pages/IconsDocs";
@@ -86,6 +87,7 @@ const pageComponents: Record<
   "search-input": SearchInputDocs,
   autocomplete: AutoCompleteDocs,
   table: TableDocs,
+  "data-table": DataTableDocs,
   "table-skeleton": TableSkeletonDocs,
   loading: LoadingDocs,
   loaders: LoaderDocs,
