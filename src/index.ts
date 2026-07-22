@@ -249,6 +249,74 @@ export {
   TableContainer,
 } from './components/Table'
 
+// --- DataTable: data-driven table with column resizing, sticky/frozen
+// columns, filtering, totals and virtualization. Ships as an assembled
+// component plus the composable primitives it is built from. ---
+export { DataTable, type DataTableProps } from './components/Table/DataTable'
+export {
+  useDataTableState,
+  type DataTableApi,
+  type UseDataTableStateOptions,
+  type UseDataTableStateResult,
+} from './components/Table/useDataTableState'
+export {
+  useColumnResize,
+  DEFAULT_MIN_COLUMN_WIDTH,
+  type UseColumnResizeOptions,
+  type UseColumnResizeResult,
+} from './components/Table/useColumnResize'
+export {
+  ColumnResizer,
+  StyledDataTable,
+  StyledDataTableContainer,
+  StyledDataTablePaper,
+  HeaderCell as DataTableHeaderCell,
+  DataBodyCell as DataTableBodyCell,
+  TotalCell as DataTableTotalCell,
+  ControlsCell as DataTableControlsCell,
+  HeaderRow as DataTableHeaderRow,
+  BodyRow as DataTableBodyRow,
+  TotalRow as DataTableTotalRow,
+  ControlsRow as DataTableControlsRow,
+  type DataTableCellStyleProps,
+} from './components/Table/dataTableStyles'
+export {
+  normalizeColumns,
+  normalizeColumn,
+  getColumnWidth,
+  formatCellValue,
+  formatDateValue,
+  applyFiltersAndSort,
+  calculateTotals,
+  getUniqueValues,
+  DEFAULT_COLUMN_WIDTH,
+  DEFAULT_COLUMN_CONFIG,
+} from './components/Table/dataTableUtils'
+export type {
+  DataTableColumn,
+  DataTableColumnType,
+  DataTableCellAlign,
+  DataTableRow,
+  DataTableCellRenderParams,
+  DataTableHeaderRenderParams,
+  DataTableTotalRenderParams,
+  SortConfig,
+  SortDirection,
+  FilterOperator,
+  ColumnFilter,
+  ValueFilter,
+  ConditionFilter,
+  ActiveFilters,
+  HiddenColumns,
+  ExpandedColumns,
+  ColumnWidths,
+  FieldMapping,
+  FieldMappingItem,
+  FieldMappings,
+  CurrencyOption,
+  TotalsByField,
+} from './components/Table/dataTableTypes'
+
 export {
   LoadingContainer,
   InlineLoadingContainer,

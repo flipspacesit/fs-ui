@@ -32,6 +32,10 @@ export default defineConfig({
         "@emotion/styled",
         "styled-components",
         "notistack",
+        // Virtualization engine for the DataTable — kept external so it is not
+        // inlined; consumers get it transitively via the fs-ui dependency and
+        // it stays a single React instance.
+        "react-virtuoso",
         // Re-exported wholesale from src/icons — keep external so the full
         // Phosphor set is never inlined and consumers tree-shake per-import.
         /^@phosphor-icons\/react/,
@@ -46,6 +50,7 @@ export default defineConfig({
           "@emotion/styled": "emotionStyled",
           "styled-components": "styled",
           notistack: "notistack",
+          "react-virtuoso": "ReactVirtuoso",
           "@phosphor-icons/react": "PhosphorReact",
         },
       },
