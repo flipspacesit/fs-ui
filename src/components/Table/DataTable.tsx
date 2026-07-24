@@ -8,9 +8,9 @@ import {
   TableFooter,
   TableHead,
 } from "@mui/material";
-import { forwardRef, useMemo } from "react";
+import { forwardRef, useCallback, useMemo, useRef } from "react";
 import { TableVirtuoso } from "react-virtuoso";
-import type { TableComponents } from "react-virtuoso";
+import type { ContextProp, ItemProps, TableComponents } from "react-virtuoso";
 
 import { EllipsisTooltip } from "../EllipsisTooltip";
 import { NoDataContent } from "../NoDataContent";
@@ -18,6 +18,10 @@ import DataTableBody from "./components/DataTableBody";
 import DataTableControls from "./components/DataTableControls";
 import DataTableHeader from "./components/DataTableHeader";
 import DataTableTotals from "./components/DataTableTotals";
+import { DataTableSkeletonRows } from "./components/DataTableSkeletonRows";
+import { buildSkeletonCells } from "./components/dataTableSkeleton";
+import type { SkeletonCellContext } from "./components/dataTableSkeleton";
+import { useDataTableInfiniteScroll } from "./useDataTableInfiniteScroll";
 import type { DataTableApi } from "./useDataTableState";
 import { useDataTableState } from "./useDataTableState";
 import {
@@ -115,6 +119,28 @@ export interface DataTableProps<Row extends object = DataTableRow> {
   }) => ReactNode;
   /** Use `react-virtuoso` row virtualization (default `true`). */
   enableVirtualization?: boolean;
+  /**
+   * Enable infinite scrolling. When on, {@link DataTableProps.onRefetch} fires
+   * as the user nears the bottom of the list (works with or without
+   * virtualization).
+   */
+  allowInfiniteScroll?: boolean;
+  /**
+   * Called when the user scrolls to the bottom — wire this to your
+   * "fetch next page". Guarded by {@link DataTableProps.isLoading}, so it won't
+   * re-fire while a load is already in flight; you are still responsible for
+   * stopping once there are no more pages (e.g. gate on `hasNextPage`).
+   */
+  onRefetch?: () => void;
+  /**
+   * When `true`, the table renders skeleton placeholder rows itself: a full
+   * page of them when there's no data yet, or a few appended to the bottom while
+   * paging (with `allowInfiniteScroll`). Lets consumers drop their own loading
+   * UI entirely.
+   */
+  isLoading?: boolean;
+  /** Skeleton rows shown for the initial (empty) loading state. Defaults to `8`. */
+  skeletonRowCount?: number;
   tableContainerSx?: SxProps<Theme>;
   tableSx?: SxProps<Theme>;
   headerRowSx?: SxProps<Theme>;
@@ -129,6 +155,29 @@ export interface DataTableProps<Row extends object = DataTableRow> {
     | ((column: DataTableColumn, row: DataTableRow, index: number) => SxProps<Theme>);
   controlsRowSx?: SxProps<Theme>;
   controlsCellSx?: SxProps<Theme> | ((column: DataTableColumn) => SxProps<Theme>);
+}
+
+/** Skeleton placeholder rows appended to the bottom during "load more". */
+const LOADING_MORE_SKELETON_COUNT = 3;
+
+/**
+ * Marker key stamped on the throwaway row objects appended to virtuoso's `data`
+ * while paging, so `itemContent` / `computeItemKey` / the row wrapper can tell a
+ * skeleton placeholder apart from a real row.
+ */
+const SKELETON_ROW_FLAG = "__dtSkeletonRow";
+
+const isSkeletonRow = (row: unknown): boolean =>
+  Boolean((row as Record<string, unknown> | undefined)?.[SKELETON_ROW_FLAG]);
+
+/**
+ * Values threaded to the virtuoso slot components via `TableVirtuoso`'s
+ * `context`. `bodyRowSx` lives here because the row wrapper is a stable,
+ * module-level component that can't close over the current props — without this
+ * the virtualized path would silently drop `bodyRowSx`.
+ */
+interface DataTableVirtuosoContext {
+  bodyRowSx?: DataTableProps["bodyRowSx"];
 }
 
 /* ----- react-virtuoso slot components ----- */
@@ -166,9 +215,19 @@ const VirtuosoTable = (props: {
   children?: ReactNode;
 }) => <StyledDataTable {...props} sx={props.sx} />;
 
-const VirtuosoTableRow = (props: React.HTMLAttributes<HTMLTableRowElement>) => (
-  <BodyRow {...props} />
-);
+const VirtuosoTableRow = (
+  props: ItemProps<DataTableRow> & ContextProp<DataTableVirtuosoContext>
+) => {
+  // `item` / `context` are virtuoso's own props — never forward them to the DOM
+  // `<tr>`. The `data-*` attributes left in `rest` are valid to forward.
+  const { item, context, ...rest } = props;
+  const bodyRowSx = context?.bodyRowSx;
+  const rowSx =
+    bodyRowSx && !isSkeletonRow(item)
+      ? resolveSx(bodyRowSx, item, props["data-index"])
+      : undefined;
+  return <BodyRow {...rest} sx={rowSx} />;
+};
 
 const VirtuosoTableHead = forwardRef<
   HTMLTableSectionElement,
@@ -280,6 +339,10 @@ export function DataTable<Row extends object = DataTableRow>({
   renderBodySpacer,
   renderRow,
   enableVirtualization = true,
+  allowInfiniteScroll = false,
+  onRefetch,
+  isLoading = false,
+  skeletonRowCount = 8,
   tableContainerSx,
   tableSx,
   headerRowSx,
@@ -485,7 +548,9 @@ export function DataTable<Row extends object = DataTableRow>({
   const fixedFooterRows = () =>
     showTotalRow && totalRowPlacement === "footer" ? totalsRow : null;
 
-  const virtuosoComponents = useMemo<TableComponents<DataTableRow>>(
+  const virtuosoComponents = useMemo<
+    TableComponents<DataTableRow, DataTableVirtuosoContext>
+  >(
     () => ({
       Scroller: VirtuosoScroller,
       Table: VirtuosoTable,
@@ -497,8 +562,59 @@ export function DataTable<Row extends object = DataTableRow>({
     []
   );
 
-  const renderVirtualizedRowCells = (index: number) => {
-    const row = filteredData[index];
+  // Fire once the user reaches the bottom, but never while a load is already in
+  // flight — consumers only need to gate on `hasNextPage` themselves.
+  const requestMore = useCallback(() => {
+    if (isLoading) return;
+    onRefetch?.();
+  }, [isLoading, onRefetch]);
+
+  const showInitialSkeleton = isLoading && filteredData.length === 0;
+  const showLoadingMore =
+    allowInfiniteScroll && isLoading && filteredData.length > 0;
+
+  const skeletonCellContext: SkeletonCellContext = {
+    visibleColumns,
+    isColumnFrozen,
+    getStickyLeft,
+    columnWidths,
+  };
+
+  const virtuosoContext = useMemo<DataTableVirtuosoContext>(
+    () => ({ bodyRowSx }),
+    [bodyRowSx]
+  );
+
+  // While paging, append throwaway skeleton rows so they scroll into view under
+  // the real ones; they're stripped again the moment `isLoading` clears.
+  const virtuosoData = useMemo<DataTableRow[]>(() => {
+    if (!showLoadingMore) return filteredData;
+    const sentinels = Array.from(
+      { length: LOADING_MORE_SKELETON_COUNT },
+      () => ({ [SKELETON_ROW_FLAG]: true }) as DataTableRow
+    );
+    return [...filteredData, ...sentinels];
+  }, [showLoadingMore, filteredData]);
+
+  // Non-virtualized end-of-list detection (the virtualized path uses virtuoso's
+  // own `endReached`). Attach the returned ref to a sentinel at the body's end.
+  const scrollRootRef = useRef<HTMLDivElement | null>(null);
+  const sentinelRef = useDataTableInfiniteScroll({
+    enabled:
+      allowInfiniteScroll &&
+      !enableVirtualization &&
+      !!onRefetch &&
+      !isLoading &&
+      filteredData.length > 0,
+    onReach: requestMore,
+    rootRef: scrollRootRef,
+  });
+
+  const renderVirtualizedRowCells = (index: number, row: DataTableRow) => {
+    if (isSkeletonRow(row)) {
+      return buildSkeletonCells(`virtual-${index}`, skeletonCellContext);
+    }
+
     const rowIdentifier = rowKeyResolver(row, index);
 
     return buildRowCells({
@@ -521,14 +637,25 @@ export function DataTable<Row extends object = DataTableRow>({
         <StyledDataTable stickyHeader sx={tableSx}>
           <TableHead>{fixedHeaderRows()}</TableHead>
           <TableBody>
-            <BodyRow>
-              <TableCell
-                colSpan={Math.max(visibleColumns.length, 1)}
-                sx={{ border: "none !important" }}
-              >
-                <NoDataContent entityName="records" title={emptyMessage} compact />
-              </TableCell>
-            </BodyRow>
+            {showInitialSkeleton ? (
+              <DataTableSkeletonRows
+                rowCount={skeletonRowCount}
+                {...skeletonCellContext}
+              />
+            ) : (
+              <BodyRow>
+                <TableCell
+                  colSpan={Math.max(visibleColumns.length, 1)}
+                  sx={{ border: "none !important" }}
+                >
+                  <NoDataContent
+                    entityName="records"
+                    title={emptyMessage}
+                    compact
+                  />
+                </TableCell>
+              </BodyRow>
+            )}
           </TableBody>
         </StyledDataTable>
       </StyledDataTableContainer>
@@ -537,9 +664,10 @@ export function DataTable<Row extends object = DataTableRow>({
 
   if (enableVirtualization) {
     return (
-      <TableVirtuoso
+      <TableVirtuoso<DataTableRow, DataTableVirtuosoContext>
         style={{ height: "100%" }}
-        data={filteredData}
+        data={virtuosoData}
+        context={virtuosoContext}
         components={virtuosoComponents}
         fixedHeaderContent={fixedHeaderRows}
         fixedFooterContent={
@@ -549,15 +677,18 @@ export function DataTable<Row extends object = DataTableRow>({
         }
         itemContent={renderVirtualizedRowCells}
         computeItemKey={(index, row) =>
-          `data-table-row-${rowKeyResolver(row, index)}`
+          isSkeletonRow(row)
+            ? `data-table-skeleton-${index}`
+            : `data-table-row-${rowKeyResolver(row, index)}`
         }
+        endReached={allowInfiniteScroll && onRefetch ? requestMore : undefined}
         increaseViewportBy={320}
       />
     );
   }
 
   return (
-    <StyledDataTableContainer sx={tableContainerSx}>
+    <StyledDataTableContainer sx={tableContainerSx} ref={scrollRootRef}>
       <StyledDataTable stickyHeader sx={tableSx}>
         <TableHead>{fixedHeaderRows()}</TableHead>
 
@@ -575,6 +706,22 @@ export function DataTable<Row extends object = DataTableRow>({
             renderRow={renderRow}
             renderBodySpacer={renderBodySpacer}
           />
+          {showLoadingMore ? (
+            <DataTableSkeletonRows
+              rowCount={LOADING_MORE_SKELETON_COUNT}
+              keyPrefix="more"
+              {...skeletonCellContext}
+            />
+          ) : null}
+          {allowInfiniteScroll && !isLoading ? (
+            <BodyRow aria-hidden sx={{ height: "1px" }}>
+              <TableCell
+                ref={sentinelRef}
+                colSpan={Math.max(visibleColumns.length, 1)}
+                sx={{ p: 0, border: "none !important", height: "1px" }}
+              />
+            </BodyRow>
+          ) : null}
         </TableBody>
 
         {showTotalRow && totalRowPlacement === "footer" ? (

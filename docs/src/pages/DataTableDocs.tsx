@@ -14,6 +14,7 @@ import {
   StyledTableCell,
   StyledTableContainer,
   type DataTableColumn,
+  type DataTableRow,
 } from "../../../src";
 
 interface Employee {
@@ -99,6 +100,80 @@ const ResizeHookExample: React.FC = () => {
     </StyledTableContainer>
   );
 };
+
+const PAGE_SIZE = 15;
+const MAX_ROWS = 90;
+
+/** Fabricate a page of rows by cycling the sample records with fresh ids. */
+const makePage = (startId: number, count: number): Employee[] =>
+  Array.from({ length: count }, (_unused, i) => {
+    const id = startId + i;
+    const template = sampleData[(id - 1) % sampleData.length];
+    return { ...template, id, name: `${template.name} #${id}` };
+  });
+
+/**
+ * Infinite scroll + auto skeletons. Starts empty with `isLoading` on (initial
+ * skeleton page), then pages in more rows each time you reach the bottom —
+ * skeleton rows fill the gap while the next page "loads".
+ */
+const InfiniteScrollExample: React.FC = () => {
+  const [rows, setRows] = React.useState<Employee[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const inFlight = React.useRef(false);
+
+  const loadNextPage = React.useCallback(() => {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    setIsLoading(true);
+    // Simulate a network round-trip.
+    window.setTimeout(() => {
+      setRows((prev) => [...prev, ...makePage(prev.length + 1, PAGE_SIZE)]);
+      setIsLoading(false);
+      inFlight.current = false;
+    }, 900);
+  }, []);
+
+  React.useEffect(() => {
+    loadNextPage(); // initial load
+  }, [loadNextPage]);
+
+  return (
+    <ExampleFrame height={360}>
+      <DataTable
+        data={rows}
+        columns={columns}
+        rowKey={(row) => row.id}
+        allowInfiniteScroll
+        isLoading={isLoading}
+        onRefetch={() => {
+          if (rows.length < MAX_ROWS) loadNextPage();
+        }}
+      />
+    </ExampleFrame>
+  );
+};
+
+/** Per-row styling via a `bodyRowSx` factory (works under virtualization). */
+const RowStylingExample: React.FC = () => (
+  <ExampleFrame>
+    <DataTable
+      data={sampleData}
+      columns={columns}
+      rowKey={(row) => row.id}
+      bodyRowSx={(row: DataTableRow) => ({
+        "& td": {
+          backgroundColor:
+            row.status === "Inactive"
+              ? "#fdecea !important"
+              : row.status === "Pending"
+                ? "#fff7e6 !important"
+                : "inherit",
+        },
+      })}
+    />
+  </ExampleFrame>
+);
 
 const DataTableDocs: React.FC = () => (
   <Box>
@@ -287,6 +362,60 @@ const DataTableDocs: React.FC = () => (
       />
     </DocSection>
 
+    <DocSection title="Loading & infinite scroll">
+      <Typography variant="body2" sx={{ mb: 2 }}>
+        Set <code>allowInfiniteScroll</code> and give the table an{" "}
+        <code>onRefetch</code> callback — it fires as the user nears the bottom
+        so you can fetch the next page. Pass <code>isLoading</code> and the table
+        renders skeleton rows for you: a full page while it's empty, then a few
+        appended to the bottom while the next page loads. No separate skeleton
+        component or loading flag plumbing on your side.{" "}
+        <code>onRefetch</code> is guarded by <code>isLoading</code> (it won't
+        re-fire mid-load); you decide when there are no more pages — here it
+        simply stops calling once a cap is hit.
+      </Typography>
+      <ExampleBox>
+        <InfiniteScrollExample />
+      </ExampleBox>
+      <CodeBlock
+        code={`const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery(/* ... */)
+
+<DataTable
+  data={data}
+  columns={columns}
+  allowInfiniteScroll
+  isLoading={isFetching}
+  onRefetch={() => {
+    if (hasNextPage) fetchNextPage()
+  }}
+/>`}
+      />
+    </DocSection>
+
+    <DocSection title="Row & cell styling">
+      <Typography variant="body2" sx={{ mb: 2 }}>
+        Style rows and cells with <code>bodyRowSx</code> /{" "}
+        <code>bodyCellSx</code> — either a static <code>sx</code> or a factory
+        that receives the row (and, for cells, the column) so you can style
+        conditionally. Both apply whether virtualization is on or off. Below,{" "}
+        <code>bodyRowSx</code> tints rows by status.
+      </Typography>
+      <ExampleBox>
+        <RowStylingExample />
+      </ExampleBox>
+      <CodeBlock
+        code={`<DataTable
+  data={rows}
+  columns={columns}
+  bodyRowSx={(row) =>
+    row.status === 'Inactive'
+      ? { '& td': { backgroundColor: '#fdecea !important' } }
+      : {}
+  }
+/>`}
+      />
+    </DocSection>
+
     <DocSection title="Composing the primitives">
       <Typography variant="body2" sx={{ mb: 2 }}>
         Prefer to keep your own table markup? The resize engine ships as a
@@ -352,6 +481,12 @@ function MyTable() {
           { name: "dateFormat", type: "string", default: "'DD MMM YYYY'", description: "dayjs format for date columns." },
           { name: "emptyMessage", type: "string", default: "'No records found'", description: "Empty-state message." },
           { name: "enableVirtualization", type: "boolean", default: "true", description: "Use react-virtuoso row virtualization (needs a bounded height)." },
+          { name: "allowInfiniteScroll", type: "boolean", default: "false", description: "Fire onRefetch as the user nears the bottom (works with or without virtualization)." },
+          { name: "onRefetch", type: "() => void", description: "Called at the bottom to fetch more; guarded by isLoading (won't re-fire mid-load)." },
+          { name: "isLoading", type: "boolean", default: "false", description: "Render skeleton rows: a full page when empty, or a few appended while paging." },
+          { name: "skeletonRowCount", type: "number", default: "8", description: "Skeleton rows shown for the initial (empty) loading state." },
+          { name: "bodyRowSx", type: "SxProps | (row, index) => SxProps", description: "Per-row sx (static or factory). Applies in both virtualized and plain modes." },
+          { name: "bodyCellSx", type: "SxProps | (column, row, index) => SxProps", description: "Per-cell sx (static or factory)." },
           { name: "onTableApiChange", type: "(api: DataTableApi) => void", description: "Receive the imperative state/setters snapshot." },
           { name: "onStateChange", type: "(api: DataTableApi) => void", description: "Called whenever the table's derived state changes." },
           { name: "renderRow", type: "(params) => ReactNode", description: "Override how a body row renders (non-virtualized)." },
