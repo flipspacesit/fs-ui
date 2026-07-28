@@ -17,10 +17,35 @@ const cityOptions = [
   { label: "Hyderabad", value: "hyderabad" },
 ];
 
+const vendorOptions = [
+  { label: "Saigon Interior Solutions Co., Ltd", value: "saigon" },
+  { label: "Hanoi FitOut JSC", value: "hanoi" },
+];
+
+// A small pill used to demonstrate `endAdornment` (e.g. a match indicator).
+const MatchedChip = () => (
+  <Box
+    sx={{
+      display: "inline-flex",
+      alignItems: "center",
+      px: "8px",
+      height: "20px",
+      borderRadius: "999px",
+      bgcolor: "#E6F4EA",
+      border: "1px solid #9AD0A9",
+    }}
+  >
+    <Typography sx={{ fontSize: "11px", fontWeight: 600, color: "#1E7B3C" }}>
+      Matched
+    </Typography>
+  </Box>
+);
+
 const SelectInputDocs: React.FC = () => {
   const [status, setStatus] = useState("");
   const [city, setCity] = useState("");
   const [errorVal, setErrorVal] = useState("");
+  const [vendor, setVendor] = useState("saigon");
 
   return (
     <Box>
@@ -94,6 +119,31 @@ const [status, setStatus] = useState('');
   options={cityOptions}
   placeholder="Choose a city"
   startAdornment={<Bank size={16} fill="#6B7280" />}
+/>`}
+        />
+      </DocSection>
+
+      <DocSection title="With End Adornment">
+        <ExampleBox>
+          <Stack spacing={2} sx={{ width: "100%", maxWidth: 400 }}>
+            <SelectInput
+              label="Vendor Name"
+              value={vendor}
+              onChange={(e) => setVendor(e.target.value)}
+              options={vendorOptions}
+              endAdornment={<MatchedChip />}
+            />
+          </Stack>
+        </ExampleBox>
+        <CodeBlock
+          code={`// endAdornment renders just before the dropdown arrow — pass any node
+// (a chip, badge, icon, spinner, etc.).
+<SelectInput
+  label="Vendor Name"
+  value={vendor}
+  onChange={(e) => setVendor(e.target.value)}
+  options={vendorOptions}
+  endAdornment={<MatchedChip />}
 />`}
         />
       </DocSection>
@@ -244,6 +294,12 @@ const [status, setStatus] = useState('');
               name: "startAdornment",
               type: "React.ReactNode",
               description: "Element displayed at the start of the select",
+            },
+            {
+              name: "endAdornment",
+              type: "React.ReactNode",
+              description:
+                "Element displayed at the end of the select, just before the dropdown arrow",
             },
             {
               name: "labelSx",
