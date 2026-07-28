@@ -6,6 +6,8 @@ on:
     paths:
       - 'docs/**'
       - 'src/**'
+      - 'package.json'
+      - '.github/workflows/docs.yml'
   workflow_dispatch:
 
 permissions:
