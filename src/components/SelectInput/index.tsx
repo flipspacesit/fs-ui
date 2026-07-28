@@ -88,7 +88,8 @@ export const SelectInput = <T = unknown,>({
   searchPlaceholder,
   inputSx,
   menuItemSx,
-  readOnly = true,
+  disabled = false,
+  readOnly = false,
   ...props
 }: SelectInputProps<T>) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -108,15 +109,25 @@ export const SelectInput = <T = unknown,>({
     options.find((opt) => opt.value === props.value) || null;
 
   return (
-    <FormControl fullWidth={fullWidth} sx={sx} error={props.error}>
+    <FormControl
+      fullWidth={fullWidth}
+      sx={sx}
+      error={props.error}
+      disabled={disabled}
+    >
       {label && (
         <StyledFormLabel required={required} sx={labelSx}>
           {label}
         </StyledFormLabel>
       )}
       <Autocomplete
+        disabled={disabled}
+        readOnly={readOnly}
         open={open}
-        onOpen={() => setOpen(true)}
+        onOpen={() => {
+          if (disabled || readOnly) return;
+          setOpen(true);
+        }}
         options={filteredOptions}
         getOptionLabel={(option) => option.label}
         value={selectedOption}
@@ -185,7 +196,11 @@ export const SelectInput = <T = unknown,>({
                   display: "none",
                 },
               },
-              readOnly: readOnly,
+              // The field is a display for the selected value, never typeable —
+              // search happens in the popup's SearchInput, not here. The
+              // component-level `readOnly`/`disabled` props are handled by the
+              // Autocomplete above.
+              readOnly: true,
             }}
           />
         )}

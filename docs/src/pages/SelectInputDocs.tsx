@@ -149,6 +149,34 @@ const [status, setStatus] = useState('');
         />
       </DocSection>
 
+      <DocSection title="Disabled & Read-only">
+        <ExampleBox>
+          <Stack spacing={2} sx={{ width: "100%", maxWidth: 400 }}>
+            <SelectInput
+              label="Disabled"
+              value="active"
+              options={statusOptions}
+              placeholder="Select status"
+              disabled
+            />
+            <SelectInput
+              label="Read-only"
+              value="mumbai"
+              options={cityOptions}
+              placeholder="Choose a city"
+              readOnly
+            />
+          </Stack>
+        </ExampleBox>
+        <CodeBlock
+          code={`{/* Greyed out, not focusable, dropdown can't open */}
+<SelectInput label="Disabled" value="active" options={options} disabled />
+
+{/* Focusable and readable, but the value can't be changed */}
+<SelectInput label="Read-only" value="mumbai" options={options} readOnly />`}
+        />
+      </DocSection>
+
       <DocSection title="Props">
         <PropsTable
           props={[
@@ -197,6 +225,20 @@ const [status, setStatus] = useState('');
               name: "error",
               type: "boolean",
               description: "Shows error styling",
+            },
+            {
+              name: "disabled",
+              type: "boolean",
+              default: "false",
+              description:
+                "Disables the field: greyed out, not focusable, dropdown can't open",
+            },
+            {
+              name: "readOnly",
+              type: "boolean",
+              default: "false",
+              description:
+                "Field is focusable and readable but the value can't be changed and the dropdown can't open",
             },
             {
               name: "startAdornment",
