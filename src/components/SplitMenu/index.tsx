@@ -135,6 +135,7 @@ export const SplitMenu: React.FC<SplitMenuProps> = ({
           }),
         }}
         onClick={handleChange}
+        data-testid={dataTestIds["btn"]}
       >
         <Box padding={"12px"}>
           <Typography
