@@ -1,6 +1,20 @@
 import React, { useState, useRef } from "react";
-import { Typography, Box, Menu, MenuItem, Stack, SxProps, Theme } from "@mui/material";
-import { HEIGHTS, FontSizeMap, ButtonBorderRadiusMap, ComponentSize, ComponentVariant } from "../../constants";
+import {
+  Typography,
+  Box,
+  Menu,
+  MenuItem,
+  Stack,
+  SxProps,
+  Theme,
+} from "@mui/material";
+import {
+  HEIGHTS,
+  FontSizeMap,
+  ButtonBorderRadiusMap,
+  ComponentSize,
+  ComponentVariant,
+} from "../../constants";
 import { ArrowDown } from "../../icons/ArrowDown";
 import { ArrowUp } from "../../icons/ArrowUp";
 import { theme } from "../../theme";
@@ -35,6 +49,8 @@ export interface SplitMenuProps {
   size?: ComponentSize;
   /** Shape variant */
   variant?: ComponentVariant;
+  /** data-testids */
+  dataTestIds?: Record<string, string>;
 }
 
 const defaultBtnStyles: SxProps<Theme> = {
@@ -73,6 +89,7 @@ export const SplitMenu: React.FC<SplitMenuProps> = ({
   closeIcon = <ArrowDown size={20} />,
   size = "medium",
   variant = "rectangular",
+  dataTestIds = {},
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const anchorElRef = useRef<HTMLElement | null>(null);
@@ -121,7 +138,9 @@ export const SplitMenu: React.FC<SplitMenuProps> = ({
       >
         <Box padding={"12px"}>
           <Typography
-            variant={FontSizeMap[size] as "h1" | "h2" | "h3" | "h4" | "body1" | "body2"}
+            variant={
+              FontSizeMap[size] as "h1" | "h2" | "h3" | "h4" | "body1" | "body2"
+            }
             sx={{
               ...txtStyles,
               ...(disabled && { color: theme.palette.grey[300] }),
@@ -190,6 +209,7 @@ export const SplitMenu: React.FC<SplitMenuProps> = ({
                   ? `0.5px solid ${theme.palette.softSteel.main}`
                   : "none",
             }}
+            data-testid={dataTestIds[value] ?? `button-${toCamelCase(label)}`}
           >
             <Stack direction={"row"} alignItems={"center"} gap={"8px"}>
               {icon && (
@@ -203,9 +223,16 @@ export const SplitMenu: React.FC<SplitMenuProps> = ({
                 </Stack>
               )}
               <Typography
-                variant={FontSizeMap[size] as "h1" | "h2" | "h3" | "h4" | "body1" | "body2"}
+                variant={
+                  FontSizeMap[size] as
+                    | "h1"
+                    | "h2"
+                    | "h3"
+                    | "h4"
+                    | "body1"
+                    | "body2"
+                }
                 fontWeight={theme.typography.fontWeight.light}
-                data-testid={`button-${toCamelCase(label)}`}
               >
                 {label}
               </Typography>
