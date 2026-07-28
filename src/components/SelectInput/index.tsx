@@ -79,6 +79,7 @@ export const SelectInput = <T = unknown,>({
   showSelectedIcon = true,
   size = "medium",
   startAdornment,
+  endAdornment,
   labelSx,
   helperTextSx,
   menuPaperSx,
@@ -168,42 +169,75 @@ export const SelectInput = <T = unknown,>({
           </Box>
         }
         forcePopupIcon
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            size={size}
-            autoFocus={false}
-            sx={inputSx}
-            placeholder={!selectedOption ? placeholder : undefined}
-            required={required}
-            error={props.error}
-            InputProps={{
-              ...params.InputProps,
-              startAdornment: startAdornment ? (
-                <Box display='flex' alignItems='center'>
-                  {startAdornment}
-                </Box>
-              ) : null,
-              sx: {
-                paddingLeft: startAdornment ? "10px" : undefined,
-                cursor: "pointer",
-                "& .MuiInputBase-input": {
+        renderInput={(params) => {
+          // MUI renders the dropdown arrow (and clear icon) inside its own
+          // absolutely-positioned wrapper. Unwrap those indicators so a custom
+          // `endAdornment` can sit next to the arrow in a single right-anchored
+          // row instead of overlapping it.
+          const autocompleteEnd = params.InputProps.endAdornment;
+          const arrowIndicators = React.isValidElement<{
+            children?: React.ReactNode;
+          }>(autocompleteEnd)
+            ? autocompleteEnd.props.children
+            : autocompleteEnd;
+          return (
+            <TextField
+              {...params}
+              size={size}
+              autoFocus={false}
+              sx={inputSx}
+              placeholder={!selectedOption ? placeholder : undefined}
+              required={required}
+              error={props.error}
+              InputProps={{
+                ...params.InputProps,
+                startAdornment: startAdornment ? (
+                  <Box display='flex' alignItems='center'>
+                    {startAdornment}
+                  </Box>
+                ) : null,
+                endAdornment:
+                  endAdornment || arrowIndicators ? (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        right: "9px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      {endAdornment && (
+                        <Box display='flex' alignItems='center'>
+                          {endAdornment}
+                        </Box>
+                      )}
+                      {arrowIndicators}
+                    </Box>
+                  ) : null,
+                sx: {
+                  paddingLeft: startAdornment ? "10px" : undefined,
                   cursor: "pointer",
-                  caretColor: "transparent",
-                  userSelect: "none",
+                  "& .MuiInputBase-input": {
+                    cursor: "pointer",
+                    caretColor: "transparent",
+                    userSelect: "none",
+                  },
+                  "& .MuiAutocomplete-clearIndicator": {
+                    display: "none",
+                  },
                 },
-                "& .MuiAutocomplete-clearIndicator": {
-                  display: "none",
-                },
-              },
-              // The field is a display for the selected value, never typeable —
-              // search happens in the popup's SearchInput, not here. The
-              // component-level `readOnly`/`disabled` props are handled by the
-              // Autocomplete above.
-              readOnly: true,
-            }}
-          />
-        )}
+                // The field is a display for the selected value, never typeable —
+                // search happens in the popup's SearchInput, not here. The
+                // component-level `readOnly`/`disabled` props are handled by the
+                // Autocomplete above.
+                readOnly: true,
+              }}
+            />
+          );
+        }}
         renderOption={(propsOption, option) => {
           const { key, ...optionProps } = propsOption;
           return (
