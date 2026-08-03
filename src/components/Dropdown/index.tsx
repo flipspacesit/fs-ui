@@ -83,6 +83,13 @@ export interface DropdownProps {
   onClose?: () => void
   /** Enable search functionality */
   isSearchRequired?: boolean
+  /**
+   * When true, skips client-side option filtering so the parent can filter
+   * (typically via {@link DropdownProps.onSearchValue}).
+   */
+  isHandleSearchInParent?: boolean
+  /** Callback with the current search string whenever it changes */
+  onSearchValue?: (value: string) => void
   /** Gap between text and arrow */
   arrowGap?: string
   /** Show icon for selected option */
@@ -130,6 +137,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
   menuListSx = {},
   onClose = () => {},
   isSearchRequired = false,
+  isHandleSearchInParent = false,
+  onSearchValue = () => {},
   arrowGap = '20px',
   showSelectedOptionIcon = false,
   selectedIconWrapperSx = {},
@@ -148,6 +157,11 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const [searchValue, setSearchValue] = React.useState('')
   const fontWeightMedium = theme?.typography?.fontWeight?.medium ?? 500
   const fontWeightRegular = theme?.typography?.fontWeight?.regular ?? 400
+
+  const updateSearchValue = (nextValue: string) => {
+    setSearchValue(nextValue)
+    onSearchValue(nextValue)
+  }
 
   // Update anchor element and width when opening
   React.useEffect(() => {
@@ -200,7 +214,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const handleOptionClick = (option: DropdownOption, index: number) => {
     onChange(option, index)
     setOpen(false)
-    setSearchValue('')
+    updateSearchValue('')
   }
 
   // Resolve the option matching `value`, or null when nothing is selected
@@ -223,13 +237,15 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const bgColorPalette = color ? palette?.[color]?.main : undefined
 
   // Case-insensitive filter on value/label driven by the in-menu search box
-  const filteredOptions = options?.filter(
-    (option) =>
-      searchValue === '' ||
-      option.value.toLowerCase().includes(searchValue.toLowerCase()) ||
-      (option.label &&
-        option.label.toLowerCase().includes(searchValue.toLowerCase()))
-  )
+  const filteredOptions = isHandleSearchInParent
+    ? options
+    : options?.filter(
+      option =>
+        searchValue === '' ||
+        option.value.toLowerCase().includes(searchValue.toLowerCase()) ||
+        (option.label &&
+          option.label.toLowerCase().includes(searchValue.toLowerCase()))
+    )
 
   // Parse a px string (e.g. "20px") to a number, defaulting to 0
   const parsePxValue = (valueToParse?: string) => {
@@ -391,7 +407,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
               <Stack m='4px 0px 10px 0px'>
                 <SearchInput
                   value={searchValue}
-                  onChange={(nextValue) => setSearchValue(nextValue)}
+                  onChange={updateSearchValue}
                   containerSx={{
                     height: 'calc(24px * var(--scale, 1))',
                   }}
