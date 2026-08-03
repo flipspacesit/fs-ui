@@ -1,6 +1,6 @@
 {
   "name": "@flipspacesit/fs-ui",
-  "version": "2.4.6",
+  "version": "2.4.7",
   "description": "Flipspaces shared UI component library",
   "type": "module",
   "main": "./dist/fs-ui.cjs.js",
