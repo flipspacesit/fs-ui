@@ -1,9 +1,15 @@
 import React from "react";
 import { TextField, TextFieldProps, SxProps, Theme } from "@mui/material";
 import { theme } from "../../theme";
+import { withDataId, type DataIdProps } from "../../constants";
 
-/** Props for {@link TextArea}; all MUI `TextField` props except `multiline` (always on), plus row bounds. */
-export interface TextAreaProps extends Omit<TextFieldProps, "multiline"> {
+/**
+ * Props for {@link TextArea}; all MUI `TextField` props except `multiline`
+ * (always on), plus row bounds. `data-id` lands on the `<textarea>` element.
+ */
+export interface TextAreaProps
+  extends Omit<TextFieldProps, "multiline">,
+    DataIdProps {
   /** Minimum number of visible text rows before the field grows. Defaults to 4. */
   minRows?: number;
   /** Maximum number of visible text rows; beyond this the field scrolls. Unbounded if omitted. */
@@ -20,6 +26,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
   minRows = 4,
   maxRows,
   sx = {},
+  "data-id": dataId,
   ...props
 }) => {
   return (
@@ -42,6 +49,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
         ...sx,
       }}
       {...props}
+      inputProps={withDataId(props.inputProps, dataId)}
     />
   );
 };

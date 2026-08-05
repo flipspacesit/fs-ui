@@ -270,6 +270,12 @@ const PinsDocs: React.FC = () => {
               type: "SxProps<Theme>",
               description: "MUI `sx` overrides, merged last.",
             },
+            {
+              name: "data-id",
+              type: "string",
+              description:
+                "Automation hook — `data-id` on the `<input>`; the send button gets `{id}-send`. See Test IDs.",
+            },
           ]}
         />
       </DocSection>

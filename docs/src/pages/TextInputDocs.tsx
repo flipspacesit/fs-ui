@@ -204,6 +204,12 @@ const TextInputDocs: React.FC = () => {
               type: "TextFieldProps",
               description: "All MUI TextField props are supported",
             },
+            {
+              name: "data-id",
+              type: "string",
+              description:
+                "Automation hook — rendered as `data-id` on the `<input>` element. See Test IDs.",
+            },
           ]}
         />
       </DocSection>

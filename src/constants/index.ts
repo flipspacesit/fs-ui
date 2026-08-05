@@ -9,6 +9,59 @@ export type ComponentSize =
 /** Shape variant shared by buttons/controls — `round` = pill, `rectangular` = radius-sm. */
 export type ComponentVariant = "round" | "rectangular";
 
+/**
+ * Opt-in automation hook shared by every fs-ui input control.
+ *
+ * Each control renders the value on exactly one element — the focusable
+ * `<input>` when it owns a single one, otherwise its root — so a
+ * `[data-id="x"]` selector never matches twice. Composite controls (segments,
+ * PIN cells, stepper buttons, option rows) additionally stamp suffixed ids
+ * (`x-increment`, `x-option-2`, …) on their interactive children; each
+ * component's TSDoc lists the suffixes it emits.
+ *
+ * Declared explicitly because most of these components have closed prop
+ * interfaces that drop unknown props. TypeScript also skips type-checking
+ * hyphenated JSX attributes, so an unsupported `data-id` fails silently —
+ * hence the explicit prop rather than relying on rest-prop spreading.
+ */
+export interface DataIdProps {
+  /** Rendered as the `data-id` DOM attribute for test/analytics targeting. */
+  "data-id"?: string;
+}
+
+/**
+ * Merges a `data-id` into a component's `inputProps` bag, preserving whatever
+ * the caller already put there.
+ *
+ * The assertion is load-bearing: MUI types some `inputProps` slots as
+ * `InputHTMLAttributes<HTMLInputElement>` (Checkbox, Radio, Switch), and an
+ * object literal with a hyphenated key trips excess-property checking there.
+ * JSX attributes are exempt from that check; object literals are not.
+ */
+export const withDataId = <T,>(inputProps: T | undefined, dataId?: string): T =>
+  ({ ...inputProps, "data-id": dataId }) as T;
+
+/**
+ * Same as {@link withDataId}, for MUI's `slotProps.input` channel — which
+ * accepts either an object or an `ownerState` callback, so both forms have to
+ * survive the merge.
+ *
+ * Used by the SwitchBase family (Checkbox / RadioButton / Switch), where the
+ * legacy `inputProps` bag is deprecated and, on `Switch`, ignored outright.
+ * `base` carries defaults that MUI itself sets on the slot and would otherwise
+ * lose — passing `slotProps.input` to `Switch` replaces its `role="switch"`
+ * wholesale rather than merging into it.
+ */
+export const withDataIdSlot = <S extends object, O>(
+  slot: S | ((ownerState: O) => S) | undefined,
+  dataId: string | undefined,
+  base?: object,
+): S | ((ownerState: O) => S) =>
+  typeof slot === "function"
+    ? (ownerState: O) =>
+        ({ ...base, ...slot(ownerState), "data-id": dataId }) as S
+    : ({ ...base, ...slot, "data-id": dataId }) as S;
+
 /** Control heights per {@link ComponentSize} (px, before `--scale`). */
 export const HEIGHTS: Record<ComponentSize, string> = {
   extraSmall: "20px",

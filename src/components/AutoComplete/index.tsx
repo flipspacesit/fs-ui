@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Popper, Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import type { DataIdProps } from "../../constants";
 
 const AutoCompleteContainer = styled("div")({
   position: "relative",
@@ -60,7 +61,11 @@ const DropdownItem = styled("li")<{
   },
 }));
 
-export interface AutoCompleteProps {
+/**
+ * Props for {@link AutoComplete}. `data-id` lands on the `<input>`; suggestion
+ * rows get `{data-id}-option-{index}`.
+ */
+export interface AutoCompleteProps extends DataIdProps {
   /** Current value */
   value?: string;
   /** Callback when input changes */
@@ -106,6 +111,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
   dropDownItemStyles = {},
   colorsMap,
   placeholder = "Select",
+  "data-id": dataId,
 }) => {
   const [inputValue, setInputValue] = useState(value);
   const [prevValue, setPrevValue] = useState(value);
@@ -172,6 +178,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
         <StyledInput
           ref={inputRef}
           type="text"
+          data-id={dataId}
           value={inputValue}
           onChange={(e) => {
             const newValue = e.target.value;
@@ -249,6 +256,7 @@ export const AutoComplete: React.FC<AutoCompleteProps> = ({
           {displayedOptions.map((option, index) => (
             <DropdownItem
               key={`${option}-${index}`}
+              data-id={dataId ? `${dataId}-option-${index}` : undefined}
               selected={option === value}
               isLongText={option.length > 40}
               itemColor={colorsMap?.[option]?.[0]}

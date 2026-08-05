@@ -76,7 +76,12 @@ const Highlighted: React.FC<{ text: string; q: string }> = ({ text, q }) => {
   );
 };
 
-export const CommandPalette: React.FC<Props> = ({ open, onClose, onSelect }) => {
+export const CommandPalette: React.FC<Props> = ({
+  open,
+  onClose,
+  onSelect,
+  onSelectIcon,
+}) => {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const [prevOpen, setPrevOpen] = useState(open);

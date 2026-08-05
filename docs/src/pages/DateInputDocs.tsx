@@ -173,6 +173,12 @@ const [date, setDate] = useState<Dayjs | null>(null);
               type: "SxProps<Theme>",
               description: "Custom styles for the DatePicker TextField",
             },
+            {
+              name: "data-id",
+              type: "string",
+              description:
+                "Automation hook — `data-id` on the field `<input>`. See Test IDs.",
+            },
           ]}
         />
       </DocSection>

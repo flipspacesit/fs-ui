@@ -14,6 +14,7 @@ import CommandPalette from "./shell/CommandPalette";
 import GettingStarted from "./pages/GettingStarted";
 import InstallationDocs from "./pages/InstallationDocs";
 import ApiReferenceDocs from "./pages/ApiReferenceDocs";
+import TestIdsDocs from "./pages/TestIdsDocs";
 import ThemeDocs from "./pages/ThemeDocs";
 import TypographyDocs from "./pages/TypographyDocs";
 import SpacingDocs from "./pages/SpacingDocs";
@@ -70,6 +71,7 @@ const pageComponents: Record<
   "getting-started": GettingStarted,
   installation: InstallationDocs,
   "api-reference": ApiReferenceDocs,
+  "test-ids": TestIdsDocs,
   theme: ThemeDocs,
   typography: TypographyDocs,
   spacing: SpacingDocs,

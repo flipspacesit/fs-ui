@@ -12,6 +12,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import type { Dayjs } from 'dayjs'
 import theme from '@/theme'
+import type { DataIdProps } from '../../constants'
 import {
   buttons,
   fontFamily,
@@ -24,22 +25,28 @@ import {
 } from '@/theme/tokens'
 import { CalendarBlank } from '@/icons'
 
-export type DateInputProps = DatePickerProps & {
-  label?: string
-  value: Dayjs | null
-  onChange: (value: Dayjs | null) => void
-  error?: boolean
-  helperText?: string
-  required?: boolean
-  fullWidth?: boolean
-  sx?: SxProps<Theme>
-  format?: string
-  placeholder?: string
-  // Style customization props
-  labelSx?: SxProps<Theme>
-  helperTextSx?: SxProps<Theme>
-  datePickerSx?: SxProps<Theme>
-}
+/**
+ * Props for {@link DateInput}. `data-id` lands on the field `<input>`.
+ * Needed as an explicit prop because this component supplies its own
+ * `slotProps`, which shadows any `slotProps.textField` a consumer passes.
+ */
+export type DateInputProps = DatePickerProps &
+  DataIdProps & {
+    label?: string
+    value: Dayjs | null
+    onChange: (value: Dayjs | null) => void
+    error?: boolean
+    helperText?: string
+    required?: boolean
+    fullWidth?: boolean
+    sx?: SxProps<Theme>
+    format?: string
+    placeholder?: string
+    // Style customization props
+    labelSx?: SxProps<Theme>
+    helperTextSx?: SxProps<Theme>
+    datePickerSx?: SxProps<Theme>
+  }
 
 const StyledFormLabel = styled(FormLabel)(() => ({
   fontFamily,
@@ -177,6 +184,7 @@ export const DateInput = ({
   labelSx,
   helperTextSx,
   datePickerSx,
+  'data-id': dataId,
   ...props
 }: DateInputProps) => {
   return (
@@ -208,6 +216,7 @@ export const DateInput = ({
                 inputProps: {
                   placeholder: placeholder || format,
                   readOnly: true,
+                  'data-id': dataId,
                 },
               },
               field: {

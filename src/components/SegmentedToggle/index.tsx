@@ -1,6 +1,11 @@
 import React from "react";
 import { Stack, Typography, SxProps, Theme } from "@mui/material";
-import { HEIGHTS, FontSizeMap, ComponentSize } from "../../constants";
+import {
+  HEIGHTS,
+  FontSizeMap,
+  ComponentSize,
+  type DataIdProps,
+} from "../../constants";
 import { theme } from "../../theme";
 
 /** One selectable segment of a {@link SegmentedToggle}. */
@@ -13,8 +18,11 @@ export interface SegmentedToggleOption {
   icon?: React.ReactNode;
 }
 
-/** Props for {@link SegmentedToggle}. */
-export interface SegmentedToggleProps {
+/**
+ * Props for {@link SegmentedToggle}. `data-id` lands on the root; each segment
+ * gets `{data-id}-{option.value}`.
+ */
+export interface SegmentedToggleProps extends DataIdProps {
   /** Segments */
   options: SegmentedToggleOption[];
   /** Currently selected value */
@@ -41,6 +49,7 @@ export const SegmentedToggle: React.FC<SegmentedToggleProps> = ({
   size = "medium",
   disabled = false,
   sx = {},
+  "data-id": dataId,
 }) => {
   // Scale the button-matched height by the app-provided `--scale` CSS var.
   const height = `calc(${HEIGHTS[size]} * var(--scale, 1))`;
@@ -50,6 +59,7 @@ export const SegmentedToggle: React.FC<SegmentedToggleProps> = ({
     <Stack
       direction="row"
       alignItems="center"
+      data-id={dataId}
       sx={{
         height,
         p: "2px",
@@ -73,6 +83,7 @@ export const SegmentedToggle: React.FC<SegmentedToggleProps> = ({
             justifyContent="center"
             gap="6px"
             onClick={() => onChange(opt.value)}
+            data-id={dataId ? `${dataId}-${opt.value}` : undefined}
             sx={{
               height: "100%",
               px: "12px",

@@ -300,6 +300,12 @@ function MyForm() {
               type: "SxProps<Theme>",
               description: "Custom styles for the upload icon container on the right side",
             },
+            {
+              name: "data-id",
+              type: "string",
+              description:
+                "Automation hook — `data-id` on the wrapper, `{id}-input` on the hidden file input (use this with setInputFiles), `{id}-remove` on the remove button. See Test IDs.",
+            },
           ]}
         />
       </DocSection>

@@ -165,6 +165,12 @@ const [off, setOff] = useState(false);
               description:
                 "All other MUI Switch props (checked, onChange, disabled, …) are supported",
             },
+            {
+              name: "data-id",
+              type: "string",
+              description:
+                "Automation hook — `data-id` on the underlying checkbox `<input>`, not the track/thumb span. See Test IDs.",
+            },
           ]}
         />
       </DocSection>
@@ -238,6 +244,12 @@ const [off, setOff] = useState(false);
               type: "SxProps<Theme>",
               default: "{}",
               description: "MUI `sx` overrides, merged last.",
+            },
+            {
+              name: "data-id",
+              type: "string",
+              description:
+                "Automation hook — `data-id` on the root; each segment gets `{id}-{option.value}`. See Test IDs.",
             },
           ]}
         />

@@ -160,6 +160,12 @@ function MyComponent() {
               type: "TextFieldProps",
               description: "All MUI TextField props are supported",
             },
+            {
+              name: "data-id",
+              type: "string",
+              description:
+                "Automation hook — `data-id` on the `<input>`; the clear button gets `{id}-clear`. See Test IDs.",
+            },
           ]}
         />
       </DocSection>
