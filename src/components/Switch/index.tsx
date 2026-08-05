@@ -8,14 +8,16 @@ import {
 } from "@mui/material";
 import { theme } from "../../theme";
 import { shadows } from "../../theme/tokens/shadows";
-import { withDataIdSlot, type DataIdProps } from "../../constants";
+import { withDataTestIdSlot, type DataTestIdProps } from "../../constants";
 
 /**
  * Props for {@link Switch}; extends MUI `SwitchProps` (minus `color`) with an
- * optional label. `data-id` lands on the underlying `<input type="checkbox">`,
- * not the styled track/thumb span.
+ * optional label. `data-testid` lands on the underlying
+ * `<input type="checkbox">`, not the styled track/thumb span.
  */
-export interface FsSwitchProps extends Omit<SwitchProps, "color">, DataIdProps {
+export interface FsSwitchProps
+  extends Omit<SwitchProps, "color">,
+    DataTestIdProps {
   /** Optional label rendered beside the switch */
   label?: React.ReactNode;
   /** Wrapper styles when a label is present */
@@ -30,7 +32,7 @@ export const Switch: React.FC<FsSwitchProps> = ({
   label,
   wrapperSx,
   sx,
-  "data-id": dataId,
+  "data-testid": dataTestId,
   ...props
 }) => {
   const control = (
@@ -60,7 +62,7 @@ export const Switch: React.FC<FsSwitchProps> = ({
       // so `role="switch"` has to be re-supplied here or it is lost.
       slotProps={{
         ...props.slotProps,
-        input: withDataIdSlot(props.slotProps?.input, dataId, {
+        input: withDataTestIdSlot(props.slotProps?.input, dataTestId, {
           role: "switch",
         }),
       }}

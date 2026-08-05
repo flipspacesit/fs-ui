@@ -12,7 +12,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import type { Dayjs } from 'dayjs'
 import theme from '@/theme'
-import type { DataIdProps } from '../../constants'
+import type { DataTestIdProps } from '../../constants'
 import {
   buttons,
   fontFamily,
@@ -26,12 +26,12 @@ import {
 import { CalendarBlank } from '@/icons'
 
 /**
- * Props for {@link DateInput}. `data-id` lands on the field `<input>`.
+ * Props for {@link DateInput}. `data-testid` lands on the field `<input>`.
  * Needed as an explicit prop because this component supplies its own
  * `slotProps`, which shadows any `slotProps.textField` a consumer passes.
  */
 export type DateInputProps = DatePickerProps &
-  DataIdProps & {
+  DataTestIdProps & {
     label?: string
     value: Dayjs | null
     onChange: (value: Dayjs | null) => void
@@ -184,7 +184,7 @@ export const DateInput = ({
   labelSx,
   helperTextSx,
   datePickerSx,
-  'data-id': dataId,
+  'data-testid': dataTestId,
   ...props
 }: DateInputProps) => {
   return (
@@ -216,7 +216,7 @@ export const DateInput = ({
                 inputProps: {
                   placeholder: placeholder || format,
                   readOnly: true,
-                  'data-id': dataId,
+                  'data-testid': dataTestId,
                 },
               },
               field: {

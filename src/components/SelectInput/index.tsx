@@ -18,7 +18,7 @@ import {
 import { styled } from "@mui/material/styles";
 import theme from "@/theme";
 import { ArrowDown2, CheckIcon } from "@/icons";
-import { withDataId, type DataIdProps } from "../../constants";
+import { withDataTestId, type DataTestIdProps } from "../../constants";
 import SearchInput from "../SearchInput";
 
 export type Option = {
@@ -30,14 +30,15 @@ export type Option = {
 /**
  * Props for {@link SelectInput}.
  *
- * `data-id` lands on the trigger `<input>`; option rows get
- * `{data-id}-option-{value}` and the in-menu search box `{data-id}-search`.
+ * `data-testid` lands on the trigger `<input>`; option rows get
+ * `{data-testid}-option-{value}` and the in-menu search box
+ * `{data-testid}-search`.
  */
 export type SelectInputProps<T = unknown> = Omit<
   SelectProps<T>,
   "renderValue"
 > &
-  DataIdProps & {
+  DataTestIdProps & {
     label?: string;
     helperText?: React.ReactNode;
     options?: Option[];
@@ -99,7 +100,7 @@ export const SelectInput = <T = unknown,>({
   menuItemSx,
   disabled = false,
   readOnly = false,
-  "data-id": dataId,
+  "data-testid": dataTestId,
   ...props
 }: SelectInputProps<T>) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -200,7 +201,7 @@ export const SelectInput = <T = unknown,>({
               error={props.error}
               // Merge, don't replace: `params.inputProps` carries the
               // Autocomplete's combobox a11y wiring and change handlers.
-              inputProps={withDataId(params.inputProps, dataId)}
+              inputProps={withDataTestId(params.inputProps, dataTestId)}
               InputProps={{
                 ...params.InputProps,
                 startAdornment: startAdornment ? (
@@ -256,7 +257,9 @@ export const SelectInput = <T = unknown,>({
             <MenuItem
               key={key}
               {...optionProps}
-              data-id={dataId ? `${dataId}-option-${option.value}` : undefined}
+              data-testid={
+                dataTestId ? `${dataTestId}-option-${option.value}` : undefined
+              }
               sx={{
                 height: "calc(28px * var(--scale))",
                 minHeight: "auto",
@@ -331,7 +334,7 @@ export const SelectInput = <T = unknown,>({
               <Box ref={searchRef} sx={{ marginBottom: "4px" }}>
                 <SearchInput
                   autoFocus
-                  data-id={dataId ? `${dataId}-search` : undefined}
+                  data-testid={dataTestId ? `${dataTestId}-search` : undefined}
                   inputRef={searchInputRef}
                   size='small'
                   value={searchTerm}

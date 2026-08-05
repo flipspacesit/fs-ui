@@ -124,10 +124,10 @@ const CalendarDocs: React.FC = () => {
               description: "MUI `sx` overrides, merged last.",
             },
             {
-              name: "data-id",
+              name: "data-testid",
               type: "string",
               description:
-                "Automation hook — `data-id` on the calendar root. See Test IDs.",
+                "Automation hook — `data-testid` on the calendar root. See Test IDs.",
             },
           ]}
         />
@@ -226,10 +226,10 @@ const CalendarDocs: React.FC = () => {
               description: "MUI `sx` overrides, merged last.",
             },
             {
-              name: "data-id",
+              name: "data-testid",
               type: "string",
               description:
-                "Automation hook — `data-id` on the root, plus `{id}-mode-{month|quarter|year}` and `{id}-period-{key}`. See Test IDs.",
+                "Automation hook — `data-testid` on the root, plus `{id}-mode-{month|quarter|year}` and `{id}-period-{key}`. See Test IDs.",
             },
           ]}
         />

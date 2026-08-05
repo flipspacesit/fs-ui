@@ -7,7 +7,7 @@ import {
   Box,
 } from "@mui/material";
 import { primary, neutral } from "../../theme/tokens/colors";
-import { withDataIdSlot, type DataIdProps } from "../../constants";
+import { withDataTestIdSlot, type DataTestIdProps } from "../../constants";
 
 /** DS colour family for the Checkbox / RadioButton indicator. */
 export type CheckColor =
@@ -78,12 +78,12 @@ const boxBase = {
 
 /**
  * Props for {@link Checkbox}; extends MUI `CheckboxProps` (minus `color`, which
- * is remapped to the DS family). `data-id` lands on the underlying
+ * is remapped to the DS family). `data-testid` lands on the underlying
  * `<input type="checkbox">`, not the styled indicator span.
  */
 export interface FsCheckboxProps
   extends Omit<CheckboxProps, "color">,
-    DataIdProps {
+    DataTestIdProps {
   /** DS colour family */
   color?: CheckColor;
   /** Hard (opaque fill) or Soft (pale-tinted fill) */
@@ -97,7 +97,7 @@ export interface FsCheckboxProps
 export const Checkbox: React.FC<FsCheckboxProps> = ({
   color = "slateBlue",
   variant = "hard",
-  "data-id": dataId,
+  "data-testid": dataTestId,
   ...props
 }) => {
   const h = HUES[color];
@@ -133,9 +133,9 @@ export const Checkbox: React.FC<FsCheckboxProps> = ({
       {...props}
       slotProps={{
         ...props.slotProps,
-        input: withDataIdSlot(
+        input: withDataTestIdSlot(
           props.slotProps?.input ?? props.inputProps,
-          dataId,
+          dataTestId,
         ),
       }}
     />
@@ -144,10 +144,12 @@ export const Checkbox: React.FC<FsCheckboxProps> = ({
 
 /**
  * Props for {@link RadioButton}; extends MUI `RadioProps` (minus `color`, which
- * is remapped to the DS family). `data-id` lands on the underlying
+ * is remapped to the DS family). `data-testid` lands on the underlying
  * `<input type="radio">`, not the styled indicator span.
  */
-export interface FsRadioProps extends Omit<RadioProps, "color">, DataIdProps {
+export interface FsRadioProps
+  extends Omit<RadioProps, "color">,
+    DataTestIdProps {
   /** DS colour family */
   color?: CheckColor;
 }
@@ -161,7 +163,7 @@ const circleBase = { ...boxBase, borderRadius: "50%" };
  */
 export const RadioButton: React.FC<FsRadioProps> = ({
   color = "slateBlue",
-  "data-id": dataId,
+  "data-testid": dataTestId,
   ...props
 }) => {
   const h = HUES[color];
@@ -184,9 +186,9 @@ export const RadioButton: React.FC<FsRadioProps> = ({
       {...props}
       slotProps={{
         ...props.slotProps,
-        input: withDataIdSlot(
+        input: withDataTestIdSlot(
           props.slotProps?.input ?? props.inputProps,
-          dataId,
+          dataTestId,
         ),
       }}
     />

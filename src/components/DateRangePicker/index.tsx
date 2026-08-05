@@ -8,7 +8,7 @@ import type { Dayjs } from "dayjs";
 import { theme } from "../../theme";
 import { shadows } from "../../theme/tokens/shadows";
 import { primary } from "../../theme/tokens/colors";
-import type { DataIdProps } from "../../constants";
+import type { DataTestIdProps } from "../../constants";
 
 /** A selected date range; either endpoint may be `null` while picking. */
 export interface DateRange {
@@ -19,11 +19,11 @@ export interface DateRange {
 }
 
 /**
- * Props for {@link DateRangePicker}. `data-id` lands on the calendar root
+ * Props for {@link DateRangePicker}. `data-testid` lands on the calendar root
  * (day cells are MUI-owned; target them via the root, e.g.
- * `[data-id="x"] button[aria-label*="15"]`).
+ * `[data-testid="x"] button[aria-label*="15"]`).
  */
-export interface DateRangePickerProps extends DataIdProps {
+export interface DateRangePickerProps extends DataTestIdProps {
   /** Selected range */
   value: DateRange;
   /** Change callback */
@@ -41,7 +41,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   value,
   onChange,
   sx = {},
-  "data-id": dataId,
+  "data-testid": dataTestId,
 }) => {
   const { start, end } = value;
 
@@ -93,7 +93,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Paper
         elevation={0}
-        data-id={dataId}
+        data-testid={dataTestId}
         sx={{
           display: "inline-block",
           border: `0.5px solid ${theme.palette.primaryBlue[500]}`,

@@ -327,10 +327,10 @@ const [status, setStatus] = useState('');
               description: "All MUI Select props are supported",
             },
             {
-              name: "data-id",
+              name: "data-testid",
               type: "string",
               description:
-                "Automation hook — `data-id` on the trigger `<input>`; option rows get `{id}-option-{value}`, the in-menu search box `{id}-search`. See Test IDs.",
+                "Automation hook — `data-testid` on the trigger `<input>`; option rows get `{id}-option-{value}`, the in-menu search box `{id}-search`. See Test IDs.",
             },
           ]}
         />

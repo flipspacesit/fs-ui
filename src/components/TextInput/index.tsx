@@ -11,11 +11,13 @@ import {
   Theme,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { withDataId, type DataIdProps } from "../../constants";
+import { withDataTestId, type DataTestIdProps } from "../../constants";
 
-/** Props for {@link TextInput}. `data-id` lands on the `<input>` element. */
+/**
+ * Props for {@link TextInput}. `data-testid` lands on the `<input>` element.
+ */
 export type TextInputProps = TextFieldProps &
-  DataIdProps & {
+  DataTestIdProps & {
     label?: string;
     startAdornment?: React.ReactNode;
     endAdornment?: React.ReactNode;
@@ -58,7 +60,7 @@ export const TextInput = ({
   inputSx,
   helperTextSx,
   sx,
-  "data-id": dataId,
+  "data-testid": dataTestId,
   ...props
 }: TextInputProps) => {
   return (
@@ -75,7 +77,7 @@ export const TextInput = ({
           error={error}
           {...props}
           sx={inputSx}
-          inputProps={withDataId(props.inputProps, dataId)}
+          inputProps={withDataTestId(props.inputProps, dataTestId)}
           InputProps={{
             readOnly,
             ...props.InputProps,

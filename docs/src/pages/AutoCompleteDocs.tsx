@@ -276,10 +276,10 @@ const colorsMap = {
               description: "Color mapping for options",
             },
             {
-              name: "data-id",
+              name: "data-testid",
               type: "string",
               description:
-                "Automation hook — `data-id` on the `<input>`; suggestion rows get `{id}-option-{index}`. See Test IDs.",
+                "Automation hook — `data-testid` on the `<input>`; suggestion rows get `{id}-option-{index}`. See Test IDs.",
             },
           ]}
         />

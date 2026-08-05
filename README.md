@@ -270,18 +270,18 @@ import { HEIGHTS, FontSizeMap, ButtonBorderRadiusMap, Colors } from '@flipspaces
 // Colors: Common color tokens
 ```
 
-## Test IDs (`data-id`)
+## Test IDs (`data-testid`)
 
-Every input control accepts a `data-id` prop and renders it as a `data-id` DOM
+Every input control accepts a `data-testid` prop and renders it as a `data-testid` DOM
 attribute — a stable hook for end-to-end tests and analytics.
 
 ```tsx
-<TextInput data-id="vendor-name" label="Vendor name" />
-<SelectInput data-id="vendor-status" options={statusOptions} value={status} />
-<NumberStepper data-id="qty" value={qty} onChange={setQty} />
+<TextInput data-testid="vendor-name" label="Vendor name" />
+<SelectInput data-testid="vendor-status" options={statusOptions} value={status} />
+<NumberStepper data-testid="qty" value={qty} onChange={setQty} />
 ```
 
-A given `data-id` lands on **exactly one** element, so `[data-id="x"]` never
+A given `data-testid` lands on **exactly one** element, so `[data-testid="x"]` never
 matches twice. Controls with a single focusable input put it on that `<input>`
 (`TextInput`, `TextArea`, `SearchInput`, `SelectInput`, `AutoComplete`,
 `DateInput`, `Checkbox`, `RadioButton`, `Switch`, `PinCommentInput`). Composite
@@ -301,32 +301,32 @@ children:
 | `MonthYearPicker` | `{id}-mode-{month\|quarter\|year}`, `{id}-period-{key}` |
 
 ```ts
-await page.fill('[data-id="vendor-name"]', 'Saigon Interiors')
-await page.click('[data-id="qty-increment"]')
-await page.setInputFiles('[data-id="invoice-doc-input"]', 'invoice.pdf')
+await page.fill('[data-testid="vendor-name"]', 'Saigon Interiors')
+await page.click('[data-testid="qty-increment"]')
+await page.setInputFiles('[data-testid="invoice-doc-input"]', 'invoice.pdf')
 ```
 
 Note that TypeScript does **not** type-check hyphenated JSX attributes, so a
-`data-id` passed to a component that ignores it compiles cleanly and renders
+`data-testid` passed to a component that ignores it compiles cleanly and renders
 nothing. The prop is therefore declared explicitly via the exported
-`DataIdProps` type — import it when composing your own wrappers:
+`DataTestIdProps` type — import it when composing your own wrappers:
 
 ```tsx
-import { TextInput, type DataIdProps } from '@flipspacesit/fs-ui';
+import { TextInput, type DataTestIdProps } from '@flipspacesit/fs-ui';
 
-interface VendorFieldProps extends DataIdProps {
+interface VendorFieldProps extends DataTestIdProps {
   label: string;
 }
 
-const VendorField = ({ label, 'data-id': dataId }: VendorFieldProps) => (
-  <TextInput label={label} data-id={dataId} />
+const VendorField = ({ label, 'data-testid': dataTestId }: VendorFieldProps) => (
+  <TextInput label={label} data-testid={dataTestId} />
 );
 ```
 
 This is unrelated to `data-testid` — `Dropdown`, `SplitMenu`, `Dialog` and
 `ModalLayout` still expose their own `testid` props.
 
-See the **Test IDs (data-id)** page in the docs site for the full per-component
+See the **Test IDs (data-testid)** page in the docs site for the full per-component
 table.
 
 ## Icons

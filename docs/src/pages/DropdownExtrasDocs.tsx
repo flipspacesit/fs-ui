@@ -111,10 +111,10 @@ const DropdownExtrasDocs: React.FC = () => {
               description: "MUI sx overrides, merged last.",
             },
             {
-              name: "data-id",
+              name: "data-testid",
               type: "string",
               description:
-                "Automation hook — `data-id` on the clickable trigger root. See Test IDs.",
+                "Automation hook — `data-testid` on the clickable trigger root. See Test IDs.",
             },
           ]}
         />
