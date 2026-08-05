@@ -110,6 +110,12 @@ const DropdownExtrasDocs: React.FC = () => {
               type: "SxProps<Theme>",
               description: "MUI sx overrides, merged last.",
             },
+            {
+              name: "data-id",
+              type: "string",
+              description:
+                "Automation hook — `data-id` on the clickable trigger root. See Test IDs.",
+            },
           ]}
         />
       </DocSection>

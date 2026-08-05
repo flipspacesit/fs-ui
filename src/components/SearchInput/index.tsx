@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { theme } from "../../theme";
 import { shadows } from "../../theme/tokens/shadows";
+import { withDataId, type DataIdProps } from "../../constants";
 
 /** Internal magnifier (leading) icon; `size` px and `color` default to the DS grey-400. */
 // Magnifier (leading) icon
@@ -56,9 +57,14 @@ const ClearIcon: React.FC<{ size?: number; color?: string }> = ({
   </svg>
 );
 
-/** Props for {@link SearchInput}; extends MUI `TextFieldProps` (minus its own `onChange`/`value`). */
+/**
+ * Props for {@link SearchInput}; extends MUI `TextFieldProps` (minus its own
+ * `onChange`/`value`). `data-id` lands on the `<input>`; the clear button gets
+ * `{data-id}-clear`.
+ */
 export interface SearchInputProps
-  extends Omit<TextFieldProps, "onChange" | "value"> {
+  extends Omit<TextFieldProps, "onChange" | "value">,
+    DataIdProps {
   /** Current search value */
   value?: string;
   /** Callback when search value changes */
@@ -102,6 +108,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   size = "small",
   containerSx = {},
   onClear,
+  "data-id": dataId,
   ...rest
 }) => {
   const [internalValue, setInternalValue] = useState(controlledValue ?? "");
@@ -175,6 +182,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
                 onClick={handleClear}
                 edge="end"
                 aria-label="clear search"
+                data-id={dataId ? `${dataId}-clear` : undefined}
                 disableRipple
               >
                 <ClearIcon size={iconPx} />
@@ -197,6 +205,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         ...containerSx,
       }}
       {...rest}
+      inputProps={withDataId(rest.inputProps, dataId)}
     />
   );
 };

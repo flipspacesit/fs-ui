@@ -19,6 +19,7 @@ import {
   CloseIcon,
 } from "@/icons";
 import theme from "@/theme";
+import type { DataIdProps } from "../../constants";
 
 export interface FileUploadResponse {
   documentUrl: string;
@@ -28,7 +29,13 @@ export interface FileUploadResponse {
   documentSize: number;
 }
 
-export interface FileUploadBoxProps {
+/**
+ * Props for {@link FileUpload}. `data-id` lands on the outer wrapper (the
+ * dropzone and the uploaded-file card swap places inside it); the hidden file
+ * input gets `{data-id}-input` — the one to use with Playwright's
+ * `setInputFiles` — and the remove button `{data-id}-remove`.
+ */
+export interface FileUploadBoxProps extends DataIdProps {
   required?: boolean;
   error?: boolean;
   helperText?: string;
@@ -312,6 +319,7 @@ export const FileUpload = ({
   fileNameSx,
   uploadContentSx,
   uploadIconContainerSx,
+  "data-id": dataId,
 }: FileUploadBoxProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -450,7 +458,7 @@ export const FileUpload = ({
   };
 
   return (
-    <Stack width='100%'>
+    <Stack width='100%' data-id={dataId}>
       {!displayFile ? (
         <>
           <Stack position='relative'>
@@ -492,6 +500,7 @@ export const FileUpload = ({
 
               <FileInputHidden
                 ref={fileInputRef}
+                data-id={dataId ? `${dataId}-input` : undefined}
                 type='file'
                 accept={accept}
                 onChange={handleFileInputChange}
@@ -526,7 +535,10 @@ export const FileUpload = ({
                 {displayFile?.name}
               </FileNameTypography>
             </FileContentStack>
-            <RemoveIconStack onClick={handleRemoveFile}>
+            <RemoveIconStack
+              onClick={handleRemoveFile}
+              data-id={dataId ? `${dataId}-remove` : undefined}
+            >
               <CloseIcon size='12' />
             </RemoveIconStack>
           </FileContainer>

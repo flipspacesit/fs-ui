@@ -17,6 +17,7 @@ export const menuItems: MenuItem[] = [
   { id: "getting-started", label: "Getting Started", category: "Introduction" },
   { id: "installation", label: "Installation", category: "Introduction" },
   { id: "api-reference", label: "API Reference", category: "Introduction" },
+  { id: "test-ids", label: "Test IDs (data-id)", category: "Introduction" },
   { id: "theme", label: "Theme (Colors)", category: "Foundation" },
   { id: "typography", label: "Typography", category: "Foundation" },
   { id: "spacing", label: "Spacing & Grid", category: "Foundation" },

@@ -2,6 +2,7 @@ import React from "react";
 import { Stack, Box, styled, SxProps, Theme } from "@mui/material";
 import { neutral, primary } from "../../theme/tokens/colors";
 import { theme } from "../../theme";
+import type { DataIdProps } from "../../constants";
 
 // Borderless transparent text input filling the pill; italic grey placeholder.
 const Field = styled("input")({
@@ -15,8 +16,11 @@ const Field = styled("input")({
   "&::placeholder": { fontStyle: "italic", color: theme.palette.grey[300] },
 });
 
-/** Props for {@link PinCommentInput}. */
-export interface PinCommentInputProps {
+/**
+ * Props for {@link PinCommentInput}. `data-id` lands on the `<input>`; the send
+ * button gets `{data-id}-send`.
+ */
+export interface PinCommentInputProps extends DataIdProps {
   /** Current comment text (controlled). */
   value: string;
   /** Fired with the new text on every keystroke. */
@@ -39,6 +43,7 @@ export const PinCommentInput: React.FC<PinCommentInputProps> = ({
   onSend,
   placeholder = "Add a Comment",
   sx = {},
+  "data-id": dataId,
 }) => {
   const hasText = value.trim().length > 0;
   return (
@@ -56,6 +61,7 @@ export const PinCommentInput: React.FC<PinCommentInputProps> = ({
       }}
     >
       <Field
+        data-id={dataId}
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
@@ -65,6 +71,7 @@ export const PinCommentInput: React.FC<PinCommentInputProps> = ({
       />
       <Box
         onClick={() => hasText && onSend?.()}
+        data-id={dataId ? `${dataId}-send` : undefined}
         sx={{
           width: 28,
           height: 28,

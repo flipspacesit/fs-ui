@@ -1,10 +1,13 @@
 import React from "react";
 import { Stack, Box, Typography, SxProps, Theme } from "@mui/material";
-import { HEIGHTS, ComponentSize } from "../../constants";
+import { HEIGHTS, ComponentSize, type DataIdProps } from "../../constants";
 import { theme } from "../../theme";
 
-/** Props for {@link NumberStepper}. */
-export interface NumberStepperProps {
+/**
+ * Props for {@link NumberStepper}. `data-id` lands on the root; the controls get
+ * `{data-id}-decrement`, `{data-id}-value` and `{data-id}-increment`.
+ */
+export interface NumberStepperProps extends DataIdProps {
   /** Current value */
   value: number;
   /** Change callback */
@@ -36,6 +39,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
   size = "medium",
   disabled = false,
   sx = {},
+  "data-id": dataId,
 }) => {
   // Square button/value cell edge: size-driven height scaled by the app's `--scale` CSS var.
   const dim = `calc(${HEIGHTS[size]} * var(--scale, 1))`;
@@ -62,6 +66,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
     <Stack
       direction="row"
       alignItems="center"
+      data-id={dataId}
       sx={{
         opacity: disabled ? 0.6 : 1,
         borderRadius: "4px",
@@ -76,6 +81,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
         role="button"
         tabIndex={disabled ? -1 : 0}
         aria-label="Decrease"
+        data-id={dataId ? `${dataId}-decrement` : undefined}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -87,6 +93,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
         −
       </Box>
       <Box
+        data-id={dataId ? `${dataId}-value` : undefined}
         sx={{
           minWidth: dim,
           height: dim,
@@ -108,6 +115,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
         role="button"
         tabIndex={disabled ? -1 : 0}
         aria-label="Increase"
+        data-id={dataId ? `${dataId}-increment` : undefined}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();

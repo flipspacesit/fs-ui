@@ -1,11 +1,14 @@
 import React, { useRef } from "react";
 import { Stack, Box, styled, SxProps, Theme } from "@mui/material";
-import { HEIGHTS, ComponentSize } from "../../constants";
+import { HEIGHTS, ComponentSize, type DataIdProps } from "../../constants";
 import { theme } from "../../theme";
 import { shadows } from "../../theme/tokens/shadows";
 
-/** Props for the {@link PinInput} OTP / PIN entry component. */
-export interface PinInputProps {
+/**
+ * Props for the {@link PinInput} OTP / PIN entry component. `data-id` lands on
+ * the root; each digit cell gets `{data-id}-{index}` (0-based).
+ */
+export interface PinInputProps extends DataIdProps {
   /** Number of cells */
   length?: number;
   /** Current value */
@@ -56,6 +59,7 @@ export const PinInput: React.FC<PinInputProps> = ({
   size = "large",
   disabled = false,
   sx = {},
+  "data-id": dataId,
 }) => {
   const refs = useRef<Array<HTMLInputElement | null>>([]);
   const dim = `calc(${HEIGHTS[size]} * var(--scale, 1))`;
@@ -79,7 +83,13 @@ export const PinInput: React.FC<PinInputProps> = ({
   };
 
   return (
-    <Stack direction="row" alignItems="center" gap="8px" sx={sx}>
+    <Stack
+      direction="row"
+      alignItems="center"
+      gap="8px"
+      sx={sx}
+      data-id={dataId}
+    >
       {Array.from({ length }).map((_, i) => (
         <React.Fragment key={i}>
           {splitAfter && i === splitAfter && (
@@ -95,6 +105,7 @@ export const PinInput: React.FC<PinInputProps> = ({
             ref={(el: HTMLInputElement | null) => {
               refs.current[i] = el;
             }}
+            data-id={dataId ? `${dataId}-${i}` : undefined}
             inputMode="numeric"
             maxLength={1}
             disabled={disabled}

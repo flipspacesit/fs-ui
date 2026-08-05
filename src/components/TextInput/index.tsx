@@ -11,16 +11,19 @@ import {
   Theme,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { withDataId, type DataIdProps } from "../../constants";
 
-export type TextInputProps = TextFieldProps & {
-  label?: string;
-  startAdornment?: React.ReactNode;
-  endAdornment?: React.ReactNode;
-  readOnly?: boolean;
-  labelSx?: SxProps<Theme>;
-  inputSx?: SxProps<Theme>;
-  helperTextSx?: SxProps<Theme>;
-};
+/** Props for {@link TextInput}. `data-id` lands on the `<input>` element. */
+export type TextInputProps = TextFieldProps &
+  DataIdProps & {
+    label?: string;
+    startAdornment?: React.ReactNode;
+    endAdornment?: React.ReactNode;
+    readOnly?: boolean;
+    labelSx?: SxProps<Theme>;
+    inputSx?: SxProps<Theme>;
+    helperTextSx?: SxProps<Theme>;
+  };
 
 const StyledFormLabel = styled(FormLabel)(() => ({
   fontSize: "12px",
@@ -55,6 +58,7 @@ export const TextInput = ({
   inputSx,
   helperTextSx,
   sx,
+  "data-id": dataId,
   ...props
 }: TextInputProps) => {
   return (
@@ -71,6 +75,7 @@ export const TextInput = ({
           error={error}
           {...props}
           sx={inputSx}
+          inputProps={withDataId(props.inputProps, dataId)}
           InputProps={{
             readOnly,
             ...props.InputProps,

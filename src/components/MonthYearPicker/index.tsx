@@ -2,12 +2,17 @@ import React, { useState } from "react";
 import { Paper, Stack, Box, Typography, SxProps, Theme } from "@mui/material";
 import { theme } from "../../theme";
 import { shadows } from "../../theme/tokens/shadows";
+import type { DataIdProps } from "../../constants";
 
 /** Selection granularity tab: month grid, quarter grid, or fiscal-year grid. */
 export type MonthYearMode = "month" | "quarter" | "year";
 
-/** Props for {@link MonthYearPicker}. */
-export interface MonthYearPickerProps {
+/**
+ * Props for {@link MonthYearPicker}. `data-id` lands on the root; the mode tabs
+ * get `{data-id}-mode-{month|quarter|year}` and each period cell
+ * `{data-id}-period-{key}`.
+ */
+export interface MonthYearPickerProps extends DataIdProps {
   /** Which tab is shown initially */
   defaultMode?: MonthYearMode;
   /** Selected period key (e.g. "Jan 2024", "Q1 2024", "2024-25") */
@@ -41,6 +46,7 @@ export const MonthYearPicker: React.FC<MonthYearPickerProps> = ({
   year = new Date().getFullYear(),
   yearRange = 6,
   sx = {},
+  "data-id": dataId,
 }) => {
   const [mode, setMode] = useState<MonthYearMode>(defaultMode);
 
@@ -59,6 +65,7 @@ export const MonthYearPicker: React.FC<MonthYearPickerProps> = ({
   return (
     <Paper
       elevation={0}
+      data-id={dataId}
       sx={{
         display: "inline-block",
         width: 280,
@@ -82,6 +89,7 @@ export const MonthYearPicker: React.FC<MonthYearPickerProps> = ({
           <Box
             key={m}
             onClick={() => setMode(m)}
+            data-id={dataId ? `${dataId}-mode-${m}` : undefined}
             sx={{ flex: 1, textAlign: "center", py: "4px", cursor: "pointer" }}
           >
             <Typography
@@ -114,6 +122,7 @@ export const MonthYearPicker: React.FC<MonthYearPickerProps> = ({
             <Box
               key={p}
               onClick={() => onChange(p)}
+              data-id={dataId ? `${dataId}-period-${p}` : undefined}
               sx={{
                 py: "6px",
                 textAlign: "center",
