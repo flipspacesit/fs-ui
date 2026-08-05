@@ -205,10 +205,10 @@ const TextInputDocs: React.FC = () => {
               description: "All MUI TextField props are supported",
             },
             {
-              name: "data-id",
+              name: "data-testid",
               type: "string",
               description:
-                "Automation hook — rendered as `data-id` on the `<input>` element. See Test IDs.",
+                "Automation hook — rendered as `data-testid` on the `<input>` element. See Test IDs.",
             },
           ]}
         />

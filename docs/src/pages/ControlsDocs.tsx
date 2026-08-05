@@ -100,10 +100,10 @@ const ControlsDocs: React.FC = () => {
                 "All MUI Checkbox props are supported (except color, which is remapped to the DS family)",
             },
             {
-              name: "data-id",
+              name: "data-testid",
               type: "string",
               description:
-                "Automation hook — `data-id` on the underlying checkbox `<input>`, not the indicator span. See Test IDs.",
+                "Automation hook — `data-testid` on the underlying checkbox `<input>`, not the indicator span. See Test IDs.",
             },
           ]}
         />
@@ -143,10 +143,10 @@ const ControlsDocs: React.FC = () => {
                 "All MUI Radio props are supported (except color, which is remapped to the DS family)",
             },
             {
-              name: "data-id",
+              name: "data-testid",
               type: "string",
               description:
-                "Automation hook — `data-id` on the underlying radio `<input>`, not the indicator span. See Test IDs.",
+                "Automation hook — `data-testid` on the underlying radio `<input>`, not the indicator span. See Test IDs.",
             },
           ]}
         />

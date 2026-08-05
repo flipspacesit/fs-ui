@@ -174,10 +174,10 @@ const [date, setDate] = useState<Dayjs | null>(null);
               description: "Custom styles for the DatePicker TextField",
             },
             {
-              name: "data-id",
+              name: "data-testid",
               type: "string",
               description:
-                "Automation hook — `data-id` on the field `<input>`. See Test IDs.",
+                "Automation hook — `data-testid` on the field `<input>`. See Test IDs.",
             },
           ]}
         />

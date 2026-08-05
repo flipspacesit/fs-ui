@@ -19,7 +19,7 @@ import {
   CloseIcon,
 } from "@/icons";
 import theme from "@/theme";
-import type { DataIdProps } from "../../constants";
+import type { DataTestIdProps } from "../../constants";
 
 export interface FileUploadResponse {
   documentUrl: string;
@@ -30,12 +30,12 @@ export interface FileUploadResponse {
 }
 
 /**
- * Props for {@link FileUpload}. `data-id` lands on the outer wrapper (the
+ * Props for {@link FileUpload}. `data-testid` lands on the outer wrapper (the
  * dropzone and the uploaded-file card swap places inside it); the hidden file
- * input gets `{data-id}-input` — the one to use with Playwright's
- * `setInputFiles` — and the remove button `{data-id}-remove`.
+ * input gets `{data-testid}-input` — the one to use with Playwright's
+ * `setInputFiles` — and the remove button `{data-testid}-remove`.
  */
-export interface FileUploadBoxProps extends DataIdProps {
+export interface FileUploadBoxProps extends DataTestIdProps {
   required?: boolean;
   error?: boolean;
   helperText?: string;
@@ -319,7 +319,7 @@ export const FileUpload = ({
   fileNameSx,
   uploadContentSx,
   uploadIconContainerSx,
-  "data-id": dataId,
+  "data-testid": dataTestId,
 }: FileUploadBoxProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -458,7 +458,7 @@ export const FileUpload = ({
   };
 
   return (
-    <Stack width='100%' data-id={dataId}>
+    <Stack width='100%' data-testid={dataTestId}>
       {!displayFile ? (
         <>
           <Stack position='relative'>
@@ -500,7 +500,7 @@ export const FileUpload = ({
 
               <FileInputHidden
                 ref={fileInputRef}
-                data-id={dataId ? `${dataId}-input` : undefined}
+                data-testid={dataTestId ? `${dataTestId}-input` : undefined}
                 type='file'
                 accept={accept}
                 onChange={handleFileInputChange}
@@ -537,7 +537,7 @@ export const FileUpload = ({
             </FileContentStack>
             <RemoveIconStack
               onClick={handleRemoveFile}
-              data-id={dataId ? `${dataId}-remove` : undefined}
+              data-testid={dataTestId ? `${dataTestId}-remove` : undefined}
             >
               <CloseIcon size='12' />
             </RemoveIconStack>

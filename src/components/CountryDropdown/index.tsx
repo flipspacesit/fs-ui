@@ -5,17 +5,17 @@ import {
   FontSizeMap,
   ComponentSize,
   ComponentVariant,
-  type DataIdProps,
+  type DataTestIdProps,
 } from "../../constants";
 import { theme } from "../../theme";
 import { ArrowDown } from "../../icons/ArrowDown";
 import { ArrowUp } from "../../icons/ArrowUp";
 
 /**
- * Props for {@link CountryDropdown}. `data-id` lands on the clickable trigger
- * root (this component renders no `<input>` — it is a trigger only).
+ * Props for {@link CountryDropdown}. `data-testid` lands on the clickable
+ * trigger root (this component renders no `<input>` — it is a trigger only).
  */
-export interface CountryDropdownProps extends DataIdProps {
+export interface CountryDropdownProps extends DataTestIdProps {
   /** Flag element (img / emoji) shown in the leading badge */
   flag?: React.ReactNode;
   /** Label, e.g. "+91" or "India" */
@@ -47,7 +47,7 @@ export const CountryDropdown: React.FC<CountryDropdownProps> = ({
   size = "medium",
   disabled = false,
   sx = {},
-  "data-id": dataId,
+  "data-testid": dataTestId,
 }) => {
   // Size-driven height scaled by the consumer-set `--scale` CSS variable.
   const height = `calc(${HEIGHTS[size]} * var(--scale, 1))`;
@@ -61,7 +61,7 @@ export const CountryDropdown: React.FC<CountryDropdownProps> = ({
       alignItems="center"
       gap="8px"
       onClick={disabled ? undefined : onClick}
-      data-id={dataId}
+      data-testid={dataTestId}
       sx={{
         height,
         pl: "1px",

@@ -1,13 +1,14 @@
 import React from "react";
 import { Stack, Box, Typography, SxProps, Theme } from "@mui/material";
-import { HEIGHTS, ComponentSize, type DataIdProps } from "../../constants";
+import { HEIGHTS, ComponentSize, type DataTestIdProps } from "../../constants";
 import { theme } from "../../theme";
 
 /**
- * Props for {@link NumberStepper}. `data-id` lands on the root; the controls get
- * `{data-id}-decrement`, `{data-id}-value` and `{data-id}-increment`.
+ * Props for {@link NumberStepper}. `data-testid` lands on the root; the
+ * controls get `{data-testid}-decrement`, `{data-testid}-value` and
+ * `{data-testid}-increment`.
  */
-export interface NumberStepperProps extends DataIdProps {
+export interface NumberStepperProps extends DataTestIdProps {
   /** Current value */
   value: number;
   /** Change callback */
@@ -39,7 +40,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
   size = "medium",
   disabled = false,
   sx = {},
-  "data-id": dataId,
+  "data-testid": dataTestId,
 }) => {
   // Square button/value cell edge: size-driven height scaled by the app's `--scale` CSS var.
   const dim = `calc(${HEIGHTS[size]} * var(--scale, 1))`;
@@ -66,7 +67,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
     <Stack
       direction="row"
       alignItems="center"
-      data-id={dataId}
+      data-testid={dataTestId}
       sx={{
         opacity: disabled ? 0.6 : 1,
         borderRadius: "4px",
@@ -81,7 +82,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
         role="button"
         tabIndex={disabled ? -1 : 0}
         aria-label="Decrease"
-        data-id={dataId ? `${dataId}-decrement` : undefined}
+        data-testid={dataTestId ? `${dataTestId}-decrement` : undefined}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -93,7 +94,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
         −
       </Box>
       <Box
-        data-id={dataId ? `${dataId}-value` : undefined}
+        data-testid={dataTestId ? `${dataTestId}-value` : undefined}
         sx={{
           minWidth: dim,
           height: dim,
@@ -115,7 +116,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
         role="button"
         tabIndex={disabled ? -1 : 0}
         aria-label="Increase"
-        data-id={dataId ? `${dataId}-increment` : undefined}
+        data-testid={dataTestId ? `${dataTestId}-increment` : undefined}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();

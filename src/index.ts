@@ -392,7 +392,7 @@ export {
   Colors,
   type ComponentSize,
   type ComponentVariant,
-  type DataIdProps,
+  type DataTestIdProps,
 } from './constants'
 
 // Icons

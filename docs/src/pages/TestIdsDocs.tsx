@@ -8,7 +8,7 @@ import { SelectInput, TextInput, NumberStepper } from "../../../src";
 /** One row of the component → target-element mapping table. */
 interface TargetRow {
   component: string;
-  /** Where the bare `data-id` value lands. */
+  /** Where the bare `data-testid` value lands. */
   target: string;
   /** Suffixed ids stamped on interactive children, if any. */
   children?: string;
@@ -98,21 +98,21 @@ const TestIdsDocs: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>
-        Test IDs (<Box component="span" className="doc-mono">data-id</Box>)
+        Test IDs (<Box component="span" className="doc-mono">data-testid</Box>)
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Every fs-ui input control accepts a <code>data-id</code> prop and renders
-        it as a <code>data-id</code> DOM attribute — a stable hook for end-to-end
-        tests and analytics that does not depend on class names, labels, or
-        markup structure.
+        Every fs-ui input control accepts a <code>data-testid</code> prop and
+        renders it as a <code>data-testid</code> DOM attribute — a stable hook
+        for end-to-end tests and analytics that does not depend on class names,
+        labels, or markup structure.
       </Typography>
 
       <DocSection title="Usage">
         <ExampleBox>
           <Stack spacing={2} sx={{ width: "100%", maxWidth: 400 }}>
-            <TextInput data-id="vendor-name" label="Vendor name" />
+            <TextInput data-testid="vendor-name" label="Vendor name" />
             <SelectInput
-              data-id="vendor-status"
+              data-testid="vendor-status"
               label="Status"
               value={status}
               onChange={(e) => setStatus(e.target.value as string)}
@@ -122,30 +122,31 @@ const TestIdsDocs: React.FC = () => {
               ]}
               placeholder="Select status"
             />
-            <NumberStepper data-id="qty" value={qty} onChange={setQty} />
+            <NumberStepper data-testid="qty" value={qty} onChange={setQty} />
             <Typography variant="caption" color="text.secondary">
-              Inspect the elements above — each carries its <code>data-id</code>.
+              Inspect the elements above — each carries its{" "}
+              <code>data-testid</code>.
             </Typography>
           </Stack>
         </ExampleBox>
         <CodeBlock
-          code={`<TextInput data-id="vendor-name" label="Vendor name" />
+          code={`<TextInput data-testid="vendor-name" label="Vendor name" />
 
 <SelectInput
-  data-id="vendor-status"
+  data-testid="vendor-status"
   label="Status"
   value={status}
   onChange={(e) => setStatus(e.target.value)}
   options={statusOptions}
 />
 
-<NumberStepper data-id="qty" value={qty} onChange={setQty} />`}
+<NumberStepper data-testid="qty" value={qty} onChange={setQty} />`}
         />
       </DocSection>
 
       <DocSection
         title="One element per value"
-        description="A given data-id is rendered on exactly one element, so a [data-id='x'] selector never matches twice."
+        description="A given data-testid is rendered on exactly one element, so a [data-testid='x'] selector never matches twice."
       >
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Controls that own a single focusable input put the value on that{" "}
@@ -157,18 +158,18 @@ const TestIdsDocs: React.FC = () => {
         </Typography>
         <CodeBlock
           code={`// Single-input control → the value is ON the input
-await page.fill('[data-id="vendor-name"]', 'Saigon Interiors')
+await page.fill('[data-testid="vendor-name"]', 'Saigon Interiors')
 
 // Composite control → root carries the bare id, children carry suffixes
-await page.click('[data-id="qty-increment"]')
-await expect(page.locator('[data-id="qty-value"]')).toHaveText('2')
+await page.click('[data-testid="qty-increment"]')
+await expect(page.locator('[data-testid="qty-value"]')).toHaveText('2')
 
 // SelectInput: open the trigger, then pick an option by its value
-await page.click('[data-id="vendor-status"]')
-await page.click('[data-id="vendor-status-option-active"]')
+await page.click('[data-testid="vendor-status"]')
+await page.click('[data-testid="vendor-status-option-active"]')
 
 // FileUpload: target the hidden input, not the dropzone
-await page.setInputFiles('[data-id="invoice-doc-input"]', 'invoice.pdf')`}
+await page.setInputFiles('[data-testid="invoice-doc-input"]', 'invoice.pdf')`}
         />
       </DocSection>
 
@@ -194,7 +195,7 @@ await page.setInputFiles('[data-id="invoice-doc-input"]', 'invoice.pdf')`}
               borderBottom: `1px solid ${t.border}`,
             }}
           >
-            {["Component", "data-id lands on", "Child ids"].map((h) => (
+            {["Component", "data-testid lands on", "Child ids"].map((h) => (
               <Typography
                 key={h}
                 variant="caption"
@@ -234,28 +235,32 @@ await page.setInputFiles('[data-id="invoice-doc-input"]', 'invoice.pdf')`}
 
       <DocSection
         title="Why an explicit prop"
-        description="A wrong data-id fails silently, so the prop is declared rather than left to rest-prop spreading."
+        description="A wrong data-testid fails silently, so the prop is declared rather than left to rest-prop spreading."
       >
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           TypeScript does not type-check hyphenated JSX attributes. A{" "}
-          <code>data-id</code> passed to a component that ignores it compiles
-          cleanly and renders nothing — there is no error to catch it. Declaring{" "}
-          <code>data-id</code> on the props type means the library controls where
-          it lands, and the docs can tell you which element that is.
+          <code>data-testid</code> passed to a component that ignores it
+          compiles cleanly and renders nothing — there is no error to catch it.
+          Declaring <code>data-testid</code> on the props type means the library
+          controls where it lands, and the docs can tell you which element that
+          is.
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Import <code>DataIdProps</code> when composing your own wrappers so
-          the prop flows through:
+          Import <code>DataTestIdProps</code> when composing your own wrappers
+          so the prop flows through:
         </Typography>
         <CodeBlock
-          code={`import { TextInput, type DataIdProps } from '@flipspacesit/fs-ui'
+          code={`import { TextInput, type DataTestIdProps } from '@flipspacesit/fs-ui'
 
-interface VendorFieldProps extends DataIdProps {
+interface VendorFieldProps extends DataTestIdProps {
   label: string
 }
 
-const VendorField = ({ label, 'data-id': dataId }: VendorFieldProps) => (
-  <TextInput label={label} data-id={dataId} />
+const VendorField = ({
+  label,
+  'data-testid': dataTestId,
+}: VendorFieldProps) => (
+  <TextInput label={label} data-testid={dataTestId} />
 )`}
         />
       </DocSection>
@@ -263,14 +268,14 @@ const VendorField = ({ label, 'data-id': dataId }: VendorFieldProps) => (
       <DocSection title="Notes">
         <Stack spacing={1.5}>
           <Typography variant="body2" color="text.secondary">
-            • Omitting <code>data-id</code> renders no attribute at all — there
-            is no default value and no markup cost.
+            • Omitting <code>data-testid</code> renders no attribute at
+            all — there is no default value and no markup cost.
           </Typography>
           <Typography variant="body2" color="text.secondary">
             • Your own <code>inputProps</code> / <code>slotProps</code> are
             merged, not replaced: passing{" "}
             <code>inputProps={`{{ maxLength: 5 }}`}</code> alongside{" "}
-            <code>data-id</code> keeps both.
+            <code>data-testid</code> keeps both.
           </Typography>
           <Typography variant="body2" color="text.secondary">
             • Suffixed child ids are derived from your value, so keep ids

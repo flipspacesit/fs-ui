@@ -82,10 +82,10 @@ const InputExtrasDocs: React.FC = () => {
                 "All MUI TextField props except multiline (always on) are supported.",
             },
             {
-              name: "data-id",
+              name: "data-testid",
               type: "string",
               description:
-                "Automation hook — rendered as `data-id` on the `<textarea>` element. See Test IDs.",
+                "Automation hook — rendered as `data-testid` on the `<textarea>` element. See Test IDs.",
             },
           ]}
         />
@@ -151,10 +151,10 @@ const InputExtrasDocs: React.FC = () => {
               description: "MUI sx overrides, merged last.",
             },
             {
-              name: "data-id",
+              name: "data-testid",
               type: "string",
               description:
-                "Automation hook — `data-id` on the root; each digit cell gets `{id}-{index}` (0-based). See Test IDs.",
+                "Automation hook — `data-testid` on the root; each digit cell gets `{id}-{index}` (0-based). See Test IDs.",
             },
           ]}
         />
@@ -230,10 +230,10 @@ const InputExtrasDocs: React.FC = () => {
               description: "MUI sx overrides, merged last.",
             },
             {
-              name: "data-id",
+              name: "data-testid",
               type: "string",
               description:
-                "Automation hook — `data-id` on the root, plus `{id}-decrement`, `{id}-value` and `{id}-increment`. See Test IDs.",
+                "Automation hook — `data-testid` on the root, plus `{id}-decrement`, `{id}-value` and `{id}-increment`. See Test IDs.",
             },
           ]}
         />
