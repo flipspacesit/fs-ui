@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { neutral, primary } from "../../theme/tokens/colors";
 import { theme } from "../../theme";
+import { withDataTestId, type DataTestIdProps } from "../../constants";
 
 /** A single tab in the {@link SideModal} tabbed header (Type 3). */
 export interface SideModalTab {
@@ -19,8 +20,13 @@ export interface SideModalTab {
   value: string;
 }
 
-/** Props for the {@link SideModal} right-docked drawer component. */
-export interface SideModalProps {
+/**
+ * Props for the {@link SideModal} right-docked drawer component.
+ *
+ * `data-testid` lands on the drawer paper; the close button gets
+ * `{data-testid}-close` and each header tab gets `{data-testid}-tab-{value}`.
+ */
+export interface SideModalProps extends DataTestIdProps {
   /** Whether the drawer is open. */
   open: boolean;
   /** Called when the drawer requests to close (backdrop click, Esc, or the close button). */
@@ -70,12 +76,16 @@ export const SideModal: React.FC<SideModalProps> = ({
   onTabChange,
   width = 420,
   sx = {},
+  "data-testid": dataTestId,
 }) => (
   <Drawer
     anchor="right"
     open={open}
     onClose={onClose}
-    PaperProps={{ sx: { width, maxWidth: "100vw", ...sx } }}
+    PaperProps={withDataTestId(
+      { sx: { width, maxWidth: "100vw", ...sx } },
+      dataTestId
+    )}
   >
     <Stack sx={{ height: "100%" }}>
       <Stack
@@ -95,6 +105,7 @@ export const SideModal: React.FC<SideModalProps> = ({
           role="button"
           tabIndex={0}
           aria-label="Close"
+          data-testid={dataTestId ? `${dataTestId}-close` : undefined}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
@@ -118,6 +129,9 @@ export const SideModal: React.FC<SideModalProps> = ({
               <Box
                 key={t.value}
                 onClick={() => onTabChange?.(t.value)}
+                data-testid={
+                  dataTestId ? `${dataTestId}-tab-${t.value}` : undefined
+                }
                 sx={{
                   px: "16px",
                   py: "8px",

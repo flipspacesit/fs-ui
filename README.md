@@ -299,11 +299,19 @@ children:
 | `PinCommentInput` | `{id}-send` |
 | `FileUpload` | `{id}-input` (hidden file input), `{id}-remove` |
 | `MonthYearPicker` | `{id}-mode-{month\|quarter\|year}`, `{id}-period-{key}` |
+| `Dialog` | `{id}-close`, `{id}-back` (back arrow) |
+| `ModalLayout` | `{id}-close` |
+| `SideModal` | `{id}-close`, `{id}-tab-{tab.value}` |
+
+The three modals (`Dialog`, `ModalLayout`, `SideModal`) put the bare value on
+their **paper** — the modal surface, not the backdrop — and suffix the chrome
+they own.
 
 ```ts
 await page.fill('[data-testid="vendor-name"]', 'Saigon Interiors')
 await page.click('[data-testid="qty-increment"]')
 await page.setInputFiles('[data-testid="invoice-doc-input"]', 'invoice.pdf')
+await page.click('[data-testid="approve-invoice-close"]')
 ```
 
 Note that TypeScript does **not** type-check hyphenated JSX attributes, so a
@@ -323,8 +331,15 @@ const VendorField = ({ label, 'data-testid': dataTestId }: VendorFieldProps) => 
 );
 ```
 
-This is unrelated to `data-testid` — `Dropdown`, `SplitMenu`, `Dialog` and
-`ModalLayout` still expose their own `testid` props.
+`Dropdown` and `SplitMenu` predate this prop and keep their own `testid` /
+`dataTestIds` APIs, which build the attribute value for you instead of using it
+verbatim.
+
+`Dialog` and `ModalLayout` are the one place a value is emitted without your
+asking: their header buttons have always been stamped `button-closeModal` and
+`icon-backArrow`. Passing `data-testid` replaces those literals with
+`{id}-close` / `{id}-back`; omitting it leaves them untouched, so existing
+suites keep resolving.
 
 See the **Test IDs (data-testid)** page in the docs site for the full per-component
 table.
