@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { CloseIcon } from "../../icons/Close";
+import { withDataTestId, type DataTestIdProps } from "../../constants";
 
 interface StyledModalProps {
   paperstyle?: React.CSSProperties;
@@ -78,7 +79,17 @@ const IconButtonStyled = styled(IconButton)(() => ({
   top: "16px",
 }));
 
-export interface ModalLayoutProps extends Omit<DialogProps, "onClose" | "title"> {
+/**
+ * Props for {@link ModalLayout}. `data-testid` lands on the modal paper; the
+ * close button gets `{data-testid}-close`.
+ *
+ * Omitting `data-testid` leaves the close button on its long-standing literal
+ * id (`button-closeModal`) so existing suites keep resolving — the prop
+ * overrides that rather than adding to it.
+ */
+export interface ModalLayoutProps
+  extends Omit<DialogProps, "onClose" | "title">,
+    DataTestIdProps {
   /** Whether the modal is open */
   open: boolean;
   /** Callback when modal is closed */
@@ -118,6 +129,8 @@ export const ModalLayout: React.FC<ModalLayoutProps> = ({
   footerModal = null,
   contentStyles = {},
   paperstyle,
+  PaperProps,
+  "data-testid": dataTestId,
   ...rest
 }) => {
   return (
@@ -127,6 +140,7 @@ export const ModalLayout: React.FC<ModalLayoutProps> = ({
       maxWidth={size}
       paperstyle={paperstyle}
       {...rest}
+      PaperProps={withDataTestId(PaperProps, dataTestId)}
     >
       {!isTitleNull && (
         <DialogTitle id="customized-dialog-title" sx={{ m: 0, p: 2 }}>
@@ -134,7 +148,9 @@ export const ModalLayout: React.FC<ModalLayoutProps> = ({
             className="customized-dialog-close-icon"
             aria-label="close"
             onClick={onClose}
-            data-testid="button-closeModal"
+            data-testid={
+              dataTestId ? `${dataTestId}-close` : "button-closeModal"
+            }
           >
             <CloseIcon />
           </IconButtonStyled>

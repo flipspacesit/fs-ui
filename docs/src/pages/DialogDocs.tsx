@@ -285,6 +285,13 @@ const [open, setOpen] = useState(false);
               default: "false",
               description: "Expand to full maxWidth",
             },
+            {
+              name: "data-testid",
+              type: "string",
+              default: "—",
+              description:
+                "Test id for the dialog paper; the header buttons get {id}-close and {id}-back. Omitted, they keep their legacy button-closeModal / icon-backArrow ids.",
+            },
           ]}
         />
       </DocSection>

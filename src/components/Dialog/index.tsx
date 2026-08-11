@@ -14,6 +14,7 @@ import { styled } from "@mui/material/styles";
 import { TransitionProps } from "@mui/material/transitions";
 import { CloseIcon } from "../../icons/Close";
 import { ArrowDown } from "../../icons/ArrowDown";
+import { withDataTestId, type DataTestIdProps } from "../../constants";
 
 const DividerStyled = styled(Divider)({
   position: "absolute",
@@ -45,7 +46,15 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export interface DialogProps {
+/**
+ * Props for {@link Dialog}. `data-testid` lands on the dialog paper; the header
+ * buttons get `{data-testid}-close` and `{data-testid}-back`.
+ *
+ * Omitting `data-testid` leaves the header buttons on their long-standing
+ * literal ids (`button-closeModal`, `icon-backArrow`) so existing suites keep
+ * resolving — the prop overrides those rather than adding to them.
+ */
+export interface DialogProps extends DataTestIdProps {
   /** Whether the dialog is open */
   open: boolean;
   /** Dialog title */
@@ -97,6 +106,7 @@ export const Dialog: React.FC<DialogProps> = ({
   showDivider = true,
   maxWidth = "sm",
   fullWidth = false,
+  "data-testid": dataTestId,
 }) => {
   const sideModalSx = {
     left: "auto",
@@ -126,6 +136,7 @@ export const Dialog: React.FC<DialogProps> = ({
       TransitionComponent={Transition}
       maxWidth={maxWidth}
       fullWidth={fullWidth}
+      PaperProps={withDataTestId({}, dataTestId)}
     >
       {isTitleBarReq && (
         <DialogTitle>
@@ -140,7 +151,11 @@ export const Dialog: React.FC<DialogProps> = ({
                   onClick={backArrowCb ? backArrowCb : onClose}
                   style={{ marginRight: "10px" }}
                 >
-                  <IconButton data-testid="icon-backArrow">
+                  <IconButton
+                    data-testid={
+                      dataTestId ? `${dataTestId}-back` : "icon-backArrow"
+                    }
+                  >
                     <BackArrowIcon>
                       <ArrowDown size={18} />
                     </BackArrowIcon>
@@ -166,7 +181,11 @@ export const Dialog: React.FC<DialogProps> = ({
             )}
             {showDivider && <DividerStyled orientation="vertical" />}
             <Stack onClick={onClose}>
-              <IconButton data-testid="button-closeModal">
+              <IconButton
+                data-testid={
+                  dataTestId ? `${dataTestId}-close` : "button-closeModal"
+                }
+              >
                 <CloseIcon size={18} />
               </IconButton>
             </Stack>

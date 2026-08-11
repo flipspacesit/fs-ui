@@ -1,9 +1,16 @@
 import React, { useState } from "react";
-import { Box, Typography, Stack } from "@mui/material";
+import { Box, Typography, Stack, Button } from "@mui/material";
 import { DocSection, ExampleBox } from "../components/DocSection";
 import CodeBlock from "../components/CodeBlock";
 import { t } from "../docTokens";
-import { SelectInput, TextInput, NumberStepper } from "../../../src";
+import {
+  SelectInput,
+  TextInput,
+  NumberStepper,
+  Dialog,
+  SideModal,
+  ModalLayout,
+} from "../../../src";
 
 /** One row of the component → target-element mapping table. */
 interface TargetRow {
@@ -69,6 +76,21 @@ const TARGETS: TargetRow[] = [
   },
   { component: "CountryDropdown", target: "root (the trigger)" },
   { component: "Dropdown", target: "root (the trigger)" },
+  {
+    component: "Dialog",
+    target: "root (dialog paper)",
+    children: "{id}-close, {id}-back (back arrow)",
+  },
+  {
+    component: "ModalLayout",
+    target: "root (modal paper)",
+    children: "{id}-close",
+  },
+  {
+    component: "SideModal",
+    target: "root (drawer paper)",
+    children: "{id}-close, {id}-tab-{tab.value}",
+  },
 ];
 
 /** Monospace inline code, matching the PropsTable pill treatment. */
@@ -94,6 +116,10 @@ const Mono: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 const TestIdsDocs: React.FC = () => {
   const [status, setStatus] = useState("");
   const [qty, setQty] = useState(1);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [layoutOpen, setLayoutOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerTab, setDrawerTab] = useState("details");
 
   return (
     <Box>
@@ -141,6 +167,81 @@ const TestIdsDocs: React.FC = () => {
 />
 
 <NumberStepper data-testid="qty" value={qty} onChange={setQty} />`}
+        />
+      </DocSection>
+
+      <DocSection
+        title="Modals"
+        description="Dialog, ModalLayout and SideModal put the bare value on their paper and suffix the chrome they own — the close button, the back arrow, the header tabs."
+      >
+        <ExampleBox>
+          <Stack direction="row" spacing={2}>
+            <Button variant="contained" onClick={() => setDialogOpen(true)}>
+              Open Dialog
+            </Button>
+            <Button variant="contained" onClick={() => setLayoutOpen(true)}>
+              Open ModalLayout
+            </Button>
+            <Button variant="outlined" onClick={() => setDrawerOpen(true)}>
+              Open SideModal
+            </Button>
+          </Stack>
+          <Dialog
+            open={dialogOpen}
+            onClose={() => setDialogOpen(false)}
+            title="Approve invoice"
+            backArrow
+            data-testid="approve-invoice"
+          >
+            <Typography variant="body2">
+              The paper is <code>approve-invoice</code>; the header buttons are{" "}
+              <code>approve-invoice-back</code> and{" "}
+              <code>approve-invoice-close</code>.
+            </Typography>
+          </Dialog>
+          <ModalLayout
+            open={layoutOpen}
+            onClose={() => setLayoutOpen(false)}
+            title="Edit BOQ line"
+            data-testid="edit-boq"
+            paperstyle={{ width: "520px", height: "auto" }}
+          >
+            <Typography variant="body2">
+              The paper is <code>edit-boq</code>; the close button is{" "}
+              <code>edit-boq-close</code>. Any <code>PaperProps</code> you pass
+              is merged, not replaced.
+            </Typography>
+          </ModalLayout>
+          <SideModal
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            title="Filters"
+            data-testid="filters"
+            tabs={[
+              { label: "Details", value: "details" },
+              { label: "History", value: "history" },
+            ]}
+            activeTab={drawerTab}
+            onTabChange={setDrawerTab}
+          >
+            <Typography variant="body2">
+              Tabs are <code>filters-tab-details</code> and{" "}
+              <code>filters-tab-history</code>.
+            </Typography>
+          </SideModal>
+        </ExampleBox>
+        <CodeBlock
+          code={`<Dialog open={open} onClose={close} title="Approve invoice" backArrow
+  data-testid="approve-invoice">
+  …
+</Dialog>
+
+// paper           → [data-testid="approve-invoice"]
+// close button    → [data-testid="approve-invoice-close"]
+// back arrow      → [data-testid="approve-invoice-back"]
+
+await page.click('[data-testid="approve-invoice-close"]')
+await expect(page.locator('[data-testid="approve-invoice"]')).toBeHidden()`}
         />
       </DocSection>
 
@@ -285,10 +386,19 @@ const VendorField = ({
             translation.
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            • <code>data-testid</code> is unrelated and untouched —{" "}
-            <code>Dropdown</code>, <code>SplitMenu</code>, <code>Dialog</code>{" "}
-            and <code>ModalLayout</code> still expose their own{" "}
-            <code>testid</code> props.
+            • <code>Dropdown</code> and <code>SplitMenu</code> predate this prop
+            and keep their own <code>testid</code> / <code>dataTestIds</code>{" "}
+            APIs, which build the attribute value for you rather than using it
+            verbatim.
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            • The modals are the one place a value is emitted without your
+            asking: <code>Dialog</code> and <code>ModalLayout</code> have always
+            stamped <code>button-closeModal</code> (and{" "}
+            <code>icon-backArrow</code>) on their header buttons. Passing{" "}
+            <code>data-testid</code> replaces those literals with{" "}
+            <code>{"{id}-close"}</code> / <code>{"{id}-back"}</code>; omitting it
+            leaves them as they were, so existing suites keep resolving.
           </Typography>
         </Stack>
       </DocSection>

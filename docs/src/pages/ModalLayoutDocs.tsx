@@ -180,6 +180,13 @@ const ModalLayoutDocs: React.FC = () => {
               type: "CSSProperties",
               description: "Custom paper/dialog styles",
             },
+            {
+              name: "data-testid",
+              type: "string",
+              default: "—",
+              description:
+                "Test id for the modal paper; the close button gets {id}-close. Omitted, it keeps its legacy button-closeModal id.",
+            },
           ]}
         />
       </DocSection>
