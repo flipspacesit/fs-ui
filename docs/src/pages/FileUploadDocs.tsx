@@ -6,6 +6,8 @@ import { FileUpload } from "../../../src";
 
 const FileUploadDocs: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
+  const [droppedFile, setDroppedFile] = useState<File | null>(null);
+  const [rejected, setRejected] = useState<string>("");
 
   return (
     <Box>
@@ -13,9 +15,10 @@ const FileUploadDocs: React.FC = () => {
         FileUpload
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        A file upload component that supports click-to-upload, loading state,
-        file type detection with image/PDF previews, and displays uploaded file
-        information with remove functionality. Fully customizable via style props.
+        A file upload component that supports click-to-upload and drag-and-drop,
+        loading state, file type detection with image/PDF previews, and displays
+        uploaded file information with remove functionality. Fully customizable
+        via style props.
       </Typography>
 
       <DocSection title="Import">
@@ -52,6 +55,57 @@ import type { FileUploadResponse, FileUploadBoxProps } from '@flipspacesit/fs-ui
   accept=".pdf,.jpg,.png"
   onRemove={() => setFile(null)}
 />`}
+        />
+      </DocSection>
+
+      <DocSection title="Drag & Drop">
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Drag-and-drop is enabled by default — drop a file anywhere on the
+          upload area. Dropped files are filtered against <code>accept</code>{" "}
+          (the same rule the file picker applies), and files that all get
+          rejected are reported through <code>onDropRejected</code> instead of
+          being uploaded. Pass <code>disableDragDrop</code> to opt out.
+        </Typography>
+        <ExampleBox>
+          <Stack spacing={2} sx={{ maxWidth: 500 }}>
+            <FileUpload
+              onChange={(f) => {
+                setDroppedFile(f as File);
+                setRejected("");
+              }}
+              value={droppedFile}
+              uploadText="Click or drag a file to upload"
+              dragActiveText="Drop the file to upload"
+              uploadSubText="PDF, JPG, PNG"
+              accept=".pdf,.jpg,.jpeg,.png"
+              onDropRejected={(files) =>
+                setRejected(`Rejected: ${files.map((f) => f.name).join(", ")}`)
+              }
+              onRemove={() => setDroppedFile(null)}
+            />
+            <Typography variant="body2">
+              File: {droppedFile ? droppedFile.name : "None selected"}
+            </Typography>
+            {rejected && (
+              <Typography variant="body2" color="error">
+                {rejected}
+              </Typography>
+            )}
+          </Stack>
+        </ExampleBox>
+        <CodeBlock
+          code={`<FileUpload
+  onChange={setFile}
+  value={file}
+  uploadText="Click or drag a file to upload"
+  dragActiveText="Drop the file to upload"
+  accept=".pdf,.jpg,.jpeg,.png"
+  onDropRejected={(files) => showError(\`\${files.length} file(s) not allowed\`)}
+  onRemove={() => setFile(null)}
+/>
+
+// Click-only
+<FileUpload onChange={setFile} value={file} disableDragDrop />`}
         />
       </DocSection>
 
@@ -174,8 +228,7 @@ function MyForm() {
             {
               name: "onChange",
               type: "(file: File | File[] | FileUploadResponse) => void",
-              description:
-                "Callback when a file is selected or uploaded",
+              description: "Callback when a file is selected or uploaded",
             },
             {
               name: "value",
@@ -185,8 +238,7 @@ function MyForm() {
             {
               name: "accept",
               type: "string",
-              description:
-                'Accepted file types (e.g. ".pdf,.jpg,.png")',
+              description: 'Accepted file types (e.g. ".pdf,.jpg,.png")',
             },
             {
               name: "uploadText",
@@ -243,21 +295,39 @@ function MyForm() {
             },
             {
               name: "uploadedFile",
-              type: '{ file?: { name: string; documentUrl?: string; mimeType?: string } } | null',
+              type: "{ file?: { name: string; documentUrl?: string; mimeType?: string } } | null",
               description:
                 "Pre-populated uploaded file info (overrides value display). Supports file type detection for PDF and image previews.",
             },
             {
               name: "onRemove",
               type: "() => void",
-              description:
-                "Callback to remove the uploaded file",
+              description: "Callback to remove the uploaded file",
             },
             {
               name: "onFileSelect",
               type: "(file: File) => Promise<FileUploadResponse | null>",
               description:
                 "Async callback for upload hook integration; resolves with upload response",
+            },
+            {
+              name: "disableDragDrop",
+              type: "boolean",
+              default: "false",
+              description:
+                "Opts out of drag-and-drop; the area then only responds to clicks",
+            },
+            {
+              name: "onDropRejected",
+              type: "(files: File[]) => void",
+              description:
+                "Called with the dropped files when every one of them is filtered out by `accept`. Nothing is uploaded in that case.",
+            },
+            {
+              name: "dragActiveText",
+              type: "string",
+              description:
+                "Replaces `uploadText` while files are dragged over the area. Omit to keep the text unchanged.",
             },
             {
               name: "labelSx",
@@ -293,12 +363,20 @@ function MyForm() {
             {
               name: "uploadContentSx",
               type: "SxProps<Theme>",
-              description: "Custom styles for the upload content area (icon + text stack)",
+              description:
+                "Custom styles for the upload content area (icon + text stack)",
             },
             {
               name: "uploadIconContainerSx",
               type: "SxProps<Theme>",
-              description: "Custom styles for the upload icon container on the right side",
+              description:
+                "Custom styles for the upload icon container on the right side",
+            },
+            {
+              name: "dragActiveSx",
+              type: "SxProps<Theme>",
+              description:
+                "Extra styles merged onto the container only while a drag is over it",
             },
             {
               name: "data-testid",

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, ReactNode } from "react";
 import {
   Stack,
   Typography,
@@ -57,6 +57,21 @@ export interface FileUploadBoxProps extends DataTestIdProps {
   } | null;
   onRemove?: () => void;
   onFileSelect?: (file: File) => Promise<FileUploadResponse | null>;
+  /**
+   * Opt out of drag-and-drop; the dropzone then only responds to clicks.
+   * Drag-and-drop is on by default.
+   */
+  disableDragDrop?: boolean;
+  /**
+   * Called when every dragged file is filtered out by `accept`, with the
+   * rejected files. Nothing is uploaded in that case.
+   */
+  onDropRejected?: (files: File[]) => void;
+  /**
+   * Replaces `uploadText` while files are dragged over the dropzone. Left
+   * undefined the text does not change — the highlight is the only cue.
+   */
+  dragActiveText?: string;
   // Style customization props
   labelSx?: SxProps<Theme>;
   helperTextSx?: SxProps<Theme>;
@@ -66,22 +81,38 @@ export interface FileUploadBoxProps extends DataTestIdProps {
   fileNameSx?: SxProps<Theme>;
   uploadContentSx?: SxProps<Theme>;
   uploadIconContainerSx?: SxProps<Theme>;
+  dragActiveSx?: SxProps<Theme>;
 }
 
+const getBorderColor = (error?: boolean, dragActive?: boolean) => {
+  if (dragActive) {
+    return theme.palette.purple.main;
+  }
+
+  return error ? theme.palette.error.main : theme.palette.border.main;
+};
+
 const UploadContainer = styled(Box, {
-  shouldForwardProp: (prop) => prop !== "error" && prop !== "disabled",
-})<{ error?: boolean; disabled?: boolean }>(({ error, disabled }) => ({
-  border: error
-    ? `0.5px solid ${theme.palette.error.main}`
-    : `0.5px solid ${theme.palette.border.main}`,
-  borderRadius: "6px",
-  overflow: "hidden",
-  minHeight: "calc(48px * var(--scale))",
-  background: theme.palette.surface[200],
-  display: "flex",
-  cursor: disabled ? "not-allowed" : "pointer",
-  opacity: disabled ? 0.6 : 1,
-}));
+  shouldForwardProp: (prop) =>
+    prop !== "error" && prop !== "disabled" && prop !== "dragActive",
+})<{ error?: boolean; disabled?: boolean; dragActive?: boolean }>(
+  ({ error, disabled, dragActive }) => ({
+    border: `${dragActive ? "1px dashed" : "0.5px solid"} ${getBorderColor(
+      error,
+      dragActive,
+    )}`,
+    borderRadius: "6px",
+    overflow: "hidden",
+    minHeight: "calc(48px * var(--scale))",
+    background: dragActive
+      ? theme.palette.purple[50]
+      : theme.palette.surface[200],
+    display: "flex",
+    cursor: disabled ? "not-allowed" : "pointer",
+    opacity: disabled ? 0.6 : 1,
+    transition: "background 120ms ease, border-color 120ms ease",
+  }),
+);
 
 const UploadIconContainer = styled(Stack)(() => ({
   // `alignSelf: stretch` fills the flex container's full height. `height: 100%`
@@ -218,6 +249,38 @@ const getFileExtension = (value?: string) => {
   return extension === cleanedValue.toLowerCase() ? "" : extension;
 };
 
+/**
+ * Mirrors the browser's own `accept` filtering for dropped files — the file
+ * input enforces `accept` on click-to-upload, but a drop bypasses it entirely.
+ * Handles extensions (`.pdf`), exact mime types (`application/pdf`) and mime
+ * wildcards (`image/*`).
+ */
+const getIsFileAccepted = (file: File, accept?: string) => {
+  const tokens = (accept || "")
+    .split(",")
+    .map((token) => token.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (!tokens.length) {
+    return true;
+  }
+
+  const fileName = file.name.toLowerCase();
+  const mimeType = file.type.toLowerCase();
+
+  return tokens.some((token) => {
+    if (token.startsWith(".")) {
+      return fileName.endsWith(token);
+    }
+
+    if (token.endsWith("/*")) {
+      return mimeType.startsWith(`${token.slice(0, -1)}`);
+    }
+
+    return mimeType === token;
+  });
+};
+
 const getIsPdfFileType = (file?: FileTypeMeta | null) => {
   const extensions = [
     getFileExtension(file?.name),
@@ -311,6 +374,9 @@ export const FileUpload = ({
   onRemove,
   value,
   onFileSelect,
+  disableDragDrop = false,
+  onDropRejected,
+  dragActiveText,
   labelSx,
   helperTextSx,
   uploadSubTextSx,
@@ -319,9 +385,15 @@ export const FileUpload = ({
   fileNameSx,
   uploadContentSx,
   uploadIconContainerSx,
+  dragActiveSx,
   "data-testid": dataTestId,
 }: FileUploadBoxProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragActive, setIsDragActive] = useState(false);
+  // dragenter/dragleave also fire for every child element the pointer crosses,
+  // so a plain boolean flickers. Counting enters minus leaves is what keeps the
+  // highlight stable while the pointer moves over the icon/label inside.
+  const dragDepthRef = useRef(0);
 
   const localFilePreviewUrl = useMemo(() => {
     if (uploadedFile?.file || !(value instanceof File)) {
@@ -402,32 +474,107 @@ export const FileUpload = ({
     }
   };
 
+  const processFiles = async (files: File[]) => {
+    if (!files.length) {
+      return;
+    }
+
+    if (multiSelect) {
+      onChange(files);
+    } else {
+      const singleFile = files[0];
+
+      // If onFileSelect is provided (for useFileUpload hook integration)
+      if (onFileSelect) {
+        const result = await onFileSelect(singleFile);
+        if (result) {
+          onChange(result);
+        }
+      } else {
+        // Standard file upload without hook
+        onChange(singleFile);
+      }
+    }
+  };
+
   const handleFileInputChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      if (multiSelect) {
-        onChange(Array.from(files));
-      } else {
-        const singleFile = files[0];
-
-        // If onFileSelect is provided (for useFileUpload hook integration)
-        if (onFileSelect) {
-          const result = await onFileSelect(singleFile);
-          if (result) {
-            onChange(result);
-          }
-        } else {
-          // Standard file upload without hook
-          onChange(singleFile);
-        }
-      }
+      await processFiles(Array.from(files));
 
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     }
+  };
+
+  const isDropDisabled = disableDragDrop || disabled || isLoading;
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (isDropDisabled) {
+      return;
+    }
+
+    // Both dragover and dragenter must be prevented, otherwise the browser
+    // treats the element as a non-drop target and opens the file instead.
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = "copy";
+    }
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    if (isDropDisabled) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+    dragDepthRef.current += 1;
+    setIsDragActive(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (isDropDisabled) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+    if (dragDepthRef.current === 0) {
+      setIsDragActive(false);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    if (isDropDisabled) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+    dragDepthRef.current = 0;
+    setIsDragActive(false);
+
+    const droppedFiles = Array.from(e.dataTransfer?.files || []);
+    if (!droppedFiles.length) {
+      return;
+    }
+
+    const acceptedFiles = droppedFiles.filter((file) =>
+      getIsFileAccepted(file, accept),
+    );
+
+    if (!acceptedFiles.length) {
+      onDropRejected?.(droppedFiles);
+      return;
+    }
+
+    await processFiles(multiSelect ? acceptedFiles : [acceptedFiles[0]]);
   };
 
   const handleRemoveFile = () => {
@@ -458,30 +605,44 @@ export const FileUpload = ({
   };
 
   return (
-    <Stack width='100%' data-testid={dataTestId}>
+    <Stack width="100%" data-testid={dataTestId}>
       {!displayFile ? (
         <>
-          <Stack position='relative'>
+          <Stack position="relative">
             <UploadContainer
               onClick={handleUploadClick}
+              onDragEnter={handleDragEnter}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
               error={error}
               disabled={disabled || isLoading}
-              sx={containerSx}
+              dragActive={isDragActive}
+              sx={[
+                ...(Array.isArray(containerSx) ? containerSx : [containerSx]),
+                ...(isDragActive
+                  ? Array.isArray(dragActiveSx)
+                    ? dragActiveSx
+                    : [dragActiveSx]
+                  : []),
+              ]}
             >
               <ContentStack
-                gap='4px'
-                direction='row'
-                alignItems='center'
+                gap="4px"
+                direction="row"
+                alignItems="center"
                 sx={uploadContentSx}
               >
                 {icon && icon}
-                <Stack gap='4px' flex={1}>
+                <Stack gap="4px" flex={1}>
                   <StyledFormLabel required={required} sx={labelSx}>
-                    {uploadText}
+                    {isDragActive && dragActiveText
+                      ? dragActiveText
+                      : uploadText}
                   </StyledFormLabel>
                   {uploadSubText && (
                     <Typography
-                      variant='c1'
+                      variant="c1"
                       sx={{
                         color: theme.palette.text.secondary,
                         fontWeight: theme.typography.fontWeight.light,
@@ -501,7 +662,7 @@ export const FileUpload = ({
               <FileInputHidden
                 ref={fileInputRef}
                 data-testid={dataTestId ? `${dataTestId}-input` : undefined}
-                type='file'
+                type="file"
                 accept={accept}
                 onChange={handleFileInputChange}
                 disabled={disabled || isLoading}
@@ -524,14 +685,14 @@ export const FileUpload = ({
         </>
       ) : (
         <UploadedDataContainer sx={uploadedContainerSx}>
-          <Stack flexDirection='row' gap='8px' alignItems='center'>
+          <Stack flexDirection="row" gap="8px" alignItems="center">
             <CheckCircle />
-            <Typography variant='b2'>{uploadText}</Typography>
+            <Typography variant="b2">{uploadText}</Typography>
           </Stack>
           <FileContainer>
-            <FileContentStack direction='row' gap='6px' alignItems='center'>
+            <FileContentStack direction="row" gap="6px" alignItems="center">
               {renderFilePreview()}
-              <FileNameTypography variant='b1' sx={fileNameSx}>
+              <FileNameTypography variant="b1" sx={fileNameSx}>
                 {displayFile?.name}
               </FileNameTypography>
             </FileContentStack>
@@ -539,7 +700,7 @@ export const FileUpload = ({
               onClick={handleRemoveFile}
               data-testid={dataTestId ? `${dataTestId}-remove` : undefined}
             >
-              <CloseIcon size='12' />
+              <CloseIcon size="12" />
             </RemoveIconStack>
           </FileContainer>
         </UploadedDataContainer>
