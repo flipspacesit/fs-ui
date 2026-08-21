@@ -279,7 +279,14 @@ export {
   TotalRow as DataTableTotalRow,
   ControlsRow as DataTableControlsRow,
   type DataTableCellStyleProps,
+  type DataTableBodyRowStyleProps,
 } from './components/Table/dataTableStyles'
+export {
+  getRowClickProps,
+  isInteractiveTarget,
+  type RowClickProps,
+  type RowClickPropsParams,
+} from './components/Table/rowInteraction'
 export {
   normalizeColumns,
   normalizeColumn,
@@ -300,6 +307,8 @@ export type {
   DataTableCellRenderParams,
   DataTableHeaderRenderParams,
   DataTableTotalRenderParams,
+  DataTableRowClickHandler,
+  DataTableRowEvent,
   SortConfig,
   SortDirection,
   FilterOperator,

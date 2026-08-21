@@ -7,9 +7,11 @@ import type {
   ColumnWidths,
   DataTableColumn,
   DataTableRow,
+  DataTableRowClickHandler,
 } from "../dataTableTypes";
 import { BodyRow, DataBodyCell } from "../dataTableStyles";
 import { formatCellValue, getColumnWidth } from "../dataTableUtils";
+import { getRowClickProps } from "../rowInteraction";
 import { mergeSx, resolveSx } from "../sxHelpers";
 
 export interface DataTableBodyProps {
@@ -26,6 +28,8 @@ export interface DataTableBodyProps {
     | SxProps<Theme>
     | ((column: DataTableColumn, row: DataTableRow, index: number) => SxProps<Theme>);
   dateFormat?: string;
+  /** Row activation handler — see `DataTableProps.onRowClick`. */
+  onRowClick?: DataTableRowClickHandler;
   renderRow?: (params: {
     row: DataTableRow;
     index: number;
@@ -51,6 +55,7 @@ const DataTableBody = ({
   bodyRowSx,
   bodyCellSx,
   dateFormat,
+  onRowClick,
   renderRow,
   renderBodySpacer,
 }: DataTableBodyProps): ReactNode => {
@@ -65,6 +70,7 @@ const DataTableBody = ({
       <BodyRow
         key={rowIdentifier}
         sx={resolveSx(bodyRowSx, row, index)}
+        {...getRowClickProps({ row, index, onRowClick })}
       >
         {visibleColumns.map((column) => {
           const isFrozen = isColumnFrozen(column.field);
