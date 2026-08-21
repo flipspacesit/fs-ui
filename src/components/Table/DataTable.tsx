@@ -36,12 +36,14 @@ import {
   getFlattenedColumns,
   normalizeColumns,
 } from "./dataTableUtils";
+import { getRowClickProps } from "./rowInteraction";
 import { mergeSx, resolveSx } from "./sxHelpers";
 import type {
   ActiveFilters,
   ColumnWidths,
   DataTableColumn,
   DataTableRow,
+  DataTableRowClickHandler,
   FieldMappings,
   HiddenColumns,
   SortConfig,
@@ -96,6 +98,18 @@ export interface DataTableProps<Row extends object = DataTableRow> {
   defaultColumnWidths?: ColumnWidths;
   /** Minimum width (px) a column can be dragged to. Defaults to 60. */
   minColumnWidth?: number;
+  /**
+   * Called when a body row is activated — by click, or by Enter/Space while the
+   * row has keyboard focus. Passing it turns rows into targets: pointer cursor,
+   * hover tint, focus ring, and a tab stop per row.
+   *
+   * Clicks originating inside a control that handles its own activation
+   * (`<button>`, `<a>`, form fields, anything with a button-ish `role`, or any
+   * node marked `data-no-row-click`) are ignored, so per-row action buttons keep
+   * working. Applies with and without virtualization; a custom
+   * {@link DataTableProps.renderRow} replaces the default row and so opts out.
+   */
+  onRowClick?: DataTableRowClickHandler<Row>;
   onStateChange?: (api: DataTableApi) => void;
   onFilterStateChange?: (activeFilters: ActiveFilters) => void;
   onHiddenColumnsChange?: (hiddenColumns: HiddenColumns) => void;
@@ -178,6 +192,7 @@ const isSkeletonRow = (row: unknown): boolean =>
  */
 interface DataTableVirtuosoContext {
   bodyRowSx?: DataTableProps["bodyRowSx"];
+  onRowClick?: DataTableRowClickHandler;
 }
 
 /* ----- react-virtuoso slot components ----- */
@@ -221,12 +236,21 @@ const VirtuosoTableRow = (
   // `item` / `context` are virtuoso's own props — never forward them to the DOM
   // `<tr>`. The `data-*` attributes left in `rest` are valid to forward.
   const { item, context, ...rest } = props;
+  const isSkeleton = isSkeletonRow(item);
   const bodyRowSx = context?.bodyRowSx;
   const rowSx =
-    bodyRowSx && !isSkeletonRow(item)
+    bodyRowSx && !isSkeleton
       ? resolveSx(bodyRowSx, item, props["data-index"])
       : undefined;
-  return <BodyRow {...rest} sx={rowSx} />;
+  // Skeleton placeholders are not real rows — never make them activatable.
+  const clickProps = isSkeleton
+    ? {}
+    : getRowClickProps({
+        row: item,
+        index: props["data-index"],
+        onRowClick: context?.onRowClick,
+      });
+  return <BodyRow {...rest} sx={rowSx} {...clickProps} />;
 };
 
 const VirtuosoTableHead = forwardRef<
@@ -331,6 +355,7 @@ export function DataTable<Row extends object = DataTableRow>({
   defaultSortConfig = { key: null, direction: null },
   defaultColumnWidths = {},
   minColumnWidth,
+  onRowClick,
   onStateChange,
   onFilterStateChange,
   onHiddenColumnsChange,
@@ -365,6 +390,9 @@ export function DataTable<Row extends object = DataTableRow>({
   const rowKeyResolver =
     (rowKey as unknown as ((row: DataTableRow, index: number) => Key) | undefined) ??
     defaultRowKey;
+  const rowClickHandler = onRowClick as unknown as
+    | DataTableRowClickHandler
+    | undefined;
 
   const {
     activeFilters,
@@ -581,8 +609,8 @@ export function DataTable<Row extends object = DataTableRow>({
   };
 
   const virtuosoContext = useMemo<DataTableVirtuosoContext>(
-    () => ({ bodyRowSx }),
-    [bodyRowSx]
+    () => ({ bodyRowSx, onRowClick: rowClickHandler }),
+    [bodyRowSx, rowClickHandler]
   );
 
   // While paging, append throwaway skeleton rows so they scroll into view under
@@ -703,6 +731,7 @@ export function DataTable<Row extends object = DataTableRow>({
             bodyRowSx={bodyRowSx}
             bodyCellSx={bodyCellSx}
             dateFormat={dateFormat}
+            onRowClick={rowClickHandler}
             renderRow={renderRow}
             renderBodySpacer={renderBodySpacer}
           />

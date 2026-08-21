@@ -1,4 +1,8 @@
-import type { ReactNode } from "react";
+import type {
+  KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent as ReactMouseEvent,
+  ReactNode,
+} from "react";
 import type { SxProps, Theme } from "@mui/material";
 
 /**
@@ -89,6 +93,21 @@ export interface DataTableColumn<Row = DataTableRow> {
   bodyCellSx?: SxProps<Theme>;
   totalCellSx?: SxProps<Theme>;
 }
+
+/** The mouse or keyboard event that activated a body row. */
+export type DataTableRowEvent =
+  | ReactMouseEvent<HTMLTableRowElement>
+  | ReactKeyboardEvent<HTMLTableRowElement>;
+
+/**
+ * Body-row activation handler — see `DataTableProps.onRowClick`. Fires on click
+ * and on Enter/Space while the row itself has focus.
+ */
+export type DataTableRowClickHandler<Row = DataTableRow> = (
+  row: Row,
+  index: number,
+  event: DataTableRowEvent
+) => void;
 
 /** Sort direction; `null` means unsorted. */
 export type SortDirection = "asc" | "desc" | null;

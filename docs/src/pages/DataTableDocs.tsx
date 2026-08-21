@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { DocSection, ExampleBox, PropsTable } from "../components/DocSection";
 import CodeBlock from "../components/CodeBlock";
 import {
@@ -151,6 +151,58 @@ const InfiniteScrollExample: React.FC = () => {
         }}
       />
     </ExampleFrame>
+  );
+};
+
+/**
+ * Clickable rows via `onRowClick`. The last column holds a button to show that
+ * clicks on real controls don't bubble up as a row click.
+ */
+const RowClickExample: React.FC = () => {
+  const [lastEvent, setLastEvent] = React.useState("none yet");
+  const [selectedId, setSelectedId] = React.useState<number | null>(null);
+
+  const clickColumns: DataTableColumn<Employee>[] = [
+    ...columns.slice(0, 4),
+    {
+      field: "actions",
+      header: "",
+      width: 90,
+      bodyAlign: "center",
+      render: ({ row }) => (
+        <Button
+          size="small"
+          variant="text"
+          onClick={() => setLastEvent(`button on ${row.name}`)}
+        >
+          Email
+        </Button>
+      ),
+    },
+  ];
+
+  return (
+    <Box>
+      <Typography variant="body2" sx={{ mb: 1 }}>
+        Last event: <strong data-testid="row-click-log">{lastEvent}</strong>
+      </Typography>
+      <ExampleFrame>
+        <DataTable
+          data={sampleData}
+          columns={clickColumns}
+          rowKey={(row) => row.id}
+          onRowClick={(row) => {
+            setSelectedId(row.id);
+            setLastEvent(`row ${row.name}`);
+          }}
+          bodyRowSx={(row: DataTableRow) =>
+            row.id === selectedId
+              ? { "& td": { backgroundColor: "#e9eeff !important" } }
+              : {}
+          }
+        />
+      </ExampleFrame>
+    </Box>
   );
 };
 
@@ -392,6 +444,44 @@ const DataTableDocs: React.FC = () => (
       />
     </DocSection>
 
+    <DocSection title="Row click">
+      <Typography variant="body2" sx={{ mb: 2 }}>
+        Pass <code>onRowClick</code> and rows become targets — pointer cursor,
+        hover tint, a focus ring, and one tab stop per row, so a row can also be
+        activated with <kbd>Enter</kbd> or <kbd>Space</kbd>. It receives{" "}
+        <code>(row, index, event)</code> and works the same with virtualization
+        on or off.
+      </Typography>
+      <Typography variant="body2" sx={{ mb: 2 }}>
+        Clicks that start inside a control which handles its own activation — a{" "}
+        <code>&lt;button&gt;</code>, link, form field, anything with a
+        button-like <code>role</code>, or any node you mark{" "}
+        <code>data-no-row-click</code> — are ignored, so per-row action buttons
+        keep working. Try the row versus the <em>Email</em> button below.
+      </Typography>
+      <ExampleBox>
+        <RowClickExample />
+      </ExampleBox>
+      <CodeBlock
+        code={`<DataTable
+  data={rows}
+  columns={columns}
+  rowKey={(row) => row.id}
+  onRowClick={(row, index, event) => openDrawer(row.id)}
+/>
+
+// Opt a custom cell out of the row click:
+{
+  field: 'actions',
+  render: ({ row }) => (
+    <div data-no-row-click>
+      <MyMenu row={row} />
+    </div>
+  ),
+}`}
+      />
+    </DocSection>
+
     <DocSection title="Row & cell styling">
       <Typography variant="body2" sx={{ mb: 2 }}>
         Style rows and cells with <code>bodyRowSx</code> /{" "}
@@ -487,6 +577,7 @@ function MyTable() {
           { name: "skeletonRowCount", type: "number", default: "8", description: "Skeleton rows shown for the initial (empty) loading state." },
           { name: "bodyRowSx", type: "SxProps | (row, index) => SxProps", description: "Per-row sx (static or factory). Applies in both virtualized and plain modes." },
           { name: "bodyCellSx", type: "SxProps | (column, row, index) => SxProps", description: "Per-cell sx (static or factory)." },
+          { name: "onRowClick", type: "(row, index, event) => void", description: "Row activation by click or Enter/Space; adds cursor, hover, focus ring and a tab stop. Clicks from inside buttons/links/inputs or [data-no-row-click] are ignored." },
           { name: "onTableApiChange", type: "(api: DataTableApi) => void", description: "Receive the imperative state/setters snapshot." },
           { name: "onStateChange", type: "(api: DataTableApi) => void", description: "Called whenever the table's derived state changes." },
           { name: "renderRow", type: "(params) => ReactNode", description: "Override how a body row renders (non-virtualized)." },

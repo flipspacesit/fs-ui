@@ -105,9 +105,34 @@ export const TotalRow = styled(TableRow)({
   height: "calc(28px * var(--scale, 1))",
 });
 
-export const BodyRow = styled(TableRow)({
+export interface DataTableBodyRowStyleProps {
+  /**
+   * Row responds to activation (set by the DataTable when `onRowClick` is
+   * given): pointer cursor, hover tint, and a visible keyboard focus ring.
+   */
+  $clickable?: boolean;
+}
+
+export const BodyRow = styled(
+  TableRow,
+  forwardTransient
+)<DataTableBodyRowStyleProps>(({ $clickable = false }) => ({
   height: "calc(42px * var(--scale, 1))",
-});
+  ...($clickable
+    ? {
+        cursor: "pointer",
+        // The body cells paint their own `!important` background, so the row
+        // hover has to reach them directly to outrank it.
+        "&:hover td": {
+          backgroundColor: imp(primary.blue[50]),
+        },
+        "&:focus-visible": {
+          outline: `2px solid ${primary.blue.primary}`,
+          outlineOffset: "-2px",
+        },
+      }
+    : {}),
+}));
 
 export interface DataTableCellStyleProps {
   $width?: number;
