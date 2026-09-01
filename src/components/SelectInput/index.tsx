@@ -20,6 +20,7 @@ import theme from "@/theme";
 import { ArrowDown2, CheckIcon } from "@/icons";
 import { withDataTestId, type DataTestIdProps } from "../../constants";
 import SearchInput from "../SearchInput";
+import EllipsisTooltip from "../EllipsisTooltip";
 
 export type Option = {
   label: string;
@@ -34,10 +35,7 @@ export type Option = {
  * `{data-testid}-option-{value}` and the in-menu search box
  * `{data-testid}-search`.
  */
-export type SelectInputProps<T = unknown> = Omit<
-  SelectProps<T>,
-  "renderValue"
-> &
+export type SelectInputProps<T = unknown> = Omit<SelectProps<T>, "renderValue"> &
   DataTestIdProps & {
     label?: string;
     helperText?: React.ReactNode;
@@ -111,21 +109,13 @@ export const SelectInput = <T = unknown,>({
   const searchInteractingRef = useRef(false);
 
   const filteredOptions = searchable
-    ? options.filter((option) =>
-        option?.label?.toLowerCase()?.includes(searchTerm.toLowerCase()),
-      )
+    ? options.filter(option => option?.label?.toLowerCase()?.includes(searchTerm.toLowerCase()))
     : options;
 
-  const selectedOption =
-    options.find((opt) => opt.value === props.value) || null;
+  const selectedOption = options.find(opt => opt.value === props.value) || null;
 
   return (
-    <FormControl
-      fullWidth={fullWidth}
-      sx={sx}
-      error={props.error}
-      disabled={disabled}
-    >
+    <FormControl fullWidth={fullWidth} sx={sx} error={props.error} disabled={disabled}>
       {label && (
         <StyledFormLabel required={required} sx={labelSx}>
           {label}
@@ -140,15 +130,13 @@ export const SelectInput = <T = unknown,>({
           setOpen(true);
         }}
         options={filteredOptions}
-        getOptionLabel={(option) => option.label}
+        getOptionLabel={option => option.label}
         value={selectedOption}
         onClose={(event, reason) => {
           const target = event?.target as Node | null;
-          const relatedTarget = (
-            event as unknown as { relatedTarget?: EventTarget | null }
-          )?.relatedTarget as Node | null;
-          const clickedInsideSearch =
-            !!target && !!searchRef.current?.contains(target);
+          const relatedTarget = (event as unknown as { relatedTarget?: EventTarget | null })
+            ?.relatedTarget as Node | null;
+          const clickedInsideSearch = !!target && !!searchRef.current?.contains(target);
           const focusedInsideSearch =
             !!relatedTarget && !!searchRef.current?.contains(relatedTarget);
 
@@ -169,17 +157,17 @@ export const SelectInput = <T = unknown,>({
               {
                 target: { value: newValue?.value ?? "" },
               } as SelectChangeEvent<T>,
-              null,
+              null
             );
           }
         }}
         popupIcon={
-          <Box display='flex' alignItems='center'>
+          <Box display="flex" alignItems="center">
             <ArrowDown2 />
           </Box>
         }
         forcePopupIcon
-        renderInput={(params) => {
+        renderInput={params => {
           // MUI renders the dropdown arrow (and clear icon) inside its own
           // absolutely-positioned wrapper. Unwrap those indicators so a custom
           // `endAdornment` can sit next to the arrow in a single right-anchored
@@ -205,7 +193,7 @@ export const SelectInput = <T = unknown,>({
               InputProps={{
                 ...params.InputProps,
                 startAdornment: startAdornment ? (
-                  <Box display='flex' alignItems='center'>
+                  <Box display="flex" alignItems="center">
                     {startAdornment}
                   </Box>
                 ) : null,
@@ -223,7 +211,7 @@ export const SelectInput = <T = unknown,>({
                       }}
                     >
                       {endAdornment && (
-                        <Box display='flex' alignItems='center'>
+                        <Box display="flex" alignItems="center">
                           {endAdornment}
                         </Box>
                       )}
@@ -257,9 +245,7 @@ export const SelectInput = <T = unknown,>({
             <MenuItem
               key={key}
               {...optionProps}
-              data-testid={
-                dataTestId ? `${dataTestId}-option-${option.value}` : undefined
-              }
+              data-testid={dataTestId ? `${dataTestId}-option-${option.value}` : undefined}
               sx={{
                 height: "calc(28px * var(--scale))",
                 minHeight: "auto",
@@ -289,28 +275,38 @@ export const SelectInput = <T = unknown,>({
               }}
             >
               <MenuItemStack
-                direction='row'
-                alignItems='center'
-                justifyContent='space-between'
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
                 sx={menuItemStackSx}
-                gap='8px'
+                gap="8px"
               >
-                <Stack direction='row' alignItems='center' gap='8px'>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  gap="8px"
+                  sx={{ minWidth: 0, flex: 1, overflow: "hidden" }}
+                >
                   {option.icon && (
-                    <Box component='span' display='flex' alignItems='center'>
+                    <Box component="span" display="flex" alignItems="center" flexShrink={0}>
                       {option.icon}
                     </Box>
                   )}
                   <Typography
-                    variant='b2'
+                    variant="b2"
                     fontWeight={400}
-                    sx={menuItemTypographySx}
+                    sx={{
+                      minWidth: 0,
+                      ...menuItemTypographySx,
+                    }}
                   >
-                    {option.label}
+                    <EllipsisTooltip>{option.label}</EllipsisTooltip>
                   </Typography>
                 </Stack>
                 {showSelectedIcon && props.value === option.value && (
-                  <CheckIcon />
+                  <Box display="flex" alignItems="center" flexShrink={0}>
+                    <CheckIcon />
+                  </Box>
                 )}
               </MenuItemStack>
             </MenuItem>
@@ -336,27 +332,22 @@ export const SelectInput = <T = unknown,>({
                   autoFocus
                   data-testid={dataTestId ? `${dataTestId}-search` : undefined}
                   inputRef={searchInputRef}
-                  size='small'
+                  size="small"
                   value={searchTerm}
                   placeholder={searchPlaceholder || "Search..."}
                   fullWidth
                   debounceMs={0}
-                  onChange={(val) => setSearchTerm(val)}
+                  onChange={val => setSearchTerm(val)}
                   onFocus={() => setOpen(true)}
-                  onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => e.stopPropagation()}
+                  onClick={e => e.stopPropagation()}
+                  onMouseDown={e => e.stopPropagation()}
+                  onKeyDown={e => e.stopPropagation()}
                 />
               </Box>
             )}
             {!filteredOptions?.length && searchable ? (
-              <Stack
-                direction='row'
-                alignItems='center'
-                justifyContent='center'
-                p={2}
-              >
-                <Typography variant='b2' color='text.secondary'>
+              <Stack direction="row" alignItems="center" justifyContent="center" p={2}>
+                <Typography variant="b2" color="text.secondary">
                   No results found
                 </Typography>
               </Stack>
@@ -366,11 +357,7 @@ export const SelectInput = <T = unknown,>({
           </Paper>
         )}
       />
-      {helperText && (
-        <StyledFormHelperText sx={helperTextSx}>
-          {helperText}
-        </StyledFormHelperText>
-      )}
+      {helperText && <StyledFormHelperText sx={helperTextSx}>{helperText}</StyledFormHelperText>}
     </FormControl>
   );
 };
