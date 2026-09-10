@@ -155,6 +155,8 @@ export interface DataTableProps<Row extends object = DataTableRow> {
   isLoading?: boolean;
   /** Skeleton rows shown for the initial (empty) loading state. Defaults to `8`. */
   skeletonRowCount?: number;
+  /** Custom inline style passed to the table container or TableVirtuoso. */
+  customStyle?: CSSProperties;
   tableContainerSx?: SxProps<Theme>;
   tableSx?: SxProps<Theme>;
   headerRowSx?: SxProps<Theme>;
@@ -166,9 +168,15 @@ export interface DataTableProps<Row extends object = DataTableRow> {
     | ((row: DataTableRow, index: number) => SxProps<Theme>);
   bodyCellSx?:
     | SxProps<Theme>
-    | ((column: DataTableColumn, row: DataTableRow, index: number) => SxProps<Theme>);
+    | ((
+        column: DataTableColumn,
+        row: DataTableRow,
+        index: number,
+      ) => SxProps<Theme>);
   controlsRowSx?: SxProps<Theme>;
-  controlsCellSx?: SxProps<Theme> | ((column: DataTableColumn) => SxProps<Theme>);
+  controlsCellSx?:
+    | SxProps<Theme>
+    | ((column: DataTableColumn) => SxProps<Theme>);
 }
 
 /** Skeleton placeholder rows appended to the bottom during "load more". */
@@ -231,7 +239,7 @@ const VirtuosoTable = (props: {
 }) => <StyledDataTable {...props} sx={props.sx} />;
 
 const VirtuosoTableRow = (
-  props: ItemProps<DataTableRow> & ContextProp<DataTableVirtuosoContext>
+  props: ItemProps<DataTableRow> & ContextProp<DataTableVirtuosoContext>,
 ) => {
   // `item` / `context` are virtuoso's own props — never forward them to the DOM
   // `<tr>`. The `data-*` attributes left in `rest` are valid to forward.
@@ -311,7 +319,10 @@ const buildRowCells = ({
         $left={isFrozen ? getStickyLeft(column.field) : 0}
         $zIndex={isFrozen ? 25 : 1}
         align={column.bodyAlign || "left"}
-        sx={mergeSx(resolveSx(bodyCellSx, column, row, index), column.bodyCellSx)}
+        sx={mergeSx(
+          resolveSx(bodyCellSx, column, row, index),
+          column.bodyCellSx,
+        )}
       >
         {content}
       </DataBodyCell>
@@ -368,6 +379,7 @@ export function DataTable<Row extends object = DataTableRow>({
   onRefetch,
   isLoading = false,
   skeletonRowCount = 8,
+  customStyle,
   tableContainerSx,
   tableSx,
   headerRowSx,
@@ -384,12 +396,13 @@ export function DataTable<Row extends object = DataTableRow>({
   // callbacks are function-typed, so the column cast needs `unknown`.
   const normalizedColumns = useMemo(
     () => normalizeColumns(columns as unknown as DataTableColumn[]),
-    [columns]
+    [columns],
   );
   const rows = data as unknown as DataTableRow[];
   const rowKeyResolver =
-    (rowKey as unknown as ((row: DataTableRow, index: number) => Key) | undefined) ??
-    defaultRowKey;
+    (rowKey as unknown as
+      | ((row: DataTableRow, index: number) => Key)
+      | undefined) ?? defaultRowKey;
   const rowClickHandler = onRowClick as unknown as
     | DataTableRowClickHandler
     | undefined;
@@ -435,12 +448,12 @@ export function DataTable<Row extends object = DataTableRow>({
 
   const filterColumns = useMemo(
     () => getFlattenedColumns(normalizedColumns, expandedColumns, {}),
-    [expandedColumns, normalizedColumns]
+    [expandedColumns, normalizedColumns],
   );
 
   const flattenedVisibleFields = useMemo(
     () => visibleColumns.map((column) => column.field),
-    [visibleColumns]
+    [visibleColumns],
   );
 
   const isColumnFrozen = (field: string): boolean => {
@@ -453,7 +466,7 @@ export function DataTable<Row extends object = DataTableRow>({
       ...frozenColumns
         .map((frozenField) => flattenedVisibleFields.indexOf(frozenField))
         .filter((idx) => idx !== -1),
-      -1
+      -1,
     );
 
     return fieldIndex <= maxFrozenIndex;
@@ -494,7 +507,7 @@ export function DataTable<Row extends object = DataTableRow>({
       return next;
     });
     setSortConfig((prev) =>
-      prev.key === field ? { key: null, direction: null } : prev
+      prev.key === field ? { key: null, direction: null } : prev,
     );
   };
 
@@ -587,7 +600,7 @@ export function DataTable<Row extends object = DataTableRow>({
       TableRow: VirtuosoTableRow,
       TableFoot: VirtuosoTableFoot,
     }),
-    []
+    [],
   );
 
   // Fire once the user reaches the bottom, but never while a load is already in
@@ -610,7 +623,7 @@ export function DataTable<Row extends object = DataTableRow>({
 
   const virtuosoContext = useMemo<DataTableVirtuosoContext>(
     () => ({ bodyRowSx, onRowClick: rowClickHandler }),
-    [bodyRowSx, rowClickHandler]
+    [bodyRowSx, rowClickHandler],
   );
 
   // While paging, append throwaway skeleton rows so they scroll into view under
@@ -619,7 +632,7 @@ export function DataTable<Row extends object = DataTableRow>({
     if (!showLoadingMore) return filteredData;
     const sentinels = Array.from(
       { length: LOADING_MORE_SKELETON_COUNT },
-      () => ({ [SKELETON_ROW_FLAG]: true }) as DataTableRow
+      () => ({ [SKELETON_ROW_FLAG]: true }) as DataTableRow,
     );
     return [...filteredData, ...sentinels];
   }, [showLoadingMore, filteredData]);
@@ -661,7 +674,7 @@ export function DataTable<Row extends object = DataTableRow>({
 
   if (!filteredData.length) {
     return (
-      <StyledDataTableContainer sx={tableContainerSx}>
+      <StyledDataTableContainer style={customStyle} sx={tableContainerSx}>
         <StyledDataTable stickyHeader sx={tableSx}>
           <TableHead>{fixedHeaderRows()}</TableHead>
           <TableBody>
@@ -693,7 +706,7 @@ export function DataTable<Row extends object = DataTableRow>({
   if (enableVirtualization) {
     return (
       <TableVirtuoso<DataTableRow, DataTableVirtuosoContext>
-        style={{ height: "100%" }}
+        style={{ height: "100%", ...customStyle }}
         data={virtuosoData}
         context={virtuosoContext}
         components={virtuosoComponents}
@@ -704,7 +717,7 @@ export function DataTable<Row extends object = DataTableRow>({
             : undefined
         }
         itemContent={renderVirtualizedRowCells}
-        computeItemKey={(index, row) =>
+        computeItemKey={(index: number, row: DataTableRow) =>
           isSkeletonRow(row)
             ? `data-table-skeleton-${index}`
             : `data-table-row-${rowKeyResolver(row, index)}`
@@ -716,7 +729,7 @@ export function DataTable<Row extends object = DataTableRow>({
   }
 
   return (
-    <StyledDataTableContainer sx={tableContainerSx} ref={scrollRootRef}>
+    <StyledDataTableContainer style={customStyle} sx={tableContainerSx} ref={scrollRootRef}>
       <StyledDataTable stickyHeader sx={tableSx}>
         <TableHead>{fixedHeaderRows()}</TableHead>
 
