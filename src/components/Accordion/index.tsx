@@ -7,6 +7,9 @@ import {
   AccordionDetails,
   SxProps,
   Theme,
+  AccordionSummaryProps,
+  AccordionDetailsProps,
+  AccordionProps as MUIAccordionProps,
 } from "@mui/material";
 import { SystemStyleObject } from "@mui/system";
 import { styled } from "@mui/material/styles";
@@ -88,6 +91,9 @@ export interface AccordionProps {
   collapseIcon?: React.ReactNode;
   /** Hide the expand icon */
   hideExpandIcon?: boolean;
+  accordionProps?: MUIAccordionProps;
+  accordionSummaryProps?: AccordionSummaryProps;
+  accordionDetailsProps?: AccordionDetailsProps;
 }
 
 /**
@@ -111,6 +117,9 @@ export const Accordion: React.FC<AccordionProps> = ({
   expandIcon,
   collapseIcon,
   hideExpandIcon = false,
+  accordionProps,
+  accordionSummaryProps,
+  accordionDetailsProps,
 }) => {
   const [internalOpen, setInternalOpen] = useState(defaultExpanded);
   const isControlled = open !== undefined;
@@ -118,7 +127,7 @@ export const Accordion: React.FC<AccordionProps> = ({
 
   const handleAccordionChange = (
     _event: React.SyntheticEvent,
-    isExpanded: boolean
+    isExpanded: boolean,
   ) => {
     if (!isControlled) {
       setInternalOpen(isExpanded);
@@ -128,8 +137,13 @@ export const Accordion: React.FC<AccordionProps> = ({
     }
   };
 
-  const renderedExpandIcon = hideExpandIcon ? null : expandIcon && collapseIcon ? (
-    isOpen ? collapseIcon : expandIcon
+  const renderedExpandIcon = hideExpandIcon ? null : expandIcon &&
+    collapseIcon ? (
+    isOpen ? (
+      collapseIcon
+    ) : (
+      expandIcon
+    )
   ) : (
     <ArrowDown size="20" />
   );
@@ -144,6 +158,7 @@ export const Accordion: React.FC<AccordionProps> = ({
         ...accordionSx,
       }}
       defaultExpanded={defaultExpanded}
+      {...accordionProps}
     >
       <StyledAccordionSummary
         expandIcon={renderedExpandIcon}
@@ -162,6 +177,7 @@ export const Accordion: React.FC<AccordionProps> = ({
           },
           ...accordionSummarySx,
         }}
+        {...accordionSummaryProps}
       >
         {typeof title === "string" ? (
           <Typography
@@ -180,7 +196,11 @@ export const Accordion: React.FC<AccordionProps> = ({
           title
         )}
       </StyledAccordionSummary>
-      <StyledAccordionDetails role="region" sx={{ ...accordionDetailsSx }}>
+      <StyledAccordionDetails
+        role="region"
+        sx={{ ...accordionDetailsSx }}
+        {...accordionDetailsProps}
+      >
         {children}
       </StyledAccordionDetails>
     </StyledAccordion>
@@ -237,19 +257,19 @@ export const AccordionGroup: React.FC<AccordionGroupProps> = ({
 
   const handleChange =
     (panelId: number) =>
-      (_event: React.SyntheticEvent, isExpanded: boolean) => {
-        if (disabled) return;
+    (_event: React.SyntheticEvent, isExpanded: boolean) => {
+      if (disabled) return;
 
-        if (allowMultiple) {
-          setExpanded((prevState) => {
-            const newState = { ...(prevState as Record<number, boolean>) };
-            newState[panelId] = isExpanded;
-            return newState;
-          });
-        } else {
-          setExpanded(isExpanded ? panelId : false);
-        }
-      };
+      if (allowMultiple) {
+        setExpanded((prevState) => {
+          const newState = { ...(prevState as Record<number, boolean>) };
+          newState[panelId] = isExpanded;
+          return newState;
+        });
+      } else {
+        setExpanded(isExpanded ? panelId : false);
+      }
+    };
 
   // Resolves expanded state per panel: keyed lookup in multi mode, index match in single mode.
   const isItemExpanded = (panelId: number): boolean => {
