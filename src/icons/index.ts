@@ -88,6 +88,7 @@ export { ListChecks } from "./ListChecks";
 export { ClipboardText } from "./ClipboardText";
 export { Certificate } from "./Certificate";
 export { Users } from "./Users";
+export { WrapText } from "./WrapText";
 
 // ---------------------------------------------------------------------------
 // Country / territory / organisation flags — rectangular SVG components ported
