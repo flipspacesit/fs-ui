@@ -127,6 +127,7 @@ const META: Record<string, Meta> = {
   NoDataIcon: { category: "Misc", description: "No data placeholder" },
   FillBulb: { category: "Misc", description: "Idea (filled)" },
   OutlineBulb: { category: "Misc", description: "Idea (outline)" },
+  WrapText: { category: "Misc", description: "Wrap text" },
 };
 
 const CATEGORY_ORDER: Category[] = [
@@ -178,48 +179,48 @@ const IconTile: React.FC<{ entry: IconEntry }> = ({ entry }) => {
   // width follow the aspect ratio, rather than squashing them into a 24px square.
   const isFlag = entry.category === "Flags";
   return (
-  <Box
-    className="doc-chrome"
-    title={entry.description}
-    sx={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      gap: "8px",
-      p: "16px 8px",
-      borderRadius: "10px",
-      border: `1px solid ${t.border}`,
-      backgroundColor: t.surface,
-      cursor: "default",
-      transition: "border-color 150ms, background-color 150ms",
-      "&:hover": { borderColor: t.accent, backgroundColor: t.accentTint },
-    }}
-  >
     <Box
+      className="doc-chrome"
+      title={entry.description}
       sx={{
-        height: 28,
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
-        color: t.text,
-        // Constrain every icon to 24px regardless of its own size/width/height
-        // props (some icons ignore `size`), and tint via both fill & color
-        // since the icon set is split across the two APIs. Flags keep their
-        // aspect ratio (height-pinned) instead of being forced square.
-        "& svg": isFlag
-          ? { height: 22, width: "auto", maxWidth: 40, borderRadius: "2px" }
-          : { width: 24, height: 24 },
+        gap: "8px",
+        p: "16px 8px",
+        borderRadius: "10px",
+        border: `1px solid ${t.border}`,
+        backgroundColor: t.surface,
+        cursor: "default",
+        transition: "border-color 150ms, background-color 150ms",
+        "&:hover": { borderColor: t.accent, backgroundColor: t.accentTint },
       }}
     >
-      <entry.Comp size={isFlag ? 36 : 24} fill="var(--doc-text)" color="var(--doc-text)" />
+      <Box
+        sx={{
+          height: 28,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: t.text,
+          // Constrain every icon to 24px regardless of its own size/width/height
+          // props (some icons ignore `size`), and tint via both fill & color
+          // since the icon set is split across the two APIs. Flags keep their
+          // aspect ratio (height-pinned) instead of being forced square.
+          "& svg": isFlag
+            ? { height: 22, width: "auto", maxWidth: 40, borderRadius: "2px" }
+            : { width: 24, height: 24 },
+        }}
+      >
+        <entry.Comp size={isFlag ? 36 : 24} fill="var(--doc-text)" color="var(--doc-text)" />
+      </Box>
+      <Box
+        className="doc-mono"
+        sx={{ fontSize: 11, color: t.textMuted, textAlign: "center", wordBreak: "break-word", lineHeight: 1.3 }}
+      >
+        {entry.name}
+      </Box>
     </Box>
-    <Box
-      className="doc-mono"
-      sx={{ fontSize: 11, color: t.textMuted, textAlign: "center", wordBreak: "break-word", lineHeight: 1.3 }}
-    >
-      {entry.name}
-    </Box>
-  </Box>
   );
 };
 
