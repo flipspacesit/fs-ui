@@ -1,0 +1,7 @@
+{
+  "name": "eslint-plugin-fs-testid",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Flipspaces test-id lint rules. One folder, copied unchanged into every web repo.",
+  "main": "index.cjs"
+}

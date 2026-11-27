@@ -1,6 +1,6 @@
 {
   "name": "@flipspacesit/fs-ui",
-  "version": "2.11.1",
+  "version": "2.11.2",
   "description": "Flipspaces shared UI component library",
   "type": "module",
   "main": "./dist/fs-ui.cjs.js",
@@ -24,6 +24,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint .",
+    "lint:testid": "node eslint-plugin-fs-testid/check.cjs --base origin/master --paths src",
     "preview": "vite preview",
     "prepublishOnly": "npm run build",
     "docs:dev": "cd docs && npm run dev",
