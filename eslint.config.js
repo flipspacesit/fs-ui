@@ -50,8 +50,11 @@ export default tseslint.config(
           // A control the rule cannot recognise by name: the column drag
           // handle, which only has onMouseDown.
           components: ["ColumnResizer"],
-          // A local component that only passes onClick down to its own root.
-          ignore: ["SidebarRow"],
+          // Never need an id of their own here. SidebarRow only passes onClick
+          // down to its own root. The MUI Autocomplete and DateCalendar are
+          // each used once, inside a component that already puts the
+          // consumer's id on the input or on the surrounding paper.
+          ignore: ["SidebarRow", "Autocomplete", "DateCalendar"],
           // The defaults, plus PaperProps: the modals put the consumer's id on
           // their paper (README → Test IDs).
           nestedProps: [

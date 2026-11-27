@@ -46,6 +46,7 @@ This applies to the library source, `src`. The docs site under `docs/` is a show
 | Dropdown | `dropdown-${name}` | `dropdown-${name}-${value}`, `dropdown-${name}-${index}` |
 | Dropdown option | `option-${dropdownName}-${value}` | or `dropdown-option-${exact option text}` |
 | Accordion | `accordion-${name}` | |
+| Modal | `modal-${name}` | |
 | Pagination | `pagination-container` | page buttons are `button-previous-page`, `button-next-page`, `button-page-${pageNumber}` |
 | Toast | `toast-title`, `toast-message`, `toast-close` | |
 | Field row wrapper | `field-${name}` | identifies the row, not the input inside it |
@@ -54,18 +55,19 @@ The name after the prefix is camelCase (`button-saveDraft`).
 
 **How a component in this library takes an id**
 
-The contract is in `README.md` → "Test IDs". A render of all 18 components it names agreed with it when this section was written (version 2.11).
+The contract is in `README.md` → "Test IDs". It was checked against the 18 components it names when this section was written (version 2.11): sixteen were rendered, and `Dialog` and `SideModal`, which render nothing outside a browser, were read from the source. All agreed with it.
 
 - Declare the prop with `DataTestIdProps` (`src/constants`) and thread it explicitly: `withDataTestId` for `inputProps`, `withDataTestIdSlot` for `slotProps.input` (`Checkbox`, `RadioButton`, `Switch`). Prop interfaces are closed and TypeScript does not check hyphenated JSX attributes, so an id passed to a component that does not declare the prop compiles and renders nothing.
 - Put the bare id on exactly one element: the `<input>` of a single-input control, the root of a composite (`NumberStepper`, `PinInput`, `FileUpload`), the paper of a modal (`Dialog`, `ModalLayout`, `SideModal`, through `PaperProps`).
 - Give an inner control a test drives the consumer's id plus a suffix, and only when the consumer gave an id: ``data-testid={dataTestId ? `${dataTestId}-clear` : undefined}``.
 - A child id is a public contract. Add its row to the table in `README.md` → "Test IDs" in the same change. It reaches consumers only after a release.
-- Older APIs build the value instead of using it as given: `Dropdown`'s `testid` (`dropdown-<testid>` on the trigger, `option-<testid>-<label or value>` on each option) and `SplitMenu`'s `dataTestIds`. `Dialog` and `ModalLayout` emit the literals `button-closeModal` and `icon-backArrow` when no id is passed. Do not change any of these.
+- Older APIs build the value instead of using it as given: `Dropdown`'s `testid` (`dropdown-<testid>` on the trigger, `option-<testid>-<label or value>` on each option) and `SplitMenu`'s `dataTestIds`. When no id is passed, `Dialog` emits the literals `button-closeModal` and `icon-backArrow`, and `ModalLayout` emits `button-closeModal`. Do not change any of these.
 
 **What the lint rule cannot see, and three findings that are not gaps**
 
 - A clickable table row. `BodyRow` gets its handler through `{...getRowClickProps()}`, which the rule cannot read.
-- `Dialog/index.tsx`: two wrappers carry `onClick` around an `IconButton` that already has the `-back` or `-close` id. `SelectInput/index.tsx`: the MUI `Autocomplete` is reported, although the id reaches the input through `renderInput`. When you touch those files, move the handler onto the tagged element or add a reasoned skip (below).
+- The MUI `Autocomplete` and `DateCalendar` are not checked at all. Each is used once, inside `SelectInput` and `DateRangePicker`, which already put the consumer's id on the input or on the surrounding paper. A new use of either needs the same care by hand.
+- `Dialog/index.tsx`: two wrappers carry `onClick` around an `IconButton` that already has the `-back` or `-close` id. `Dropdown/index.tsx`: the option `MenuItem` carries `onClick`, and the `option-…` id is on the `Typography` inside it. Do not add a second id at these three places: it would repeat one that is already there. When you touch those files, move the handler onto the tagged element or add a reasoned skip (below).
 
 **Enforcement**
 
@@ -73,8 +75,16 @@ The contract is in `README.md` → "Test IDs". A render of all 18 components it 
 - **Pull requests:** a "Test IDs" status and one comment, set by two steps in `.github/workflows/ci.yml`. The status goes red when a file the PR changed under `src` has an element with no id or an id in the wrong format, old code in that file included. The `build` job itself stays green.
 - **Where the rules live:** `eslint-plugin-fs-testid/`, a copy shared by all Flipspaces web repos. Do not edit it here. The options for this repo are in `eslint.config.js`. The folder is not part of the published package.
 
-To skip one element that a test can never need, name the rule and give a reason on the line above it. A blanket `eslint-disable` does not exempt a file, and every skip is listed for reviewers in the PR comment:
+To skip one element that a test can never need, name the rule and give a reason on the line above it. A blanket `eslint-disable` does not exempt a file, and every skip is listed for reviewers in the PR comment.
+
+Between JSX children, use a JSX comment:
 
 ```jsx
 {/* eslint-disable-next-line fs-testid/require-test-id -- wrapper only; the IconButton inside carries the id */}
+```
+
+Inside an expression, such as the element right after `{condition && (`, a JSX comment is a syntax error. Use a line comment there:
+
+```jsx
+// eslint-disable-next-line fs-testid/require-test-id -- wrapper only; the IconButton inside carries the id
 ```
