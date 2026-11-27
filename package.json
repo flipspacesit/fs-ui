@@ -24,6 +24,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint .",
+    "lint:testid": "node eslint-plugin-fs-testid/check.cjs --base origin/master --paths src",
     "preview": "vite preview",
     "prepublishOnly": "npm run build",
     "docs:dev": "cd docs && npm run dev",
