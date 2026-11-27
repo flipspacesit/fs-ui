@@ -276,10 +276,15 @@ Every input control accepts a `data-testid` prop and renders it as a `data-testi
 attribute — a stable hook for end-to-end tests and analytics.
 
 ```tsx
-<TextInput data-testid="vendor-name" label="Vendor name" />
-<SelectInput data-testid="vendor-status" options={statusOptions} value={status} />
-<NumberStepper data-testid="qty" value={qty} onChange={setQty} />
+<TextInput data-testid="text-field-vendorName" label="Vendor name" />
+<SelectInput data-testid="dropdown-vendorStatus" options={statusOptions} value={status} />
+<NumberStepper data-testid="input-quantity" value={qty} onChange={setQty} />
 ```
+
+The ids themselves follow the formats the Playwright suite's helpers expect
+(`text-field-<name>`, `dropdown-<name>`, `modal-<name>` and so on): the rules and
+the full table are in [`AGENTS.md`](AGENTS.md). `npm run lint:testid` checks every
+file your branch changed under `src`, and pull requests get a "Test IDs" status.
 
 A given `data-testid` lands on **exactly one** element, so `[data-testid="x"]` never
 matches twice. Controls with a single focusable input put it on that `<input>`
@@ -308,10 +313,10 @@ their **paper** — the modal surface, not the backdrop — and suffix the chrom
 they own.
 
 ```ts
-await page.fill('[data-testid="vendor-name"]', 'Saigon Interiors')
-await page.click('[data-testid="qty-increment"]')
-await page.setInputFiles('[data-testid="invoice-doc-input"]', 'invoice.pdf')
-await page.click('[data-testid="approve-invoice-close"]')
+await page.fill('[data-testid="text-field-vendorName"]', 'Saigon Interiors')
+await page.click('[data-testid="input-quantity-increment"]')
+await page.setInputFiles('[data-testid="container-upload-invoiceDoc-input"]', 'invoice.pdf')
+await page.click('[data-testid="modal-approveInvoice-close"]')
 ```
 
 Note that TypeScript does **not** type-check hyphenated JSX attributes, so a
