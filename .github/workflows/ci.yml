@@ -4,13 +4,26 @@ on:
   pull_request:
     branches: [main, master, develop]
 
+permissions:
+  contents: read
+  # The "Test IDs" comment on the pull request.
+  pull-requests: write
+  # The "Test IDs" result is a commit status of its own, so a missing test id
+  # never fails this job.
+  statuses: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
+        id: checkout
         uses: actions/checkout@v4
+        with:
+          # The test-id check compares the PR with its base branch. Depth 0
+          # fetches every branch, so origin/<base> is there.
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -19,6 +32,139 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      # ─── Test IDs ────────────────────────────────────────────────────
+      # Every interactive element in a file the PR touches under src needs a
+      # test id in one of the agreed formats (AGENTS.md → Test IDs). The result
+      # is the "Test IDs" commit status plus a sticky comment; these steps
+      # never fail the job. They run before Lint so that a lint error cannot
+      # hide the result. Promotion PRs are skipped.
+      # The check runs even when an earlier step failed (always()), but only
+      # when this run's own checkout succeeded: with no files there is nothing
+      # to judge, and the report step is then skipped too. After a failed
+      # install the check still runs and, if it cannot load ESLint, reports
+      # "could not run".
+      - name: Check test ids on changed files
+        id: testid
+        if: always() && steps.checkout.outcome == 'success' && github.head_ref != 'develop' && github.head_ref != 'staging' && github.head_ref != 'master'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set +e
+          rm -f testid-report.md testid-summary.json
+          node eslint-plugin-fs-testid/check.cjs \
+            --base "origin/$BASE_REF" --paths src \
+            --markdown testid-report.md --json testid-summary.json
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          [ -f testid-report.md ] && cat testid-report.md >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
+      - name: Report test ids on PR
+        if: always() && steps.testid.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const exitCode = '${{ steps.testid.outputs.exit_code }}';
+            const { owner, repo } = context.repo;
+            // Nothing to report on without a pull request, and nothing here
+            // may throw: this step must never be what turns this job red.
+            const pull = context.payload.pull_request;
+            if (!pull) {
+              core.warning('No pull request in the event; Test IDs not reported.');
+              return;
+            }
+            const headSha = pull.head.sha;
+
+            let summary = null;
+            try {
+              summary = JSON.parse(fs.readFileSync('testid-summary.json', 'utf8'));
+            } catch (error) {
+              summary = null;
+            }
+
+            let report = '';
+            try {
+              report = fs.readFileSync('testid-report.md', 'utf8').trim();
+            } catch (error) {
+              report = '';
+            }
+
+            // check.cjs decides the status, its wording and whether there is
+            // anything to show a reviewer; this script only delivers them.
+            // No summary means the check itself could not run.
+            const known = ['success', 'failure', 'error'];
+            let state = 'error';
+            let description = `Check could not run (exit ${exitCode || '?'}) — see the CI job log`;
+            let worthShowing = false;
+            if (summary && known.includes(summary.state)) {
+              state = summary.state;
+              description = String(summary.description).slice(0, 140);
+              worthShowing = Boolean(summary.comment);
+            }
+
+            // Status and comment are attempted separately, and neither may
+            // fail the job: a permissions problem must not turn this job red.
+            try {
+              await github.rest.repos.createCommitStatus({
+                owner,
+                repo,
+                sha: headSha,
+                state,
+                context: 'Test IDs',
+                description,
+                target_url: `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`,
+              });
+            } catch (error) {
+              core.warning(`Could not set the Test IDs status: ${error.message}`);
+            }
+
+            try {
+              // Every page: on a long PR the Test IDs comment may be past the
+              // first hundred, and missing it would post a second one.
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner,
+                repo,
+                issue_number: context.issue.number,
+                per_page: 100,
+              });
+              const existing = comments.find(comment =>
+                (comment.body || '').startsWith('## ❌ Test IDs') ||
+                (comment.body || '').startsWith('## ✅ Test IDs')
+              );
+
+              // A first comment is only posted when there is something to
+              // fix or to see (a finding, a skip, a file that was not
+              // checked); after that it is kept up to date, including to green.
+              // If the check could not run at all, an earlier comment must not
+              // be left standing as if its findings were still current.
+              let content = '';
+              if (report && (existing || worthShowing)) {
+                content = report;
+              } else if (!summary && existing) {
+                content = '## ❌ Test IDs — the check could not run\n\nThe check produced no result for this commit, so nothing is known about its test ids. See the CI job log.';
+              }
+              if (content) {
+                const body = `${content}\n\n---\n*Commit: ${headSha.substring(0, 7)}*`;
+                if (existing) {
+                  await github.rest.issues.updateComment({
+                    owner,
+                    repo,
+                    comment_id: existing.id,
+                    body,
+                  });
+                } else {
+                  await github.rest.issues.createComment({
+                    owner,
+                    repo,
+                    issue_number: context.issue.number,
+                    body,
+                  });
+                }
+              }
+            } catch (error) {
+              core.warning(`Could not post the Test IDs comment: ${error.message}`);
+            }
 
       - name: Lint
         run: npm run lint
